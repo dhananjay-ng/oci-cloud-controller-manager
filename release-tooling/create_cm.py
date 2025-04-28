@@ -40,35 +40,24 @@ subprocess.run(
 
 # Start 'sheepy cm' command and monitor JIRA issue extraction
 command = 'echo y | sheepy cm -d releases/cpo-release/app.json create --skip-target-check'
-process = subprocess.Popen(
-    command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-)
+result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
 issue_key = None
-while process.poll() is None:
-    stdout_output = process.stdout.readline()
-    stderr_output = process.stderr.readline()
 
-    if stdout_output:
-        sys.stdout.write(stdout_output)
-        match = re.search(r"CHANGE-\d+", stdout_output)
-        if match:
-            issue_key = match.group(0)
-
-    if stderr_output:
-        sys.stderr.write(stderr_output)
-
-process.stdout.close()
-process.stderr.close()
-process.wait()
+output = result.stdout.splitlines()
+for line in output:
+    print(line)
+    match = re.search(r"CHANGE-\d+", line)
+    if match:
+        issue_key = match.group(0)
 
 if issue_key:
     print(f"\nExtracted JIRA issue: {issue_key}")
 else:
     print("\nNo JIRA issue found in the output.")
 
-if process.returncode != 0:
-    print(f"Warning: 'sheepy cm' command failed with exit code {process.returncode}.")
+if result.returncode != 0:
+    print(f"Warning: 'sheepy cm' command failed with exit code {result.returncode}.")
 
 # Initialize and deploy infrastructure using sheepy
 subprocess.run(

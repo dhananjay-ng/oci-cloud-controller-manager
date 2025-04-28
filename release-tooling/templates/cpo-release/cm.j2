@@ -53,17 +53,17 @@
     h2. *Overview*
     h3. *Business Justification*
 
-    Images are needed to be pushed to the oke-native-steward tenancy to make a release of new Cloud Provider OCI images with Software upgrades. The {{ config2.property }} property which manage the cloud-provider-oci component for OKE clusters with kubernetes version {{config2.k8s_versions}} need to be updated with the latest software.
+    Images are needed to be pushed to the oke-native-steward tenancy and FROST tenancy to make a release of new Cloud Provider OCI (CPO) images with Software upgrades. The {{ config2.property }} property which manage the cloud-provider-oci component for OKE clusters with kubernetes version {{config2.k8s_versions}} need to be updated with the latest software. < Provide short description of key image changes >
 
     h2. Executive Summary:
 
     *What is the purpose of this Change ticket?*
 
-    {color:#00875a} To push latest Cloud provider oci images for Kubernetes {{config2.k8s_versions}} into oke-native-steward tenancy. The {{ config2.property }} property which manages the cloud-provider-oci component for OKE clusters with kubernetes versions {{config2.k8s_versions}} need to be updated with latest software. {color}
+    To push latest Cloud provider oci images for Kubernetes {color:#00875a}{{config2.k8s_versions}}{color} into oke-native-steward tenancy. The {color:#00875a}{{ config2.property }}{color} property which manages the cloud-provider-oci component for OKE clusters with kubernetes versions {color:#00875a}{{config2.k8s_versions}}{color} need to be updated with latest software. {color:#00875a}< Provide short description of key image changes >{color}
 
     *What does this Change request do (high level)?*
 
-    {color:#00875a} The Change will execute shepherd flock releases to upload container images to OCIR in Steward Tenancy and updates the {{ config2.property }} for all OKE clusters {{config2.k8s_versions}} with the latest software. {color}
+    The Change will execute shepherd flock releases to upload container images to OCIR in Steward Tenancy and updates the {color:#00875a}{{ config2.property }}{color} for all OKE clusters {color:#00875a}{{config2.k8s_versions}}{color} with the latest software.
 
     *Why is it a priority?*
 
@@ -85,47 +85,55 @@
     *Reviewers*
 
     h3. L1 Reviewers:
+    {color:#00875a}
     # {{ config2.l1_peer_reviewer }}
     # {{ config2.l1_manager_reviewer }}
-
+    {color}
     h3. L2 Reviewers:
+    {color:#00875a}
     # {{ config2.l2_peer_reviewer }}
     # {{ config2.l2_manager_reviewer }}
+    {color}
 
     h2. Change Specifics
 
     *What does this change do (detail)?*
 
-    This change pushes cloud-provider-oci images to oke-native-steward tenancy and updates the spectre property {{ config2.property }} through flock "oke-ccm-csi" with the latest cloud provider oci software.
+    This change pushes cloud-provider-oci images to oke-native-steward tenancy and updates the spectre property {color:#00875a}{{ config2.property }}{color} through flock "oke-ccm-csi" with the latest cloud provider oci software.
 
+    {color:#00875a}
     <  Edit this section. Sample below.
 
     This change is carrying multiple bug fixes and new features that are used by CCM. Major features include FSS support on OMK, supporting ReadWriteOnceWithFSType fsGroupPolicy for non-root user and error handling changes in some FSS workflows. >
+    {color}
 
-    Changelog: {{ config2.changelog }}
+    Changelog: {color:#00875a}{{ config2.changelog }}{color}
 
     *Bitbucket PR(s)*
     ||kubernetes version||Bitbucket PR||
-    |{{config2.k8s_versions}}|{color:#00875a} {{ config2.pr }} {color}|
+    |{color:#00875a} {{config2.k8s_versions}}| {{ config2.pr }} {color}|
 
     List of Images
 
+    {color:#00875a}
     {code:java}
     {{ config2.images_list() }}
     {code}
+    {color}
 
     h3. Spectre changes
     All changes to Spectre limits, properties or their values are listed below
-    {color:#008000} {{ config2.property }} {color}
+    {color:#008000} {{ config2.property }}
     {code:java}
         {
             {{ config2.mapping_changes() }}
         }
     {code}
+    {color}
 
     *Why is it needed (detail)? Why it is needed now (detail)?*
 
-    These images contain improvements for OKE Cloud Provider OCI running OKE k8s clusters.
+    These images contain improvements for OKE Cloud Provider OCI running OKE k8s clusters versions - {color:#00875a} {{config2.k8s_versions}} {color}
 
     *What will happen if we do not make this change (detail)?*
 
@@ -133,52 +141,58 @@
 
     *What's the time sensitivity of this change in terms of days? (what if the approval process takes 2-3 days, what can go wrong)?*
 
-    The images contain improvements that customers are blocked on, we would like to enable them to use these improvements.
+    The images contain improvements that customers are blocked on, we would like to enable them to use these improvements. {color:#00875a} < Provide brief description of time sensitivity based on key image changes > {color}
 
     h2. Leadership Team FAQs
 
     *Change Isolation:*
     Is the Change scoped appropriately (e.g. patching ONLY)?
-    {color:#00875a}It will only execute shepherd releases. It will push images and then changes property {{ config2.property }} {color}
+    It will only execute shepherd releases. It will push images and then changes property {color:#00875a} {{ config2.property }} {color}
 
     If bundling, is it safe and do we have justification?
-    {color:#00875a}It is not bundled with any other change.{color}
+    It is not bundled with any other change.
 
     *Deployment Safety:*
     Are we deploying from least to most impactful regions?
-    {color:#00875a}Yes{color}
+    Yes
 
     Have we done this Change before safely or is this a one-off?
-    {color:#00875a}Yes, we have executed CCM/CSI image push and mapping changes in the past safely. {color}
-    {color:#00875a}Ex: {color} [CHANGE-3751604|https://jira-sd.mc1.oracleiaas.com/browse/CHANGE-3751604]
+    Yes, we have executed CCM/CSI image push and mapping changes in the past safely.
+    Ex: {color:#00875a} [CHANGE-3387081|https://jira-sd.mc1.oracleiaas.com/browse/CHANGE-3387081] {color}
 
     *Tooling:*
     Are we using standard tooling for deployments or custom?
-    {color:#00875a}Yes, we are using shepherd releases.{color}
+    Yes, we are using shepherd releases.
 
     Will our automation catch failures before proceeding (e.g. check host is vacant before draining)?
-    {color:#00875a}Yes, MQL and Grafana link provided in "Detection" and "Validation" sections.{color}
+    Yes, MQL and Grafana link provided in "Detection" and "Validation" sections.
 
     If custom, are we following the "2-person" / "Change buddy" rule?
     N/A
 
     *Rollback:*Do we have standard tooling for rollback and can we do so quickly?
-    {color:#00875a}Yes{color}
+    Yes
     h2. Blast Radius
 
     *What is the blast radius of this change: Global/Regional/AD/FD/Single-box?*
-    {color:#00875a}Regional{color}
+    Regional
 
     *Impact*
 
     *What are the worst-case scenarios if things go wrong during this change?*
 
-    {color:#00875a}If the image push fails, it will not impact anything. For the mapping change, worst case would be that OKE clusters might take a long time to come up. It can happen because of reconciliation that’s triggered when Cloud provider OCI container running on the KMIs need to be replaced. This can be caused by image attestation failures which may occur if the image attestation service is unable to attest the new image or if there is a latency in image attestation because of high load on image attestation service. If something goes wrong with the cloud-provider-oci image software itself, then customers might be unable to perform CRUD operations on their Load balancers, Persistent Volumes. Native Pod networking controller will also not work correctly.{color}
+    *Control Plane*
 
-    Note:{color:#00875a}Each OKE cluster is single tenanted and comprised of 3 VMs (aka KMIs). If one of the KMIs received an update to use a non-existent image then that single KMI would not function and would be taken out of the call path of the customer. We would at worst lose one HA in this scenario.{color}
+    If the image push fails and image update release is executed, it will lead to CPO containers not coming up on KMIs. For the mapping change, worst case would be that OKE clusters might take a long time to come up. It can happen because of reconciliation that’s triggered when Cloud provider OCI container running on the KMIs need to be replaced. This can be caused by image attestation failures which may occur if the image attestation service is unable to attest the new image or if there is a latency in image attestation because of high load on image attestation service. If something goes wrong with the cloud-provider-oci image software itself, then customers might be unable to perform CRUD operations on their Load balancers, Persistent Volumes. Native Pod networking controller will also not work correctly.
+
+    Note: Each OKE cluster is single tenanted and comprised of 3 VMs (aka KMIs). If one of the KMIs received an update to use a non-existent image then that single KMI would not function and would be taken out of the call path of the customer. We would at worst lose one HA in this scenario.
+
+    *Data Plane*
+
+    If the image push fails and image update release is executed, it will lead to csi-oci-node container not come up on OKE worker node. For the mapping change, worst case would be that csi-oci-node pod fails to start on one of the worker node in customers OKE cluster. This can be caused by image attestation failures which may occur if the image attestation service is unable to attest the new image or if there is a latency in image attestation because of high load on image attestation service. If something goes wrong with the csi-oci-node image software itself, then customers might be unable to perform Mount operations for their Persistent Volumes.Note:In csi-oci-node daemonset we follow rolling update strategy where maxUnavailable is set to 1. The first worker node which receives an update to a non-existent image then that csi-oci-node container on single worker node would not function and won't be able to perform csi mount operations.
 
     *Which services will be impacted by this change when things go wrong, and how?*
-    {color:#00875a}Any services using OKE for provisioning PVCs/LB's will be impacted if things go wrong after the release. In the worst case scenario LB/PVC operations will be stuck in pending state and CCM container running on KMI's will start crashing. Initialising worker nodes which use native pod networking will also not work{color}
+    Any services using OKE for provisioning PVCs/LB's will be impacted if things go wrong after the release. In the worst case scenario LB/PVC operations will be stuck in pending state and CCM container running on KMI's will start crashing. Initialising worker nodes which use native pod networking will also not work.
 
     *Prevention*
 
@@ -189,14 +203,15 @@
     ** Ensure no change in behaviour of existing features including Block Volumes & Load Balancers.
     ** Ensuring no KMI reconcile failures and no workflows in stuck state.
     * End to End testing done in pre-prod test environments for kubernetes versions impacted by this CM.
-    * To avoid failures from Image not being present, has been executed to push all required images.
+    * To avoid failures from Image not being present, automated image validation is implemented in oke-ccm-csi flock.
 
     *Detection*
 
     *How will you know if there are failures and how quickly?*
     * Check if any Canary failures -[Canary Grafana|https://grafana.oci.oraclecorp.com/d/420420/oke-canary-metrics-data-plane-canary?orgId=1&refresh=5s&var-realm=oc1&var-region=us-ashburn-1&var-fleet=okecanaryla.data-plane-oke-canary-cb-prod-v2]
     ** There should be no failures in cluster creates in canary.
-    ** Dataplane Canary includes creation/deletion/attach/detach/mount/unmount of volumes via PVC, there should not be any failures in dataplane canary after the release. Canary runs are triggered at a frequency of 15-30 minutes depending on when was the last successful run.
+    ** Dataplane Canary includes creation/deletion/attach/detach/mount/unmount of volumes via PVC. Dataplane Canary also includes LB operations including create/update/delete.
+    ** There should not be any failures in dataplane canary after the release. Canary runs are triggered at a frequency of 15-30 minutes depending on when was the last successful run. Keep a lookout for DP canary alarms after executing the infra release in a region. ex: DP Canary - PVC Pod Creation test failure.
     * When multiple clusters have kube-apiserver in not ready state. Here is the link to metric -[kube-apiserver not ready metric|https://devops.oci.oraclecorp.com/t/t-muto].
 
     All the steps for finding failures and mitigation are described in detail in the "Validation" tab.
@@ -209,22 +224,22 @@
 
     Unit test & integration tests created -
 
-    {color:#00875a}Yes the code changes mentioned above include unit tests{color}
+    {color:#00875a} < Yes/No - Provide Justification > {color}
 
     End-to-End integration tests in R1 -
-    {color:#00875a}N/a, We do not have an R1. Instead the E2Es are run in dev and integ0.{color}
+    N/a, We do not have an R1. Instead the E2Es are run in dev and integ0.
 
     Tested in pre-prod test (if applicable) -
     CCM e2e has been run on these images and captured in this ticket : {color:#00875a} {{ config2.e2e_ticket }} {color}
 
     Has the rollback plan been tested?
-    Yes
+    {color:#00875a}< Yes/No - Provide Justification >{color}
 
     Is your runbook updated/created?
-    Yes
+    {color:#00875a}< Yes/No/Not Applicable — Provide justification >{color}
 
     Have you tested any new alarms created/updated?
-    No new alarms are required for this change. Existing alarms are enough.
+    {color:#00875a} < Yes/No/Not Applicable — If NA -> No new alarms are required for this change. Existing alarms are enough.> {color}
     h2. Execution Plan
 
     *What type of execution you plan to use on this CM:*
@@ -240,9 +255,6 @@
     - "oke"
     - "sheepy"
     - "stencil"
-    - "cks-crb-ft-3061236"
-    - "cks-crb-ft-template"
-    - "SCA_Team_Parent"
 {% endblock LABELS %}
 
 #
@@ -319,16 +331,16 @@
     ||Name||Value||
     |Project name|oke|
     |Flock|oke-ccm-csi|
-    |Release name|*{{ config2.app_release_name }}*|
+    |Release name|{color:#00875a} *{{ config2.app_release_name }}* {color}|
     |Release type|Application|
-    |Flock Config|{{ config2.app_flock_config }}|
+    |Flock Config|{color:#00875a} {{ config2.app_flock_config }} {color}|
 
     ||Name||Value||
     |Project name|oke|
     |Flock|images-dataplane|
-    |Release name|*{{ config2.infra_release_name }}*|
+    |Release name|{color:#00875a} *{{ config2.infra_release_name }}* {color}|
     |Release type|Infrastructure|
-    |Flock Config|{{ config2.infra_flock_config }}|
+    |Flock Config|{color:#00875a} {{ config2.infra_flock_config }} {color}|
 
 
     h2. Release procedure
@@ -336,41 +348,77 @@
     ||Step||Process||
     |1|Announce the change in oke-change tagging @oke_oncall|
     |2|Please go to your devops portal, search for the "oke" project under shepherd and use the *oke-ccm-csi* flock|
-    |3|Find the release name - *{{ config2.app_release_name }}*|
+    |3|Find the release name - {color:#00875a} *{{ config2.app_release_name }}* {color}|
     |4|Please wait for the release to finish planning|
     |5|This is an application release, please make sure the following image version appear in the plan for the selected region<List of images in below table>|
     |6|Click approve button on the top right and enter this CM number and click Approve|
     |7|Wait for the release to succeed/fail
-    If release succeeds, continue post-release validation
+    If app release succeeds, continue to infrastrucure release
     If release fails, go to rollback step.|
 
     *List of Images*
 
+    {color:#00875a}
+    < Mention image tags to pushed with the change below >
     {code:java}
     {{ config2.images_list() }}
     {code}
+    {color}
+
+    h3. Release diff:
+
+    prd.realm.region.cell0 : {color:#00875a} < Add number of operations against each row below > {color}
+
+    * Additions:
+    * Updations:
+    * Deletions:
+    * Unchanged:
+
+    {color:#00875a} < Screenshot for sample App Release > {color}
 
     h3. (i)oke-ccm-csi[Infrastructure]release
 
-    Once the respective application release completed successfully to push the images
-
     h4. Execution of infrastructure releases
     |1|Please go to your devops portal, search for the "oke" project under shepherd and use the*oke-ccm-csi*flock|
-    |2|Find the release name-*BetaHandmade*|
+    |2|Find the release name - {color:#00875a} *{{ config.infra_release_name }}* {color}|
     |3|Please wait for the release to finish planning|
+    |4|Before starting the release, please note down the original values for the region using the below steps (Useful if rollback is needed)
+    * Please navigate to your DevOps portal
+    * Please click on Menu(top-left corner) -> Under "Service Support", please choose "Limits Admin UI"
+    * Please click on "Properties", choose the desired realm. Please choose the group as "clusters".
+    * Please search for property and open it. (ccm-image-version-mapping/csi-image-version-mapping)
+    * Please search for the region, then click on the "Effective value" column next to it to check the value and copy the value.
     |4|This is an Infra release, please make sure the diff appears in the plan (added below in green) for the selected region ccm-image-version-mapping,csi-image-version-mapping|
     |5|Click approve button on the top right and enter this CM number and click Approve|
     |6|Wait for the release to succeed/fail
     * If release succeeds, continue post-release validation
     * If release fails, go to rollback step.|
     |7.|Click approve on the top right and enter this CM number and click Approve|
+    |8.|If the release fails, navigate to the ODO deployment url mentioned in the shepherd error message. View the logs under 'starting new' in Node deployments.
+    <img src="validator.png" alt="validation failure">
+    If the logs point out that an image from the list of images from this CM is missing, retry the image push (application) release. The list of images is mentioned under application release procedure.
+    If some image other than the list of images mentioned in this CM is missing, reach out to @oke_csi. If the release gets applied in such case and there are failures in alarms/canaries mentioned in validation via monitoring section, proceed to rollback.|
 
-    {color:#008000} {{ config2.property }} {color}
+    prd.realm.region.cell0: {color:#00875a}< Add number of operations against each row below>{color}
+    * Additions:
+    * Updations:
+    * Deletions:
+    * Unchanged:
+    spectre.values.realm.region: {color:#00875a}< Add number of operations against each row below>{color}
+    * Additions:
+    * Updations:
+    * Deletions:
+    * Unchanged:
+
+    {color:#00875a}< Screenshot for sample infra release diff >{color}
+
+    {color:#008000} {{ config2.property }}
     {code:java}
     {
     {{ config2.mapping_changes() }}
     }
     {code}
+    {color}
 
     NOTE: After each region executed, please go to the validation section, perform the validation actions and capture them in the comments of the CM.
 
@@ -386,7 +434,7 @@
 
     The release phases within a realm or Group has been decided based on [CKS+CRB+Ticket+Hygiene+Guidelines|https://confluence.oci.oraclecorp.com/display/DS/CKS+CRB+Ticket+Hygiene+Guidelines].
 
-    *Reminder: Please ensure application releases are executed and validated before applying infrastructure releases."
+    {color:#FF0000}*Reminder: Please ensure application releases (image-push) are executed and validated before applying infrastructure releases (mapping-update).*{color}
 
     {{ release_link_table() }}
 
@@ -398,25 +446,26 @@
 {% block TEST_RESULTS %}
     h3. Flock rollout tests
     ||Realm||Flock||Environment||Region/ Phase||Image push||Mapping update||Mapping update rollback||
-    |OC1|oke-ccm-csi|Integ|us-phoenix-1|[{{ config2.app_release_name }}| {{ config2.app_rollforward_test_link }}]|[{{ config2.infra_release_name }}| {{ config2.infra_rollforward_test_link }}]|[{{ config2.infra_rollback_release_name }}| {{ config2.infra_rollback_test_link }}]|
+    |OC1|oke-ccm-csi|Integ|us-phoenix-1|{color:#00875a}[{{ config2.app_release_name }}| {{ config2.app_rollforward_test_link }}]|[{{ config2.infra_release_name }}| {{ config2.infra_rollforward_test_link }}]|[{{ config2.infra_rollback_release_name }}| {{ config2.infra_rollback_test_link }}]{color}|
     h4. spectre.values.integ.oc1.us-phoenix-1 infra release to integ
 
-    [{{ config2.infra_rollforward_test_link }}]
+    {color:#00875a}< Add integ mapping update release link here > - [{{ config2.infra_rollforward_test_link }}]{color}
 
-    <insert screenshot of successful shepherd release>
+    {color:#00875a}< insert screenshot of successful shepherd release>{color}
     h3. Rollback Testing
     h4. spectre.values.integ.oc1.us-phoenix-1 infra release to integ
+    {color:#00875a}
+    < Add integ mapping rollback release link > - [{{ config2.infra_rollback_test_link }}]
 
-    [{{ config2.infra_rollback_test_link }}]
+    < insert screenshot of successful shepherd release >
+    {color}
 
-    <insert screenshot of successful shepherd release>
-
-
-    E2E testing for this feature: {{ config2.e2e_ticket }}
+    E2E testing for this feature: {color:#00875a}{{ config2.e2e_ticket }}{color}
+    Post Upgrade testing for this feature: {color:#00875a}{{ config2.e2e_ticket }}{color}
 
     Canary Validation:
 
-    <insert screenshots from canary runs in integ>
+    {color:#00875a}< insert screenshots from canary runs in integ >{color}
 
 {%- endblock TEST_RESULTS %}
 
@@ -428,19 +477,26 @@
     h3. Spectre Validation of limits property update
     ||Step||Process||
     |1.|For each type of release for each of the flocks, the flock release must reach "Succeeded" phase|
-    |2.|Open spectre to check the property or limit you intended to change is done. Here is the spectre instruction:[https://confluence.oci.oraclecorp.com/display/DEVCENTRALArchive/Connecting+to+the+SPECTRE+Browser+Client]|
-    |3.|Click on Menu(top-left corner) -> Under "Properties Management", choose Templates Editor|
-    |4.|Choose the "group" as "Clusters" and choose the desired region and click on search|
-    |5.|Please find the following properties and verify values with version {{ config2.k8s_versions }} and mapping {{ config2.property }}|
-    |6.|Please validate that the mappings are matching to what is shown below|
-    |7.|Please repeat the Post-release validation for all the regions and realms|
+    |2.|Open devops portal for the realm.|
+    |3.|Click on Menu(top-left corner) -> Under "Service Support", choose Limits Admin UI -> "Properties".|
+    |4.|Select the appropriate region. Enter the group name as "clusters".|
+    |5.|Search for "*ccm-image-version-mapping*" in property name search box and click on the result.|
+    |6.|Under "Effective Value" column, click on the value corresponding to the region. Then click on "View Cell Value". Copy this cell value in case rollback is required.|
+    |7.|Please validate that the mappings are matching to what is shown below|
+    |8.|Follow steps 5, 6, 7 for "csi-image-version-mappings" property|
+    |9.|Please repeat the Post-release validation for all the regions and realms|
 
-    {color:#008000} {{ config2.property }} {color}
+    {color:#008000} {{ config2.property }}
     {code:java}
     {
     {{ config2.mapping_changes() }}
     }
     {code}
+    {color}
+
+    h3. Change Specific Validation
+
+    {color:#008000}Please add steps here to validate the changes specific to this CM in one of the first regions deployed to (OC16/OC17/QRO).{color}
 
     h3. +Validation via Alarms+
 
@@ -456,16 +512,17 @@
 
     For each of the dashboard {*}change the realm and region to current one being executed{*}, after the deployment is complete and successful in shepherd as applicable.
     ||Order||Grafana Dashboard||What to monitor ?||
-    |1|[OKE Data Plane Canary|https://grafana.oci.oraclecorp.com/d/420420/oke-canary-metrics-data-plane-canary]
-    [OKE Control Plane Canary|https://grafana.oci.oraclecorp.com/d/OpQiFB6Zz/oke-cluster-create-delete-canary?]| * Validate that canary does not fail in the grafana, or canary alarms do not fire. * Refer screenshots in the bottom of this section if needed.|
-    |2|[Cloud Provider Oci Monitoring|https://grafana.oci.oraclecorp.com/d/eaDdAjE7k/cpo-monitoring-calls-made-via-kmi?orgId=1&refresh=30m]| * This dashboard indicates the health of the CCM container running on the KMIs. Make sure that there is no steady increase in the restart count of CCM containers|
-    |3|[CSI Block Volume Regional Monitor Grafana|https://grafana.oci.oraclecorp.com/d/RoO1I0w7k/cpo-monitoring-volumes?orgId=1&from=now-12h&to=now-1m&var-realm=oc1&var-granularity=30m&var-MQLRegion=us-ashburn-1&var-fleet=prod-oke-clusters-IAD-dataplane&var-volume_ocid=&refresh=15m]
+    |1|[MP Workflows in flight|https://grafana.oci.oraclecorp.com/d/oG0GFvpGk/oke-management-plane-worker-operations?orgId=1&viewPanel=411&from=1742774400000&to=1743033599000&var-realm=oc25&var-region=ap-dcc-osaka-1&var-granularity=5m&var-project=kubernetes&var-hostmetrics_project=hostmetrics&var-hostmetrics_fleet=oke-prod.oke-mp-worker-prod&var-worker_fleet=oke-prod.oke-wfworker-cell0&var-hostmetrics_hosts=All&var-ad=All&var-envSetup=prod-cell0&var-wf_tenant_prefix=oke-mp-cell0&var-wf_cp_tenant_prefix=oke-cp-prod&var-upgrade_application_name=oke-release-kmi-integ&var-hostmetrics_cell=cell0&var-tenancy_name=oke-prod.&var-odo_updater_metrics_prefix=oke-prod.oke-mp-worker-prd&var-odo_app_metrics_prefix=ociokeinteg.oke-integ-mp-worker-integ]| *Monitor spike in this grafana. If the number of workflows in flight don't start dipping 15-20 minutes after the spike, investigate for failures.
+    |2|[OKE Data Plane Canary|https://grafana.oci.oraclecorp.com/d/420420/oke-canary-metrics-data-plane-canary?orgId=1&refresh=1m&from=now-1h&to=now&var-realm=oc1&var-region=ap-mumbai-1&var-fleet=okecanaryla.data-plane-oke-canary-prod-v2pub&var-fleet=okecanaryla.data-plane-oke-canary-prod-v2pub-latest]
+    [OKE Control Plane Canary|https://grafana.oci.oraclecorp.com/d/OpQiFB6Zz/oke-cluster-create-delete-canary?orgId=1&refresh=1m&from=now-3h&to=now&var-realm=oc1&var-region=us-ashburn-1&var-fleet=okecanaryla.control-plane-oke-canary-prod-v2pub]|*Validate that canary does not fail in the grafana, or canary alarms do not fire.
+    * Refer screenshots in the bottom of this section if needed.|
+    |3|[Cloud Provider Oci Monitoring|https://grafana.oci.oraclecorp.com/d/eaDdAjE7k/cpo-monitoring-calls-made-via-kmi?panelId=28&fullscreen&orgId=1&refresh=1m&from=now-3h&to=now-1m]| * This dashboard indicates the health of the CCM container running on the KMIs. Make sure that there is no steady increase in the restart count of CCM containers|
+    |4|[CSI Block Volume Regional Monitor Grafana|https://grafana.oci.oraclecorp.com/d/RoO1I0w7k/cpo-monitoring-volumes?orgId=1&from=now-12h&to=now-1m&var-realm=oc1&var-granularity=30m&var-MQLRegion=us-ashburn-1&var-fleet=prod-oke-clusters-IAD-dataplane&var-volume_ocid=&refresh=15m]
     [CSI FSS Regional Monitor|https://grafana.oci.oraclecorp.com/d/u6e8QL9Vz/cpo-monitoring-file-storage-service?orgId=1&refresh=15m&from=now-24h&to=now-1m&var-realm=oc1&var-granularity=10m&var-MQLRegion=us-ashburn-1&var-fleet=prod-oke-clusters-IAD-dataplane&var-volume_ocid=&var-mt_ocid=&var-fs_ocid=&var-exp_ocid=]|*Monitor Spike in 5XX errors for CSI Block Volume and FSS operations in grafana panels if there is significant spike please proceed to rollback.|
-    |4|[MP Workflows|https://grafana.oci.oraclecorp.com/d/oG0GFvpGk/oke-management-plane-worker-operations?viewPanel=501&orgId=1&from=now-7d&to=now]| * Monitor the alarm queue for the MP reconcile/workflow latency alarms and that the alarm does not fire.|
-    |5|[SK8s Loadbalancer Canary|https://devops.oci.oraclecorp.com/canaries/ap-mumbai-1/ske/ske-canary-production]| * Capture 3 consecutive canary success runs & add the screenshot to the comments in the CM.|
-    |6|[OMK Canary grafana|https://grafana.oci.oraclecorp.com/d/DxkloHWIz/omk-canary?orgId=1&refresh=1m&var-realm=oc16&var-region=All&var-fleet=omk-canary&var-Environment=production&var-project=omk-%7B%7B$Environment%7D%7D&var-CanaryServiceAD=us-westjordan-1-ad-1&from=now-2d&to=now]
+    |5|[MP Reconcile Cluster State Latency|https://grafana.oci.oraclecorp.com/d/oG0GFvpGk/oke-management-plane-worker-operations?panelId=411&fullscreen&orgId=1&refresh=1m&var-realm=oc1&var-region=us-ashburn-1&var-granularity=5m&var-project=kubernetes&var-hostmetrics_project=hostmetrics&var-hostmetrics_fleet=oke-mp-worker-prod&var-worker_fleet=oke-wfworker-cell0&var-hostmetrics_hosts=All&var-ad=All&var-envSetup=prod-cell0&var-wf_tenant_prefix=oke-mp-cell0&var-wf_cp_tenant_prefix=oke-cp-prod&var-upgrade_application_name=oke-release-kmi-integ&var-hostmetrics_cell=cell0&var-tenancy_name=&var-odo_updater_metrics_prefix=ociokeinteg.oke-mp-worker-integ&var-odo_app_metrics_prefix=ociokeinteg.oke-integ-mp-worker-integ]| * Monitor the alarm queue for the MP reconcile cluster state latency alarms and that the alarm does not fire.|
+    |6|[SK8s Loadbalancer Canary|https://devops.oci.oraclecorp.com/canaries/ap-mumbai-1/ske/ske-canary-production]| * Capture 3 consecutive canary success runs & add the screenshot to the comments in the CM.|
+    |7|[OMK Canary grafana|https://grafana.oci.oraclecorp.com/d/DxkloHWIz/omk-canary?orgId=1&refresh=1m&var-realm=oc16&var-region=All&var-fleet=omk-canary&var-Environment=production&var-project=omk-%7B%7B$Environment%7D%7D&var-CanaryServiceAD=us-westjordan-1-ad-1&from=now-2d&to=now]
     [OMK Canary devops|https://devops.oci.oraclecorp.com/canaries/mx-queretaro-1/omk/omk-dp-canary-production]|Capture 2 consecutive canary success runs & add the screenshot to the comments in the CM.|
-    |7|[CPO Version tracker|https://grafana.oci.oraclecorp.com/d/tUVGlAISz/oke-cpo-version-tracker]|Watch for the CPO versions to get updated in the region|
     h4. OC5 related links for ONSR validation
     * Grafana Dashboard name : OKE - Canary Metrics - T2-MQL
     * [https://grafana.us-tacoma-1.oci.oraclerealm5.com/d/ZuYzBEZMk/oke-canary-metrics-t2-mql?orgId=1&refresh=1m&var-realm=oc5&var-region=us-tacoma-1&var-fleet=okecanaryla.control-plane-oke-canary-prod-v1h&var-fleet=okecanaryla.control-plane-oke-canary-prod-v2pub&var-fleet=okecanaryla.data-plane-oke-canary-prod-v1h&var-fleet=okecanaryla.data-plane-oke-canary-prod-v1h-latest&var-fleet=okecanaryla.data-plane-oke-canary-prod-v2pub&var-fleet=okecanaryla.data-plane-oke-canary-prod-v2pub-latest&from=now-6h&to=now]
@@ -479,30 +536,29 @@
 # Rollback plan
 #
 {% block ROLLBACK_PLAN %}
-    h4. Rollback CCM/CSI image push release
-    * Since this flock pushes new images there is no need to do rollback, the use of the images which are already present is not affected.
-    * If the images need to be absolutely deleted, login to OCIR in the Native Steward Tenancy by following this [Runbook|https://devops.oci.oraclecorp.com/runbooks/APS/artifact-push-service-aps/oke-native-steward-tenancies]
-    * Search for the image which needs to be deleted and click delete
+    h3. In case of release failure
+    * Please ensure that the app (image-push) release execution was finished before infrastructure (mapping-update) release execution.
+    * If shepherd release has failed, capture the shepherd error in CM ticket and contact the change reporter.
+    * Proceed to rollback steps mentioned below.
 
-    h4. Rollback CCM & CSI image mapping release - Cloning the precompiled releases
+    h3. Rollback CCM & CSI image mapping release - Cloning the precompiled releases
 
     Please use this table and the instructions as a reference to the precompiled rollback releases
     ||Step||Process||
     |1.|Please go to your devops portal, search for the "oke" project under shepherd and use the*oke-ccm-csi* flock|
-    |2.|find the release name - *{{ config2.infra_rollback_release_name }}*|
-    |3.|Clone the release by clicking Actions -> clone release -> choose target as spectre.values.prd.<realm>.<region>
+    |2.|Click on "State History"
+    <img src="state-history.png" alt="state history">|
+    |3.|Select the appropriate execution target from the "Execution Targets" dropdown on the left. choose target as spectre.values.prd.<realm>.<region>
+    Ex: spectre.values.prd.oc1.us-phoenix-1|
+    |4.|From the list of states, select the state of Type: Apply (Final) from just before the latest roll-forward release. Note that if the roll-forward release for this CM was applied successfully, we want to select the second Apply (Final) type state from the list of states. The release ID should be different from the roll-forward release.
+    <img src="rollback-state-history-1.png" alt="rollback state history">|
+    |5.|Click on the Release ID link from the state info panel|
+    |6.|Click on "Actions" -> "Clone release". Choose target as spectre.values.prd.<realm>.<region>. Ex: Ex: spectre.values.prd.oc1.us-phoenix-1
     Please wait for the release to finish planning|
-    |4.|This is an infra release|
-    |5.|Click approve button on the top right and enter this CM number and click Approve|
-    |6.|Wait for the release to succeed/fail
+    |7.|Wait for the release to succeed/fail
     * If release succeeds, continue post-release validation
     * If release fails, go to rollback step.|
-    |7.|Click approve on the top right and enter this CM number and click Approve|
-    ||Name||Value||
-    |Project name|oke|
-    |Flock|oke-ccm-csi|
-    |Release name|{{ config2.infra_rollback_release_name }}|
-    |Flock Config/Commit|[{{ config2.infra_rollback_config }}|{{ config2.infra_rollback_config_link }}] / [{{ config2.infra_rollback_commit }}|{{ config2.infra_rollback_commit_link }}]|
+    |8.|Click approve on the top right and enter this CM number and click Approve|
 
     h3. Mapping update rollback validation
     ||Step||Process||
@@ -510,15 +566,13 @@
     |2.|Open Limits Admin UI to check the property or limit you intended to change is done. Limits Admin UI is accessible from the devops portal[https://devops.oci.oraclecorp.com/limits-admin-ui/property-definitions]. Please realm specific endpoint for accessing the portal|
     |3.|Select the correct realm, group name is "{_}clusters{_}". Enter the individual property names|
     |4.|Choose the "group" as "Clusters" and choose the desired region and click on search|
-    |5.|Please find the following properties and verify values with version {{ config2.k8s_versions }} and mapping {{ config2.property }}|
-    |6.|Please validate that the mappings are matching to what is shown below|
+    |5.|Please find the following properties and verify values with version {color:#00875a}{{ config2.k8s_versions }}{color} and mapping ccm-image-version-mapping, csi-image-version-mapping|
+    |6.|Please validate that the mappings are matching to what was present in red in the rollforward infrastructure release (mapping-update) executed in the region.|
     |7.|Please repeat the Post-release validation for all the regions and realms|
 
-    {color:#008000} {{ config2.property }} {color}
-    {code:java}
-    {
-    {{ config2.rollback_mapping() }}
-    }
-    {code}
+    h3. Rollback CCM/CSI image push release
+    * Since this flock pushes new images there is no need to do rollback, the use of the images which are already present is not affected.
+    * If the images need to be absolutely deleted, login to OCIR in the Native Steward Tenancy by following this [Runbook|https://devops.oci.oraclecorp.com/runbooks/APS/artifact-push-service-aps/oke-native-steward-tenancies]
+    * Search for the image which needs to be deleted and click delete
 
 {%- endblock ROLLBACK_PLAN %}
