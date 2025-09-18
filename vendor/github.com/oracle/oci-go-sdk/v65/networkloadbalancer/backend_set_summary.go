@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
@@ -17,7 +17,7 @@ import (
 
 // BackendSetSummary The configuration of a network load balancer backend set.
 // For more information about backend set configuration, see
-// Backend Sets for Network Load Balancers (https://docs.oracle.com/iaas/Content/NetworkLoadBalancer/BackendSets/backend-set-management.htm).
+// Managing Backend Sets (https://docs.cloud.oracle.com/Content/Balance/Tasks/managingbackendsets.htm).
 // **Caution:** Oracle recommends that you avoid using any confidential information when you supply string values using the API.
 type BackendSetSummary struct {
 
@@ -47,14 +47,6 @@ type BackendSetSummary struct {
 
 	// If enabled existing connections will be forwarded to an alternative healthy backend as soon as current backend becomes unhealthy.
 	IsInstantFailoverEnabled *bool `mandatory:"false" json:"isInstantFailoverEnabled"`
-
-	// This only applies when using instant failover. If enabled, the network load balancer will send TCP RST to clients when a backend becomes unhealthy and the traffic is moved to a healthy backend.
-	// If disabled, the network load balancer will not send TCP RST before moving traffic to a healthy backend.  By default, TCP RST is enabled.
-	IsInstantFailoverTcpResetEnabled *bool `mandatory:"false" json:"isInstantFailoverTcpResetEnabled"`
-
-	// If enabled, NLB supports active-standby backends, with the initial standby being the configured backup backend. The standby backend becomes active and takes over serving traffic when the current active backend becomes unhealthy.
-	// The new active backend continues to serve the traffic while healthy even when the old active backend becomes healthy.
-	AreOperationallyActiveBackendsPreferred *bool `mandatory:"false" json:"areOperationallyActiveBackendsPreferred"`
 
 	// IP version associated with the backend set.
 	IpVersion IpVersionEnum `mandatory:"false" json:"ipVersion,omitempty"`

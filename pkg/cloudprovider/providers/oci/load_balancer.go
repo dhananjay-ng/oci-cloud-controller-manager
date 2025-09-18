@@ -731,7 +731,28 @@ func (cp *CloudProvider) EnsureLoadBalancer(ctx context.Context, clusterName str
 		secretListenerString := service.Annotations[ServiceAnnotationLoadBalancerTLSSecret]
 		secretBackendSetString := service.Annotations[ServiceAnnotationLoadBalancerTLSBackendSetSecret]
 		sslConfig = NewSSLConfig(secretListenerString, secretBackendSetString, service, ports, cp)
+
+		// SSL Config update with listeners port sslConfigurationDetails as certificate OCID
+		if _, ok := service.Annotations[ServiceAnnotationLoadBalancerCertificateOcid]; ok {
+			ports, err := getSSLEnabledPorts(service)
+			if err != nil {
+				logger.With(zap.Error(err)).Error("Failed to parse SSL port.")
+				// handle error
+				return nil, err
+			}
+			ocid, _ := getTlsCertificateOCID(service)
+			listenerTlsConfigMap := make(map[int]string)
+			for port := range ports {
+				// CertificateIds are supported in oci sdk version v65
+				listenerTlsConfigMap[port] = ocid
+			}
+			// Update Listener TLS in SSL Config
+			sslBuilder := &SSLConfigBuilder{sslConfig: sslConfig}
+			sslConfig = sslBuilder.WithListenerTls(listenerTlsConfigMap).Build()
+		}
+
 	}
+
 	lbSubnetIds, err := lbProvider.getLoadBalancerSubnets(ctx, service)
 	if err != nil {
 		logger.With(zap.Error(err)).Error("Failed to get Load balancer Subnets.")

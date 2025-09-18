@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
@@ -6,11 +6,11 @@
 //
 // Use the Core Services API to manage resources such as virtual cloud networks (VCNs),
 // compute instances, and block storage volumes. For more information, see the console
-// documentation for the Networking (https://docs.oracle.com/iaas/Content/Network/Concepts/overview.htm),
-// Compute (https://docs.oracle.com/iaas/Content/Compute/Concepts/computeoverview.htm), and
-// Block Volume (https://docs.oracle.com/iaas/Content/Block/Concepts/overview.htm) services.
+// documentation for the Networking (https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/overview.htm),
+// Compute (https://docs.cloud.oracle.com/iaas/Content/Compute/Concepts/computeoverview.htm), and
+// Block Volume (https://docs.cloud.oracle.com/iaas/Content/Block/Concepts/overview.htm) services.
 // The required permissions are documented in the
-// Details for the Core Services (https://docs.oracle.com/iaas/Content/Identity/Reference/corepolicyreference.htm) article.
+// Details for the Core Services (https://docs.cloud.oracle.com/iaas/Content/Identity/Reference/corepolicyreference.htm) article.
 //
 
 package core
@@ -37,17 +37,10 @@ type PrivateIpNextHop struct {
 	// Turns on/off flow stickiness for the private IP's nextHop. The default is 'false'.
 	IsFlowStickinessEnabled *bool `mandatory:"false" json:"isFlowStickinessEnabled"`
 
-	// Hashing config to use while selecting target
-	// DEFAULT_HASHING: The choice of hashing method is determined by the dataplane and may evolve over time based on implementation decisions
-	// MODULAR_HASHING: Uses modular hashing
-	// CONSISTENT_HASHING: Uses consistent hashing
-	TargetSelectionHashConfig PrivateIpNextHopTargetSelectionHashConfigEnum `mandatory:"false" json:"targetSelectionHashConfig,omitempty"`
-
 	// Forwarding configuration for a private IP's nextHop. The default is 'DEFAULT'.
 	// DEFAULT: Default behavior where packets are flow hashed to a range of ports.
 	// SKIP_PORT_SHARDING: Packets will skip port sharding.
 	// SKIP_PORT_SHARDING_WITH_WILDCARD_LISTENER: Packets will skip port sharding and a wildcard listener will be used.
-	// RCE_PROXY: Packets will be forwarded to RCE
 	NextHopForwardingConfig PrivateIpNextHopNextHopForwardingConfigEnum `mandatory:"false" json:"nextHopForwardingConfig,omitempty"`
 }
 
@@ -61,9 +54,6 @@ func (m PrivateIpNextHop) String() string {
 func (m PrivateIpNextHop) ValidateEnumValue() (bool, error) {
 	errMessage := []string{}
 
-	if _, ok := GetMappingPrivateIpNextHopTargetSelectionHashConfigEnum(string(m.TargetSelectionHashConfig)); !ok && m.TargetSelectionHashConfig != "" {
-		errMessage = append(errMessage, fmt.Sprintf("unsupported enum value for TargetSelectionHashConfig: %s. Supported values are: %s.", m.TargetSelectionHashConfig, strings.Join(GetPrivateIpNextHopTargetSelectionHashConfigEnumStringValues(), ",")))
-	}
 	if _, ok := GetMappingPrivateIpNextHopNextHopForwardingConfigEnum(string(m.NextHopForwardingConfig)); !ok && m.NextHopForwardingConfig != "" {
 		errMessage = append(errMessage, fmt.Sprintf("unsupported enum value for NextHopForwardingConfig: %s. Supported values are: %s.", m.NextHopForwardingConfig, strings.Join(GetPrivateIpNextHopNextHopForwardingConfigEnumStringValues(), ",")))
 	}
@@ -71,52 +61,6 @@ func (m PrivateIpNextHop) ValidateEnumValue() (bool, error) {
 		return true, fmt.Errorf(strings.Join(errMessage, "\n"))
 	}
 	return false, nil
-}
-
-// PrivateIpNextHopTargetSelectionHashConfigEnum Enum with underlying type: string
-type PrivateIpNextHopTargetSelectionHashConfigEnum string
-
-// Set of constants representing the allowable values for PrivateIpNextHopTargetSelectionHashConfigEnum
-const (
-	PrivateIpNextHopTargetSelectionHashConfigDefaultHashing    PrivateIpNextHopTargetSelectionHashConfigEnum = "DEFAULT_HASHING"
-	PrivateIpNextHopTargetSelectionHashConfigModularHashing    PrivateIpNextHopTargetSelectionHashConfigEnum = "MODULAR_HASHING"
-	PrivateIpNextHopTargetSelectionHashConfigConsistentHashing PrivateIpNextHopTargetSelectionHashConfigEnum = "CONSISTENT_HASHING"
-)
-
-var mappingPrivateIpNextHopTargetSelectionHashConfigEnum = map[string]PrivateIpNextHopTargetSelectionHashConfigEnum{
-	"DEFAULT_HASHING":    PrivateIpNextHopTargetSelectionHashConfigDefaultHashing,
-	"MODULAR_HASHING":    PrivateIpNextHopTargetSelectionHashConfigModularHashing,
-	"CONSISTENT_HASHING": PrivateIpNextHopTargetSelectionHashConfigConsistentHashing,
-}
-
-var mappingPrivateIpNextHopTargetSelectionHashConfigEnumLowerCase = map[string]PrivateIpNextHopTargetSelectionHashConfigEnum{
-	"default_hashing":    PrivateIpNextHopTargetSelectionHashConfigDefaultHashing,
-	"modular_hashing":    PrivateIpNextHopTargetSelectionHashConfigModularHashing,
-	"consistent_hashing": PrivateIpNextHopTargetSelectionHashConfigConsistentHashing,
-}
-
-// GetPrivateIpNextHopTargetSelectionHashConfigEnumValues Enumerates the set of values for PrivateIpNextHopTargetSelectionHashConfigEnum
-func GetPrivateIpNextHopTargetSelectionHashConfigEnumValues() []PrivateIpNextHopTargetSelectionHashConfigEnum {
-	values := make([]PrivateIpNextHopTargetSelectionHashConfigEnum, 0)
-	for _, v := range mappingPrivateIpNextHopTargetSelectionHashConfigEnum {
-		values = append(values, v)
-	}
-	return values
-}
-
-// GetPrivateIpNextHopTargetSelectionHashConfigEnumStringValues Enumerates the set of values in String for PrivateIpNextHopTargetSelectionHashConfigEnum
-func GetPrivateIpNextHopTargetSelectionHashConfigEnumStringValues() []string {
-	return []string{
-		"DEFAULT_HASHING",
-		"MODULAR_HASHING",
-		"CONSISTENT_HASHING",
-	}
-}
-
-// GetMappingPrivateIpNextHopTargetSelectionHashConfigEnum performs case Insensitive comparison on enum value and return the desired enum
-func GetMappingPrivateIpNextHopTargetSelectionHashConfigEnum(val string) (PrivateIpNextHopTargetSelectionHashConfigEnum, bool) {
-	enum, ok := mappingPrivateIpNextHopTargetSelectionHashConfigEnumLowerCase[strings.ToLower(val)]
-	return enum, ok
 }
 
 // PrivateIpNextHopNextHopForwardingConfigEnum Enum with underlying type: string
@@ -127,21 +71,18 @@ const (
 	PrivateIpNextHopNextHopForwardingConfigDefault                              PrivateIpNextHopNextHopForwardingConfigEnum = "DEFAULT"
 	PrivateIpNextHopNextHopForwardingConfigSkipPortSharding                     PrivateIpNextHopNextHopForwardingConfigEnum = "SKIP_PORT_SHARDING"
 	PrivateIpNextHopNextHopForwardingConfigSkipPortShardingWithWildcardListener PrivateIpNextHopNextHopForwardingConfigEnum = "SKIP_PORT_SHARDING_WITH_WILDCARD_LISTENER"
-	PrivateIpNextHopNextHopForwardingConfigRceProxy                             PrivateIpNextHopNextHopForwardingConfigEnum = "RCE_PROXY"
 )
 
 var mappingPrivateIpNextHopNextHopForwardingConfigEnum = map[string]PrivateIpNextHopNextHopForwardingConfigEnum{
 	"DEFAULT":            PrivateIpNextHopNextHopForwardingConfigDefault,
 	"SKIP_PORT_SHARDING": PrivateIpNextHopNextHopForwardingConfigSkipPortSharding,
 	"SKIP_PORT_SHARDING_WITH_WILDCARD_LISTENER": PrivateIpNextHopNextHopForwardingConfigSkipPortShardingWithWildcardListener,
-	"RCE_PROXY": PrivateIpNextHopNextHopForwardingConfigRceProxy,
 }
 
 var mappingPrivateIpNextHopNextHopForwardingConfigEnumLowerCase = map[string]PrivateIpNextHopNextHopForwardingConfigEnum{
 	"default":            PrivateIpNextHopNextHopForwardingConfigDefault,
 	"skip_port_sharding": PrivateIpNextHopNextHopForwardingConfigSkipPortSharding,
 	"skip_port_sharding_with_wildcard_listener": PrivateIpNextHopNextHopForwardingConfigSkipPortShardingWithWildcardListener,
-	"rce_proxy": PrivateIpNextHopNextHopForwardingConfigRceProxy,
 }
 
 // GetPrivateIpNextHopNextHopForwardingConfigEnumValues Enumerates the set of values for PrivateIpNextHopNextHopForwardingConfigEnum
@@ -159,7 +100,6 @@ func GetPrivateIpNextHopNextHopForwardingConfigEnumStringValues() []string {
 		"DEFAULT",
 		"SKIP_PORT_SHARDING",
 		"SKIP_PORT_SHARDING_WITH_WILDCARD_LISTENER",
-		"RCE_PROXY",
 	}
 }
 

@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
+	"oracle.com/oci/tagging"
+
 	"oracle.com/oci/ociauthz"
 )
 
@@ -114,4 +116,16 @@ func (o *OCIUser) DelegatePrincipal() *ociauthz.Principal {
 	}
 
 	return o.Delegate.ToPrincipal()
+}
+
+type OCIClusterNamespace struct {
+	ID        string
+	Name      string
+	Namespace string
+	TagSlug   *tagging.TagSlug
+}
+
+type OCICluster struct {
+	ID      string
+	TagSlug *tagging.TagSlug
 }

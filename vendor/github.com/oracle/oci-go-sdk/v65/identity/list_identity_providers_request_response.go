@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
@@ -15,7 +15,7 @@ import (
 type ListIdentityProvidersRequest struct {
 
 	// The protocol used for federation.
-	Protocol *string `mandatory:"true" contributesTo:"query" name:"protocol" omitEmpty:"true"`
+	Protocol ListIdentityProvidersProtocolEnum `mandatory:"true" contributesTo:"query" name:"protocol" omitEmpty:"true"`
 
 	// The OCID of the compartment (remember that the tenancy is simply the root compartment).
 	CompartmentId *string `mandatory:"true" contributesTo:"query" name:"compartmentId"`
@@ -100,6 +100,9 @@ func (request ListIdentityProvidersRequest) RetryPolicy() *common.RetryPolicy {
 // Not recommended for calling this function directly
 func (request ListIdentityProvidersRequest) ValidateEnumValue() (bool, error) {
 	errMessage := []string{}
+	if _, ok := GetMappingListIdentityProvidersProtocolEnum(string(request.Protocol)); !ok && request.Protocol != "" {
+		errMessage = append(errMessage, fmt.Sprintf("unsupported enum value for Protocol: %s. Supported values are: %s.", request.Protocol, strings.Join(GetListIdentityProvidersProtocolEnumStringValues(), ",")))
+	}
 	if _, ok := GetMappingListIdentityProvidersSortByEnum(string(request.SortBy)); !ok && request.SortBy != "" {
 		errMessage = append(errMessage, fmt.Sprintf("unsupported enum value for SortBy: %s. Supported values are: %s.", request.SortBy, strings.Join(GetListIdentityProvidersSortByEnumStringValues(), ",")))
 	}
@@ -141,6 +144,44 @@ func (response ListIdentityProvidersResponse) String() string {
 // HTTPResponse implements the OCIResponse interface
 func (response ListIdentityProvidersResponse) HTTPResponse() *http.Response {
 	return response.RawResponse
+}
+
+// ListIdentityProvidersProtocolEnum Enum with underlying type: string
+type ListIdentityProvidersProtocolEnum string
+
+// Set of constants representing the allowable values for ListIdentityProvidersProtocolEnum
+const (
+	ListIdentityProvidersProtocolSaml2 ListIdentityProvidersProtocolEnum = "SAML2"
+)
+
+var mappingListIdentityProvidersProtocolEnum = map[string]ListIdentityProvidersProtocolEnum{
+	"SAML2": ListIdentityProvidersProtocolSaml2,
+}
+
+var mappingListIdentityProvidersProtocolEnumLowerCase = map[string]ListIdentityProvidersProtocolEnum{
+	"saml2": ListIdentityProvidersProtocolSaml2,
+}
+
+// GetListIdentityProvidersProtocolEnumValues Enumerates the set of values for ListIdentityProvidersProtocolEnum
+func GetListIdentityProvidersProtocolEnumValues() []ListIdentityProvidersProtocolEnum {
+	values := make([]ListIdentityProvidersProtocolEnum, 0)
+	for _, v := range mappingListIdentityProvidersProtocolEnum {
+		values = append(values, v)
+	}
+	return values
+}
+
+// GetListIdentityProvidersProtocolEnumStringValues Enumerates the set of values in String for ListIdentityProvidersProtocolEnum
+func GetListIdentityProvidersProtocolEnumStringValues() []string {
+	return []string{
+		"SAML2",
+	}
+}
+
+// GetMappingListIdentityProvidersProtocolEnum performs case Insensitive comparison on enum value and return the desired enum
+func GetMappingListIdentityProvidersProtocolEnum(val string) (ListIdentityProvidersProtocolEnum, bool) {
+	enum, ok := mappingListIdentityProvidersProtocolEnumLowerCase[strings.ToLower(val)]
+	return enum, ok
 }
 
 // ListIdentityProvidersSortByEnum Enum with underlying type: string

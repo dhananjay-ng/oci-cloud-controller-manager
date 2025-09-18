@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 
 package auth
@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 
@@ -126,14 +125,8 @@ func (c *x509FederationClientForOkeWorkloadIdentity) getSecurityToken() (securit
 
 	statusCode := response.StatusCode
 	if statusCode != http.StatusOK {
-		if statusCode == http.StatusForbidden {
-			return nil, fmt.Errorf("please ensure the cluster type is enhanced: Status: %s, Message: %s",
-				response.Status, body.String())
-		} else {
-			return nil, fmt.Errorf("failed to get a RPST token from Proxymux: URL: %s, Status: %s, Message: %s",
-				c.proxymuxEndpoint, response.Status, body.String())
-		}
-
+		return nil, fmt.Errorf("failed to get a RPST token from Proxymux: URL: %s, Status: %s, Message: %s",
+			c.proxymuxEndpoint, response.Status, body.String())
 	}
 
 	if _, err = body.ReadFrom(response.Body); err != nil {
@@ -161,54 +154,7 @@ func (c *x509FederationClientForOkeWorkloadIdentity) getSecurityToken() (securit
 		return nil, fmt.Errorf("invalid token received from Proxymux")
 	}
 
-	logTokenInfo(token)
 	return newPrincipalToken(token[3:])
-}
-
-func logTokenInfo(token string) {
-	if strings.TrimSpace(token) == "" {
-		common.Logf("Token is null or empty")
-		return
-	}
-
-	parts := strings.Split(token, ".")
-	if len(parts) < 3 {
-		common.Logf("Invalid JWT token")
-		return
-	}
-
-	// Decode the payload
-	decodedPayload, err := base64.RawURLEncoding.DecodeString(parts[1])
-	if err != nil {
-		common.Logf("Failed to decode payload: %v\n", err)
-		return
-	}
-
-	// Parse JSON payload into a map
-	var payload map[string]interface{}
-	if err := json.Unmarshal(decodedPayload, &payload); err != nil {
-		common.Logf("Failed to parse payload JSON: %v\n", err)
-		return
-	}
-
-	logData := map[string]interface{}{
-		"sub":                 payload["sub"],
-		"res_id":              payload["res_id"],
-		"res_type":            payload["res_type"],
-		"ttype":               payload["ttype"],
-		"var_service_account": payload["var_service_account"],
-		"var_namespace":       payload["var_namespace"],
-		"iat":                 payload["iat"],
-		"exp":                 payload["exp"],
-	}
-
-	logJson, err := json.MarshalIndent(logData, "", "  ")
-	if err != nil {
-		common.Logf("Failed to serialize log data: %v\n", err)
-		return
-	}
-
-	common.Logf("RPST token details:\n%s\n", string(logJson))
 }
 
 func (c *x509FederationClientForOkeWorkloadIdentity) PrivateKey() (*rsa.PrivateKey, error) {

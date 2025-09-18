@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
@@ -6,7 +6,7 @@
 //
 // API for the Kubernetes Engine service (also known as the Container Engine for Kubernetes service). Use this API to build, deploy,
 // and manage cloud-native applications. For more information, see
-// Overview of Kubernetes Engine (https://docs.oracle.com/iaas/Content/ContEng/Concepts/contengoverview.htm).
+// Overview of Kubernetes Engine (https://docs.cloud.oracle.com/iaas/Content/ContEng/Concepts/contengoverview.htm).
 //
 
 package containerengine
@@ -70,20 +70,18 @@ type CreateNodePoolDetails struct {
 	NodeConfigDetails *CreateNodePoolNodeConfigDetails `mandatory:"false" json:"nodeConfigDetails"`
 
 	// Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace.
-	// For more information, see Resource Tags (https://docs.oracle.com/iaas/Content/General/Concepts/resourcetags.htm).
+	// For more information, see Resource Tags (https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
 	// Example: `{"Department": "Finance"}`
 	FreeformTags map[string]string `mandatory:"false" json:"freeformTags"`
 
 	// Defined tags for this resource. Each key is predefined and scoped to a namespace.
-	// For more information, see Resource Tags (https://docs.oracle.com/iaas/Content/General/Concepts/resourcetags.htm).
+	// For more information, see Resource Tags (https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
 	// Example: `{"Operations": {"CostCenter": "42"}}`
 	DefinedTags map[string]map[string]interface{} `mandatory:"false" json:"definedTags"`
 
 	NodeEvictionNodePoolSettings *NodeEvictionNodePoolSettings `mandatory:"false" json:"nodeEvictionNodePoolSettings"`
 
 	NodePoolCyclingDetails *NodePoolCyclingDetails `mandatory:"false" json:"nodePoolCyclingDetails"`
-
-	NodeConfigurationSourceDetails NodeConfigurationSourceDetails `mandatory:"false" json:"nodeConfigurationSourceDetails"`
 }
 
 func (m CreateNodePoolDetails) String() string {
@@ -105,25 +103,24 @@ func (m CreateNodePoolDetails) ValidateEnumValue() (bool, error) {
 // UnmarshalJSON unmarshals from json
 func (m *CreateNodePoolDetails) UnmarshalJSON(data []byte) (e error) {
 	model := struct {
-		KubernetesVersion              *string                           `json:"kubernetesVersion"`
-		NodeMetadata                   map[string]string                 `json:"nodeMetadata"`
-		NodeImageName                  *string                           `json:"nodeImageName"`
-		NodeSourceDetails              nodesourcedetails                 `json:"nodeSourceDetails"`
-		NodeShapeConfig                *CreateNodeShapeConfigDetails     `json:"nodeShapeConfig"`
-		InitialNodeLabels              []KeyValue                        `json:"initialNodeLabels"`
-		SshPublicKey                   *string                           `json:"sshPublicKey"`
-		QuantityPerSubnet              *int                              `json:"quantityPerSubnet"`
-		SubnetIds                      []string                          `json:"subnetIds"`
-		NodeConfigDetails              *CreateNodePoolNodeConfigDetails  `json:"nodeConfigDetails"`
-		FreeformTags                   map[string]string                 `json:"freeformTags"`
-		DefinedTags                    map[string]map[string]interface{} `json:"definedTags"`
-		NodeEvictionNodePoolSettings   *NodeEvictionNodePoolSettings     `json:"nodeEvictionNodePoolSettings"`
-		NodePoolCyclingDetails         *NodePoolCyclingDetails           `json:"nodePoolCyclingDetails"`
-		NodeConfigurationSourceDetails nodeconfigurationsourcedetails    `json:"nodeConfigurationSourceDetails"`
-		CompartmentId                  *string                           `json:"compartmentId"`
-		ClusterId                      *string                           `json:"clusterId"`
-		Name                           *string                           `json:"name"`
-		NodeShape                      *string                           `json:"nodeShape"`
+		KubernetesVersion            *string                           `json:"kubernetesVersion"`
+		NodeMetadata                 map[string]string                 `json:"nodeMetadata"`
+		NodeImageName                *string                           `json:"nodeImageName"`
+		NodeSourceDetails            nodesourcedetails                 `json:"nodeSourceDetails"`
+		NodeShapeConfig              *CreateNodeShapeConfigDetails     `json:"nodeShapeConfig"`
+		InitialNodeLabels            []KeyValue                        `json:"initialNodeLabels"`
+		SshPublicKey                 *string                           `json:"sshPublicKey"`
+		QuantityPerSubnet            *int                              `json:"quantityPerSubnet"`
+		SubnetIds                    []string                          `json:"subnetIds"`
+		NodeConfigDetails            *CreateNodePoolNodeConfigDetails  `json:"nodeConfigDetails"`
+		FreeformTags                 map[string]string                 `json:"freeformTags"`
+		DefinedTags                  map[string]map[string]interface{} `json:"definedTags"`
+		NodeEvictionNodePoolSettings *NodeEvictionNodePoolSettings     `json:"nodeEvictionNodePoolSettings"`
+		NodePoolCyclingDetails       *NodePoolCyclingDetails           `json:"nodePoolCyclingDetails"`
+		CompartmentId                *string                           `json:"compartmentId"`
+		ClusterId                    *string                           `json:"clusterId"`
+		Name                         *string                           `json:"name"`
+		NodeShape                    *string                           `json:"nodeShape"`
 	}{}
 
 	e = json.Unmarshal(data, &model)
@@ -166,16 +163,6 @@ func (m *CreateNodePoolDetails) UnmarshalJSON(data []byte) (e error) {
 	m.NodeEvictionNodePoolSettings = model.NodeEvictionNodePoolSettings
 
 	m.NodePoolCyclingDetails = model.NodePoolCyclingDetails
-
-	nn, e = model.NodeConfigurationSourceDetails.UnmarshalPolymorphicJSON(model.NodeConfigurationSourceDetails.JsonData)
-	if e != nil {
-		return
-	}
-	if nn != nil {
-		m.NodeConfigurationSourceDetails = nn.(NodeConfigurationSourceDetails)
-	} else {
-		m.NodeConfigurationSourceDetails = nil
-	}
 
 	m.CompartmentId = model.CompartmentId
 

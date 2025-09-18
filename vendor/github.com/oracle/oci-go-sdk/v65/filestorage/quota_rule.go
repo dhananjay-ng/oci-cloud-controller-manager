@@ -1,11 +1,11 @@
-// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
 // File Storage API
 //
 // Use the File Storage service API to manage file systems, mount targets, and snapshots.
-// For more information, see Overview of File Storage (https://docs.oracle.com/iaas/Content/File/Concepts/filestorageoverview.htm).
+// For more information, see Overview of File Storage (https://docs.cloud.oracle.com/iaas/Content/File/Concepts/filestorageoverview.htm).
 //
 
 package filestorage
@@ -22,13 +22,13 @@ type QuotaRule struct {
 	// The identifier of the quota rule. It is the base64 encoded string of the tuple <principalId, principalType, isHardQuota>.
 	Id *string `mandatory:"true" json:"id"`
 
-	// The OCID (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the file System.
+	// The OCID (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the file System.
 	FileSystemId *string `mandatory:"true" json:"fileSystemId"`
 
-	// Whether the quota rule will be enforced.
-	// If `isHardQuota` is true, the quota rule is enforced so that the write is blocked if usage
-	// exceeds the hard quota limit.
-	// If `isHardQuota` is false, writes succeed even if usage exceeds the soft quota limit, but the quota rule is violated.
+	// The flag is an identifier to tell whether the quota rule will be enforced.
+	// If `isHardQuota` is false, the quota rule will be enforced so the usage cannot exceed the hard quota limit.
+	// If `isHardQuota` is true, usage can exceed the soft quota limit. An alarm or notification will be sent to
+	// the customer, if the specific usage exceeds.
 	IsHardQuota *bool `mandatory:"true" json:"isHardQuota"`
 
 	// A user-friendly name. It does not have to be unique, and it is changeable.
@@ -36,10 +36,10 @@ type QuotaRule struct {
 	// Example: `UserXYZ's quota`
 	DisplayName *string `mandatory:"true" json:"displayName"`
 
-	// The value of the quota rule in gigabytes.
+	// The value of the quota rule. The unit is Gigabyte.
 	QuotaLimitInGigabytes *int `mandatory:"true" json:"quotaLimitInGigabytes"`
 
-	// The date and time the quota rule was created, expressed in
+	// The date and time the quota rule was started, expressed in
 	// RFC 3339 (https://tools.ietf.org/rfc/rfc3339) timestamp format.
 	// Example: `2016-08-25T21:10:29.600Z`
 	TimeCreated *common.SDKTime `mandatory:"true" json:"timeCreated"`
@@ -52,7 +52,7 @@ type QuotaRule struct {
 	// The type of the owner of this quota rule and usage.
 	PrincipalType QuotaRulePrincipalTypeEnum `mandatory:"false" json:"principalType,omitempty"`
 
-	// An identifier for the user or the group associated with quota rule and usage. UNIX-like operating systems use this integer value to
+	// An identifier for the owner of this usage and quota rule. Unix-like operating systems use this integer value to
 	// identify a user or group to manage access control.
 	PrincipalId *int `mandatory:"false" json:"principalId"`
 }
