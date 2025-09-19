@@ -731,25 +731,8 @@ func (cp *CloudProvider) EnsureLoadBalancer(ctx context.Context, clusterName str
 		secretListenerString := service.Annotations[ServiceAnnotationLoadBalancerTLSSecret]
 		secretBackendSetString := service.Annotations[ServiceAnnotationLoadBalancerTLSBackendSetSecret]
 		sslConfig = NewSSLConfig(secretListenerString, secretBackendSetString, service, ports, cp)
-
-		// SSL Config update with listeners port sslConfigurationDetails as certificate OCID
-		if _, ok := service.Annotations[ServiceAnnotationLoadBalancerCertificateOcid]; ok {
-			ports, err := getSSLEnabledPorts(service)
-			if err != nil {
-				logger.With(zap.Error(err)).Error("Failed to parse SSL port.")
-				// handle error
-				return nil, err
-			}
-			ocid, _ := getTlsCertificateOCID(service)
-			listenerTlsConfigMap := make(map[int]string)
-			for port := range ports {
-				// CertificateIds are supported in oci sdk version v65
-				listenerTlsConfigMap[port] = ocid
-			}
-			// Update Listener TLS in SSL Config
-			sslBuilder := &SSLConfigBuilder{sslConfig: sslConfig}
-			logger.Info("SSL Config creating %v", sslConfig)
-			sslConfig = sslBuilder.WithListenerTls(listenerTlsConfigMap).Build()
+		if sslConfig, err = updateSSLConfigFromCertOCID(sslConfig, service); err != nil {
+			logger.With(zap.Error(err)).Error("Failed to update SSL certificate.")
 		}
 		logger.Info("SSL Config identified %v", sslConfig)
 	}
@@ -1648,6 +1631,10 @@ func (cp *CloudProvider) UpdateLoadBalancer(ctx context.Context, clusterName str
 		secretListenerString := service.Annotations[ServiceAnnotationLoadBalancerTLSSecret]
 		secretBackendSetString := service.Annotations[ServiceAnnotationLoadBalancerTLSBackendSetSecret]
 		sslConfig = NewSSLConfig(secretListenerString, secretBackendSetString, service, ports, cp)
+		// Update SSLConfig from certificate OCID
+		if sslConfig, err = updateSSLConfigFromCertOCID(sslConfig, service); err != nil {
+			logger.With(zap.Error(err)).Error("Failed to update SSL certificate.")
+		}
 	}
 
 	lbSubnetIds, err := lbProvider.getLoadBalancerSubnets(ctx, service)
@@ -1686,7 +1673,7 @@ func (cp *CloudProvider) UpdateLoadBalancer(ctx context.Context, clusterName str
 
 		return err
 	}
-
+	logger.Info("Updated LB Specs %v", &spec)
 	// Existing load balancers cannot change subnets. This ensures that the spec matches
 	// what the actual load balancer has listed as the subnet ids. If the load balancer
 	// was just created then these values would be equal; however, if the load balancer
@@ -2688,4 +2675,24 @@ func (cp *CloudProvider) getIpAddressOcidMap(ctx context.Context, provisionedSvc
 		}
 	}
 	return ipAddressOcidMap, nil
+}
+
+func updateSSLConfigFromCertOCID(sslConfig *SSLConfig, service *v1.Service) (*SSLConfig, error) {
+	// SSL Config update with listeners port sslConfigurationDetails as certificate OCID
+	if _, ok := service.Annotations[ServiceAnnotationLoadBalancerCertificateOcid]; ok {
+		ports, err := getSSLEnabledPorts(service)
+		if err != nil {
+			return nil, err
+		}
+		ocid, _ := getTlsCertificateOCID(service)
+		listenerTlsConfigMap := make(map[int]string)
+		for port := range ports {
+			// CertificateIds are supported in oci sdk version v65
+			listenerTlsConfigMap[port] = ocid
+		}
+		// Update Listener TLS in SSL Config
+		sslBuilder := &SSLConfigBuilder{sslConfig: sslConfig}
+		sslConfig = sslBuilder.WithListenerTls(listenerTlsConfigMap).Build()
+	}
+	return sslConfig, nil
 }

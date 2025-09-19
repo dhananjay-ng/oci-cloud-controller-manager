@@ -399,7 +399,7 @@ type SSLConfigBuilder struct {
 
 func (s *SSLConfigBuilder) WithListenerTls(listenerTls map[int]string) *SSLConfigBuilder {
 	if listenerTls != nil && len(listenerTls) > 0 {
-		if s.sslConfig != nil {
+		if s.sslConfig == nil {
 			s.sslConfig = &SSLConfig{}
 		}
 		s.sslConfig.ListenerPostSSLMap = listenerTls
@@ -481,6 +481,7 @@ func NewLBSpec(logger *zap.SugaredLogger, svc *v1.Service, provisionedNodes []*v
 	}
 
 	listeners, err := getListeners(svc, sslConfig, convertOciIpVersionsToOciIpFamilies(versions.ListenerBackendIpVersion))
+	logger.Info("Listener Specs created %v", listeners)
 	if err != nil {
 		return nil, err
 	}
@@ -552,6 +553,7 @@ func NewLBSpec(logger *zap.SugaredLogger, svc *v1.Service, provisionedNodes []*v
 		return nil, err
 	}
 
+	logger.Info("Listener Specs created %s and ssl config %s", listeners, sslConfig)
 	return &LBSpec{
 		Type:                        lbType,
 		Name:                        GetLoadBalancerName(svc),
@@ -676,7 +678,6 @@ func getRuleManagementMode(svc *v1.Service) (string, *ManagedNetworkSecurityGrou
 		}
 		return ManagementModeFrontend, &nsg, nil
 	}
-
 	if strings.EqualFold(annotationValue, RuleManagementModeNsg) {
 		nsg = ManagedNetworkSecurityGroup{
 			nsgRuleManagementMode: RuleManagementModeNsg,
