@@ -55,7 +55,6 @@ type FakeConfigurator struct {
 	ExecuteCommandOnWorkerNodeFunc      func(args ...string) (string, error)
 }
 
-
 func (f *FakeConfigurator) GetNetInterfacesInSubnet(subnetCIDR string) ([]NetInterface, error) {
 	return f.GetNetInterfacesInSubnetFunc(subnetCIDR)
 }
@@ -130,9 +129,13 @@ func TestLnetService_SetupLnet_TableDriven(t *testing.T) {
 				// These functions are not used in this case.
 				IsLustreClientPackagesInstalledFunc: func(logger *zap.SugaredLogger) bool { return true },
 				ExecuteCommandOnWorkerNodeFunc:      func(args ...string) (string, error) { return "ok", nil },
-				GetLnetInfoByLnetLabelFunc:           func(lnetLabel string) (NetInfo, error) { return NetInfo{}, nil },
-				ConfigureLnetFunc:                    func(logger *zap.SugaredLogger, ifaces []NetInterface, lnetLabel string, netInfo NetInfo) error { return nil },
-				VerifyLnetConfigurationFunc:          func(logger *zap.SugaredLogger, ifaces []NetInterface, lnetLabel string, netInfo NetInfo, err error) error { return nil },
+				GetLnetInfoByLnetLabelFunc:          func(lnetLabel string) (NetInfo, error) { return NetInfo{}, nil },
+				ConfigureLnetFunc: func(logger *zap.SugaredLogger, ifaces []NetInterface, lnetLabel string, netInfo NetInfo) error {
+					return nil
+				},
+				VerifyLnetConfigurationFunc: func(logger *zap.SugaredLogger, ifaces []NetInterface, lnetLabel string, netInfo NetInfo, err error) error {
+					return nil
+				},
 			},
 			expectedErrSubstr: "No VNIC identified on worker node to configure lnet.",
 		},
@@ -181,9 +184,13 @@ func TestLnetService_SetupLnet_TableDriven(t *testing.T) {
 					}
 					return "ok", nil
 				},
-				GetLnetInfoByLnetLabelFunc:  func(lnetLabel string) (NetInfo, error) { return NetInfo{}, nil },
-				ConfigureLnetFunc:           func(logger *zap.SugaredLogger, ifaces []NetInterface, lnetLabel string, netInfo NetInfo) error { return nil },
-				VerifyLnetConfigurationFunc: func(logger *zap.SugaredLogger, ifaces []NetInterface, lnetLabel string, netInfo NetInfo, err error) error { return nil },
+				GetLnetInfoByLnetLabelFunc: func(lnetLabel string) (NetInfo, error) { return NetInfo{}, nil },
+				ConfigureLnetFunc: func(logger *zap.SugaredLogger, ifaces []NetInterface, lnetLabel string, netInfo NetInfo) error {
+					return nil
+				},
+				VerifyLnetConfigurationFunc: func(logger *zap.SugaredLogger, ifaces []NetInterface, lnetLabel string, netInfo NetInfo, err error) error {
+					return nil
+				},
 			},
 			expectedErrSubstr: "Failed to load lnet kernel module with error : loading lnet module failed. Please make sure that lustre client packages are installed on worker nodes.",
 		},
@@ -202,9 +209,13 @@ func TestLnetService_SetupLnet_TableDriven(t *testing.T) {
 					}
 					return "ok", nil
 				},
-				GetLnetInfoByLnetLabelFunc:  func(lnetLabel string) (NetInfo, error) { return NetInfo{}, nil },
-				ConfigureLnetFunc:           func(logger *zap.SugaredLogger, ifaces []NetInterface, lnetLabel string, netInfo NetInfo) error { return nil },
-				VerifyLnetConfigurationFunc: func(logger *zap.SugaredLogger, ifaces []NetInterface, lnetLabel string, netInfo NetInfo, err error) error { return nil },
+				GetLnetInfoByLnetLabelFunc: func(lnetLabel string) (NetInfo, error) { return NetInfo{}, nil },
+				ConfigureLnetFunc: func(logger *zap.SugaredLogger, ifaces []NetInterface, lnetLabel string, netInfo NetInfo) error {
+					return nil
+				},
+				VerifyLnetConfigurationFunc: func(logger *zap.SugaredLogger, ifaces []NetInterface, lnetLabel string, netInfo NetInfo, err error) error {
+					return nil
+				},
 			},
 			expectedErrSubstr: "Failed to configure lnet kernel service with error : lnet service configuration failed. Please make sure that lustre client packages are installed on worker nodes.",
 		},
@@ -291,9 +302,9 @@ func TestLnetService_SetupLnet_TableDriven(t *testing.T) {
 func TestLnetService_IsLnetActive_TableDriven(t *testing.T) {
 	logger := zap.NewExample().Sugar()
 	tests := []struct {
-		name         string
-		lnetLabel    string
-		fakeGetInfo  func(lnetLabel string) (NetInfo, error)
+		name           string
+		lnetLabel      string
+		fakeGetInfo    func(lnetLabel string) (NetInfo, error)
 		expectedActive bool
 	}{
 		{
@@ -369,10 +380,10 @@ func TestLnetService_IsLnetActive_TableDriven(t *testing.T) {
 func TestLnetService_ApplyLustreParameters(t *testing.T) {
 	logger := zap.NewExample().Sugar()
 	tests := []struct {
-		name              string
-		lustreParamsJSON  string
-		fakeExec          func(args ...string) (string, error)
-		expectedErr       bool
+		name             string
+		lustreParamsJSON string
+		fakeExec         func(args ...string) (string, error)
+		expectedErr      bool
 	}{
 		{
 			name:             "Valid Lustre Parameters Json Provided",
@@ -419,38 +430,37 @@ func TestLnetService_ApplyLustreParameters(t *testing.T) {
 	}
 }
 
-
 func TestLnetService_ValidateLustreParameters(t *testing.T) {
 	logger := zap.NewExample().Sugar()
 	tests := []struct {
-		name              string
-		lustreParamsJSON  string
-		expectedErr       error
+		name             string
+		lustreParamsJSON string
+		expectedErr      error
 	}{
 		{
 			name:             "Valid Lustre Parameters Json Provided",
 			lustreParamsJSON: `[{"failover.recovery_mode":"quorum","lnet.debug":"0x200"}]`,
-			expectedErr: nil,
+			expectedErr:      nil,
 		},
 		{
 			name:             "No Lustre Parameters Provided",
 			lustreParamsJSON: "",
-			expectedErr: nil,
+			expectedErr:      nil,
 		},
 		{
 			name:             "Invalid Lustre Parameters Json Provided",
 			lustreParamsJSON: `invalid-json`,
-			expectedErr: fmt.Errorf("%s","invalid character 'i' looking for beginning of value"),
+			expectedErr:      fmt.Errorf("%s", "invalid character 'i' looking for beginning of value"),
 		},
 		{
 			name:             "Valid and Invalid Lustre Parameters Provided",
 			lustreParamsJSON: `[{"failover.recovery_mode":"quorum","lnet.debug":"0x200","lnet.debug && ls -l | wc -l":"0x200 I am Invalid"}]`,
-			expectedErr: fmt.Errorf("%v","lnet.debug && ls -l | wc -l=0x200 I am Invalid"),
+			expectedErr:      fmt.Errorf("%v", "lnet.debug && ls -l | wc -l=0x200 I am Invalid"),
 		},
 		{
 			name:             "Invalid Lustre Parameters Provided",
 			lustreParamsJSON: `[{"failover.recovery_mode;cat /var/log/cloud-init.log":"quorum; echo Hello"}]`,
-			expectedErr: fmt.Errorf("%v","failover.recovery_mode;cat /var/log/cloud-init.log=quorum; echo Hello"),
+			expectedErr:      fmt.Errorf("%v", "failover.recovery_mode;cat /var/log/cloud-init.log=quorum; echo Hello"),
 		},
 	}
 

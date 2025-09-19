@@ -338,21 +338,21 @@ func Test_DiskByPathPatternForPV(t *testing.T) {
 func Test_LoadNodeMetadataFromApiServer(t *testing.T) {
 
 	tests := []struct {
-		name     string
-		nodeName string
-		want     *NodeMetadata
-		kubeclient 		 kubernetes.Interface
-		err      error
+		name       string
+		nodeName   string
+		want       *NodeMetadata
+		kubeclient kubernetes.Interface
+		err        error
 	}{
 		{
 			name:     "should return ipv6 for ipv6 preferred node",
 			nodeName: "ipv6Preferred",
 			want: &NodeMetadata{
 				FullAvailabilityDomain: "xyz:PHX-AD-3",
-				AvailabilityDomain: "PHX-AD-3",
-				PreferredNodeIpFamily: Ipv6Stack,
-				Ipv4Enabled:           true,
-				Ipv6Enabled:           true,
+				AvailabilityDomain:     "PHX-AD-3",
+				PreferredNodeIpFamily:  Ipv6Stack,
+				Ipv4Enabled:            true,
+				Ipv6Enabled:            true,
 			},
 		},
 		{
@@ -360,7 +360,7 @@ func Test_LoadNodeMetadataFromApiServer(t *testing.T) {
 			nodeName: "ipv4Preferred",
 			want: &NodeMetadata{
 				PreferredNodeIpFamily: Ipv4Stack,
-				AvailabilityDomain: "PHX-AD-3",
+				AvailabilityDomain:    "PHX-AD-3",
 				Ipv4Enabled:           true,
 				Ipv6Enabled:           true,
 			},
@@ -369,7 +369,7 @@ func Test_LoadNodeMetadataFromApiServer(t *testing.T) {
 			name:     "should return default IPv4 family for no ip preference",
 			nodeName: "noIpPreference",
 			want: &NodeMetadata{
-				AvailabilityDomain: "PHX-AD-3",
+				AvailabilityDomain:    "PHX-AD-3",
 				PreferredNodeIpFamily: Ipv4Stack,
 				Ipv4Enabled:           true,
 				Ipv6Enabled:           false,
@@ -396,7 +396,7 @@ func Test_LoadNodeMetadataFromApiServer(t *testing.T) {
 			nodeName: "ipv4Preferred",
 			want: &NodeMetadata{
 				PreferredNodeIpFamily: Ipv4Stack,
-				AvailabilityDomain: "PHX-AD-3",
+				AvailabilityDomain:    "PHX-AD-3",
 				Ipv4Enabled:           true,
 				Ipv6Enabled:           true,
 			},
@@ -410,8 +410,8 @@ func Test_LoadNodeMetadataFromApiServer(t *testing.T) {
 			want:     &NodeMetadata{},
 			err:      fmt.Errorf("Failed to get node information from kube api server, please check if kube api server is accessible."),
 			kubeclient: &util.MockKubeClientWithFailingRestClient{
-			CoreClient: &util.MockCoreClientWithFailingRestClient{},
-		},
+				CoreClient: &util.MockCoreClientWithFailingRestClient{},
+			},
 		},
 	}
 
@@ -424,12 +424,10 @@ func Test_LoadNodeMetadataFromApiServer(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-
 			log.SetOutput(os.Stdout)
 			nodeMetadata := &NodeMetadata{}
-			ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
-
 
 			var k kubernetes.Interface
 			if tt.kubeclient != nil {
@@ -795,25 +793,24 @@ func Test_ValidateDNSName(t *testing.T) {
 func Test_LoadCSIConfigFromConfigMap(t *testing.T) {
 
 	tests := []struct {
-		name     string
+		name          string
 		configMapName string
-		want     *CSIConfig
+		want          *CSIConfig
 	}{
 		{
-			name:     "Parse Configs correctly when csi config map is present",
+			name:          "Parse Configs correctly when csi config map is present",
 			configMapName: "oci-csi-config",
 			want: &CSIConfig{
 				Lustre: &DriverConfig{
-					SkipNodeUnstage: true,
+					SkipNodeUnstage:      true,
 					SkipLustreParameters: true,
 				},
 			},
 		},
 		{
-			name:     "Return default config if config map is not present",
+			name:          "Return default config if config map is not present",
 			configMapName: "invalid",
-			want: &CSIConfig{
-			},
+			want:          &CSIConfig{},
 		},
 	}
 
