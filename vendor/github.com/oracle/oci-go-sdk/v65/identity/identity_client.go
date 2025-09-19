@@ -1,10 +1,10 @@
-// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
 // Identity and Access Management Service API
 //
-// Use the Identity and Access Management Service API to manage users, groups, identity domains, compartments, policies, tagging, and limits. For information about managing users, groups, compartments, and policies, see Identity and Access Management (without identity domains) (https://docs.cloud.oracle.com/iaas/Content/Identity/Concepts/overview.htm). For information about tagging and service limits, see Tagging (https://docs.cloud.oracle.com/iaas/Content/Tagging/Concepts/taggingoverview.htm) and Service Limits (https://docs.cloud.oracle.com/iaas/Content/General/Concepts/servicelimits.htm). For information about creating, modifying, and deleting identity domains, see Identity and Access Management (with identity domains) (https://docs.cloud.oracle.com/iaas/Content/Identity/home.htm).
+// Use the Identity and Access Management Service API to manage users, groups, identity domains, compartments, policies, tagging, and limits. For information about managing users, groups, compartments, and policies, see Identity and Access Management (without identity domains) (https://docs.oracle.com/iaas/Content/Identity/Concepts/overview.htm). For information about tagging and service limits, see Tagging (https://docs.oracle.com/iaas/Content/Tagging/Concepts/taggingoverview.htm) and Service Limits (https://docs.oracle.com/iaas/Content/General/Concepts/servicelimits.htm). For information about creating, modifying, and deleting identity domains, see Identity and Access Management (with identity domains) (https://docs.oracle.com/iaas/Content/Identity/home.htm).
 //
 
 package identity
@@ -634,7 +634,7 @@ func (client IdentityClient) assembleEffectiveTagSet(ctx context.Context, reques
 
 // BulkDeleteResources Deletes multiple resources in the compartment. All resources must be in the same compartment. You must have the appropriate
 // permissions to delete the resources in the request. This API can only be invoked from the tenancy's
-// home region (https://docs.cloud.oracle.com/Content/Identity/regions/managingregions.htm#Home). This operation creates a
+// home region (https://docs.oracle.com/iaas/Content/Identity/regions/managingregions.htm#Home). This operation creates a
 // WorkRequest. Use the GetWorkRequest
 // API to monitor the status of the bulk action.
 // A default retry strategy applies to this operation BulkDeleteResources()
@@ -867,7 +867,7 @@ func (client IdentityClient) bulkEditTags(ctx context.Context, request common.OC
 }
 
 // BulkMoveResources Moves multiple resources from one compartment to another. All resources must be in the same compartment.
-// This API can only be invoked from the tenancy's home region (https://docs.cloud.oracle.com/Content/Identity/regions/managingregions.htm#Home).
+// This API can only be invoked from the tenancy's home region (https://docs.oracle.com/iaas/Content/Identity/regions/managingregions.htm#Home).
 // To move resources, you must have the appropriate permissions to move the resource in both the source and target
 // compartments. This operation creates a WorkRequest.
 // Use the GetWorkRequest API to monitor the status of the bulk action.
@@ -1089,6 +1089,76 @@ func (client IdentityClient) changeDomainCompartment(ctx context.Context, reques
 	return response, err
 }
 
+// ChangeDomainFaPodBaseUrl (For tenancies that support identity domains) Updates the fa pod base url of the given identity domain.
+// To track the progress of the request, submitting an HTTP GET on the /iamWorkRequests/{iamWorkRequestsId} endpoint retrieves
+// the operation's status.
+// A default retry strategy applies to this operation ChangeDomainFaPodBaseUrl()
+func (client IdentityClient) ChangeDomainFaPodBaseUrl(ctx context.Context, request ChangeDomainFaPodBaseUrlRequest) (response ChangeDomainFaPodBaseUrlResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+
+	if !(request.OpcRetryToken != nil && *request.OpcRetryToken != "") {
+		request.OpcRetryToken = common.String(common.RetryToken())
+	}
+
+	ociResponse, err = common.Retry(ctx, request, client.changeDomainFaPodBaseUrl, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = ChangeDomainFaPodBaseUrlResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = ChangeDomainFaPodBaseUrlResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(ChangeDomainFaPodBaseUrlResponse); ok {
+		common.EcContext.UpdateEndOfWindow(time.Duration(240 * time.Second))
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into ChangeDomainFaPodBaseUrlResponse")
+	}
+	return
+}
+
+// changeDomainFaPodBaseUrl implements the OCIOperation interface (enables retrying operations)
+func (client IdentityClient) changeDomainFaPodBaseUrl(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodPost, "/domains/{domainId}/actions/changeFaPodBaseUrl", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	host := client.Host
+	request.(ChangeDomainFaPodBaseUrlRequest).ReplaceMandatoryParamInPath(&client.BaseClient, client.requiredParamsInEndpoint)
+	common.UpdateEndpointTemplateForOptions(&client.BaseClient)
+	common.SetMissingTemplateParams(&client.BaseClient)
+	defer func() {
+		client.Host = host
+	}()
+
+	var response ChangeDomainFaPodBaseUrlResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/identity/20160918/Domain/ChangeDomainFaPodBaseUrl"
+		err = common.PostProcessServiceError(err, "Identity", "ChangeDomainFaPodBaseUrl", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
 // ChangeDomainLicenseType (For tenancies that support identity domains) Changes the license type of the given identity domain. The identity domain's
 // `lifecycleState` must be set to ACTIVE and the requested `licenseType` must be allowed. To retrieve the allowed `licenseType` for
 // the identity domain, use ListAllowedDomainLicenseTypes.
@@ -1165,7 +1235,7 @@ func (client IdentityClient) changeDomainLicenseType(ctx context.Context, reques
 
 // ChangeTagNamespaceCompartment Moves the specified tag namespace to the specified compartment within the same tenancy.
 // To move the tag namespace, you must have the manage tag-namespaces permission on both compartments.
-// For more information about IAM policies, see Details for IAM (https://docs.cloud.oracle.com/Content/Identity/policyreference/iampolicyreference.htm).
+// For more information about IAM policies, see Details for IAM (https://docs.oracle.com/iaas/Content/Identity/policyreference/iampolicyreference.htm).
 // Moving a tag namespace moves all the tag key definitions contained in the tag namespace.
 // A default retry strategy applies to this operation ChangeTagNamespaceCompartment()
 func (client IdentityClient) ChangeTagNamespaceCompartment(ctx context.Context, request ChangeTagNamespaceCompartmentRequest) (response ChangeTagNamespaceCompartmentResponse, err error) {
@@ -1235,7 +1305,7 @@ func (client IdentityClient) changeTagNamespaceCompartment(ctx context.Context, 
 }
 
 // CreateAuthToken Creates a new auth token for the specified user. For information about what auth tokens are for, see
-// Managing User Credentials (https://docs.cloud.oracle.com/Content/Identity/access/managing-user-credentials.htm).
+// Managing User Credentials (https://docs.oracle.com/iaas/Content/Identity/access/managing-user-credentials.htm).
 // You must specify a *description* for the auth token (although it can be an empty string). It does not
 // have to be unique, and you can change it anytime with
 // UpdateAuthToken.
@@ -1312,11 +1382,11 @@ func (client IdentityClient) createAuthToken(ctx context.Context, request common
 // CreateCompartment Creates a new compartment in the specified compartment.
 // Specify the parent compartment's OCID as the compartment ID in the request object. Remember that the tenancy
 // is simply the root compartment. For information about OCIDs, see
-// Resource Identifiers (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm).
+// Resource Identifiers (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm).
 // You must also specify a *name* for the compartment, which must be unique across all compartments in
 // your tenancy. You can use this name or the OCID when writing policies that apply
 // to the compartment. For more information about policies, see
-// How Policies Work (https://docs.cloud.oracle.com/Content/Identity/policieshow/how-policies-work.htm).
+// How Policies Work (https://docs.oracle.com/iaas/Content/Identity/policieshow/how-policies-work.htm).
 // You must also specify a *description* for the compartment (although it can be an empty string). It does
 // not have to be unique, and you can change it anytime with
 // UpdateCompartment.
@@ -1459,7 +1529,7 @@ func (client IdentityClient) createCompartmentsServiceSetting(ctx context.Contex
 
 // CreateCustomerSecretKey Creates a new secret key for the specified user. Secret keys are used for authentication with the Object Storage Service's Amazon S3
 // compatible API. The secret key consists of an Access Key/Secret Key pair. For information, see
-// Managing User Credentials (https://docs.cloud.oracle.com/Content/Identity/access/managing-user-credentials.htm).
+// Managing User Credentials (https://docs.oracle.com/iaas/Content/Identity/access/managing-user-credentials.htm).
 // You must specify a *description* for the secret key (although it can be an empty string). It does not
 // have to be unique, and you can change it anytime with
 // UpdateCustomerSecretKey.
@@ -1679,11 +1749,11 @@ func (client IdentityClient) createDomain(ctx context.Context, request common.OC
 // is simply the root compartment). Notice that IAM resources (users, groups, compartments, and some policies)
 // reside within the tenancy itself, unlike cloud resources such as compute instances, which typically
 // reside within compartments inside the tenancy. For information about OCIDs, see
-// Resource Identifiers (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm).
+// Resource Identifiers (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm).
 // You must also specify a *name* for the dynamic group, which must be unique across all dynamic groups in your
 // tenancy, and cannot be changed. Note that this name has to be also unique across all groups in your tenancy.
 // You can use this name or the OCID when writing policies that apply to the dynamic group. For more information
-// about policies, see How Policies Work (https://docs.cloud.oracle.com/Content/Identity/policieshow/how-policies-work.htm).
+// about policies, see How Policies Work (https://docs.oracle.com/iaas/Content/Identity/policieshow/how-policies-work.htm).
 // You must also specify a *description* for the dynamic group (although it can be an empty string). It does not
 // have to be unique, and you can change it anytime with UpdateDynamicGroup.
 // After you send your request, the new object's `lifecycleState` will temporarily be CREATING. Before using the
@@ -1760,10 +1830,10 @@ func (client IdentityClient) createDynamicGroup(ctx context.Context, request com
 // is simply the root compartment). Notice that IAM resources (users, groups, compartments, and some policies)
 // reside within the tenancy itself, unlike cloud resources such as compute instances, which typically
 // reside within compartments inside the tenancy. For information about OCIDs, see
-// Resource Identifiers (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm).
+// Resource Identifiers (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm).
 // You must also specify a *name* for the group, which must be unique across all groups in your tenancy and
 // cannot be changed. You can use this name or the OCID when writing policies that apply to the group. For more
-// information about policies, see How Policies Work (https://docs.cloud.oracle.com/Content/Identity/policieshow/how-policies-work.htm).
+// information about policies, see How Policies Work (https://docs.oracle.com/iaas/Content/Identity/policieshow/how-policies-work.htm).
 // You must also specify a *description* for the group (although it can be an empty string). It does not
 // have to be unique, and you can change it anytime with UpdateGroup.
 // After you send your request, the new object's `lifecycleState` will temporarily be CREATING. Before using the
@@ -1838,12 +1908,12 @@ func (client IdentityClient) createGroup(ctx context.Context, request common.OCI
 	return response, err
 }
 
-// CreateIdentityProvider **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.cloud.oracle.com/Content/Identity/Reference/deprecatediamapis.htm).
+// CreateIdentityProvider **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.oracle.com/iaas/Content/Identity/Reference/deprecatediamapis.htm).
 // Creates a new identity provider in your tenancy. For more information, see
-// Identity Providers and Federation (https://docs.cloud.oracle.com/Content/Identity/Concepts/federation.htm).
+// Identity Providers and Federation (https://docs.oracle.com/iaas/Content/Identity/Concepts/federation.htm).
 // You must specify your tenancy's OCID as the compartment ID in the request object.
 // Remember that the tenancy is simply the root compartment. For information about
-// OCIDs, see Resource Identifiers (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm).
+// OCIDs, see Resource Identifiers (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm).
 // You must also specify a *name* for the `IdentityProvider`, which must be unique
 // across all `IdentityProvider` objects in your tenancy and cannot be changed.
 // You must also specify a *description* for the `IdentityProvider` (although
@@ -1920,7 +1990,7 @@ func (client IdentityClient) createIdentityProvider(ctx context.Context, request
 	return response, err
 }
 
-// CreateIdpGroupMapping **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.cloud.oracle.com/Content/Identity/Reference/deprecatediamapis.htm).
+// CreateIdpGroupMapping **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.oracle.com/iaas/Content/Identity/Reference/deprecatediamapis.htm).
 // Creates a single mapping between an IdP group and an IAM Service
 // Group.
 // A default retry strategy applies to this operation CreateIdpGroupMapping()
@@ -2272,17 +2342,17 @@ func (client IdentityClient) createNetworkLocation(ctx context.Context, request 
 // is simply the root compartment). Notice that IAM resources (users, groups, compartments, and some policies)
 // reside within the tenancy itself, unlike cloud resources such as compute instances, which typically
 // reside within compartments inside the tenancy. For information about OCIDs, see
-// Resource Identifiers (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm).
+// Resource Identifiers (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm).
 // You must also specify a *name* for the network source, which must be unique across all network sources in your
 // tenancy, and cannot be changed.
 // You can use this name or the OCID when writing policies that apply to the network source. For more information
-// about policies, see How Policies Work (https://docs.cloud.oracle.com/Content/Identity/policieshow/how-policies-work.htm).
+// about policies, see How Policies Work (https://docs.oracle.com/iaas/Content/Identity/policieshow/how-policies-work.htm).
 // You must also specify a *description* for the network source (although it can be an empty string). It does not
 // have to be unique, and you can change it anytime with UpdateNetworkSource.
 // After you send your request, the new object's `lifecycleState` will temporarily be CREATING. Before using the
 // object, first make sure its `lifecycleState` has changed to ACTIVE.
 // After your network resource is created, you can use it in policy to restrict access to only requests made from an allowed
-// IP address specified in your network source. For more information, see Managing Network Sources (https://docs.cloud.oracle.com/Content/Identity/Tasks/managingnetworksources.htm).
+// IP address specified in your network source. For more information, see Managing Network Sources (https://docs.oracle.com/iaas/Content/Identity/Tasks/managingnetworksources.htm).
 // A default retry strategy applies to this operation CreateNetworkSource()
 func (client IdentityClient) CreateNetworkSource(ctx context.Context, request CreateNetworkSourceRequest) (response CreateNetworkSourceResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -2419,7 +2489,7 @@ func (client IdentityClient) createOAuthClientCredential(ctx context.Context, re
 }
 
 // CreateOrResetUIPassword Creates a new Console one-time password for the specified user. For more information about user
-// credentials, see User Credentials (https://docs.cloud.oracle.com/Content/Identity/usercred/usercredentials.htm).
+// credentials, see User Credentials (https://docs.oracle.com/iaas/Content/Identity/usercred/usercredentials.htm).
 // Use this operation after creating a new user, or if a user forgets their password. The new one-time
 // password is returned to you in the response, and you must securely deliver it to the user. They'll
 // be prompted to change this password the next time they sign in to the Console. If they don't change
@@ -2498,14 +2568,14 @@ func (client IdentityClient) createOrResetUIPassword(ctx context.Context, reques
 }
 
 // CreatePolicy Creates a new policy in the specified compartment (either the tenancy or another of your compartments).
-// If you're new to policies, see Get Started with Policies (https://docs.cloud.oracle.com/Content/Identity/policiesgs/get-started-with-policies.htm).
+// If you're new to policies, see Get Started with Policies (https://docs.oracle.com/iaas/Content/Identity/policiesgs/get-started-with-policies.htm).
 // You must specify a *name* for the policy, which must be unique across all policies in your tenancy
 // and cannot be changed.
 // You must also specify a *description* for the policy (although it can be an empty string). It does not
 // have to be unique, and you can change it anytime with UpdatePolicy.
 // You must specify one or more policy statements in the statements array. For information about writing
-// policies, see How Policies Work (https://docs.cloud.oracle.com/Content/Identity/policieshow/how-policies-work.htm) and
-// Common Policies (https://docs.cloud.oracle.com/Content/Identity/policiescommon/commonpolicies.htm).
+// policies, see How Policies Work (https://docs.oracle.com/iaas/Content/Identity/policieshow/how-policies-work.htm) and
+// Common Policies (https://docs.oracle.com/iaas/Content/Identity/policiescommon/commonpolicies.htm).
 // After you send your request, the new object's `lifecycleState` will temporarily be CREATING. Before using the
 // object, first make sure its `lifecycleState` has changed to ACTIVE.
 // New policies take effect typically within 10 seconds.
@@ -2569,6 +2639,132 @@ func (client IdentityClient) createPolicy(ctx context.Context, request common.OC
 	if err != nil {
 		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/identity/20160918/Policy/CreatePolicy"
 		err = common.PostProcessServiceError(err, "Identity", "CreatePolicy", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// CreatePolicyCorpusExport Create the Policy Corpus export task that exports the set of policies for a given tenancy.
+// A default retry strategy applies to this operation CreatePolicyCorpusExport()
+func (client IdentityClient) CreatePolicyCorpusExport(ctx context.Context, request CreatePolicyCorpusExportRequest) (response CreatePolicyCorpusExportResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.createPolicyCorpusExport, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = CreatePolicyCorpusExportResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = CreatePolicyCorpusExportResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(CreatePolicyCorpusExportResponse); ok {
+		common.EcContext.UpdateEndOfWindow(time.Duration(240 * time.Second))
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into CreatePolicyCorpusExportResponse")
+	}
+	return
+}
+
+// createPolicyCorpusExport implements the OCIOperation interface (enables retrying operations)
+func (client IdentityClient) createPolicyCorpusExport(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodPost, "/policyCorpusExports", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	host := client.Host
+	request.(CreatePolicyCorpusExportRequest).ReplaceMandatoryParamInPath(&client.BaseClient, client.requiredParamsInEndpoint)
+	common.UpdateEndpointTemplateForOptions(&client.BaseClient)
+	common.SetMissingTemplateParams(&client.BaseClient)
+	defer func() {
+		client.Host = host
+	}()
+
+	var response CreatePolicyCorpusExportResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/identity/20160918/PolicyCorpusExport/CreatePolicyCorpusExport"
+		err = common.PostProcessServiceError(err, "Identity", "CreatePolicyCorpusExport", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// CreatePolicySimulation Create and Run a Policy Simulation task against the set of policy corpus input by Customer & previous authorization results.
+// A default retry strategy applies to this operation CreatePolicySimulation()
+func (client IdentityClient) CreatePolicySimulation(ctx context.Context, request CreatePolicySimulationRequest) (response CreatePolicySimulationResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.createPolicySimulation, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = CreatePolicySimulationResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = CreatePolicySimulationResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(CreatePolicySimulationResponse); ok {
+		common.EcContext.UpdateEndOfWindow(time.Duration(240 * time.Second))
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into CreatePolicySimulationResponse")
+	}
+	return
+}
+
+// createPolicySimulation implements the OCIOperation interface (enables retrying operations)
+func (client IdentityClient) createPolicySimulation(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodPost, "/policySimulations", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	host := client.Host
+	request.(CreatePolicySimulationRequest).ReplaceMandatoryParamInPath(&client.BaseClient, client.requiredParamsInEndpoint)
+	common.UpdateEndpointTemplateForOptions(&client.BaseClient)
+	common.SetMissingTemplateParams(&client.BaseClient)
+	defer func() {
+		client.Host = host
+	}()
+
+	var response CreatePolicySimulationResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/identity/20160918/PolicySimulation/CreatePolicySimulation"
+		err = common.PostProcessServiceError(err, "Identity", "CreatePolicySimulation", apiReferenceLink)
 		return response, err
 	}
 
@@ -2717,7 +2913,7 @@ func (client IdentityClient) createSmtpCredential(ctx context.Context, request c
 
 // CreateSwiftPassword **Deprecated. Use CreateAuthToken instead.**
 // Creates a new Swift password for the specified user. For information about what Swift passwords are for, see
-// Managing User Credentials (https://docs.cloud.oracle.com/Content/Identity/Tasks/managingcredentials.htm).
+// Managing User Credentials (https://docs.oracle.com/iaas/Content/Identity/Tasks/managingcredentials.htm).
 // You must specify a *description* for the Swift password (although it can be an empty string). It does not
 // have to be unique, and you can change it anytime with
 // UpdateSwiftPassword.
@@ -3103,12 +3299,12 @@ func (client IdentityClient) createTagRule(ctx context.Context, request common.O
 }
 
 // CreateUser Creates a new user in your tenancy. For conceptual information about users, your tenancy, and other
-// IAM Service components, see Overview of IAM (https://docs.cloud.oracle.com/Content/Identity/getstarted/identity-domains.htm).
+// IAM Service components, see Overview of IAM (https://docs.oracle.com/iaas/Content/Identity/getstarted/identity-domains.htm).
 // You must specify your tenancy's OCID as the compartment ID in the request object (remember that the
 // tenancy is simply the root compartment). Notice that IAM resources (users, groups, compartments, and
 // some policies) reside within the tenancy itself, unlike cloud resources such as compute instances,
 // which typically reside within compartments inside the tenancy. For information about OCIDs, see
-// Resource Identifiers (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm).
+// Resource Identifiers (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm).
 // You must also specify a *name* for the user, which must be unique across all users in your tenancy
 // and cannot be changed. Allowed characters: No spaces. Only letters, numerals, hyphens, periods,
 // underscores, +, and @. If you specify a name that's already in use, you'll get a 409 error.
@@ -3128,7 +3324,7 @@ func (client IdentityClient) createTagRule(ctx context.Context, request common.O
 // CreateOrResetUIPassword).
 // If the user needs to access the Oracle Cloud Infrastructure REST API, you need to upload a
 // public API signing key for that user (see
-// Required Keys and OCIDs (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm) and also
+// Required Keys and OCIDs (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm) and also
 // UploadApiKey).
 // **Important:** Make sure to inform the new user which compartment(s) they have access to.
 // A default retry strategy applies to this operation CreateUser()
@@ -3839,7 +4035,7 @@ func (client IdentityClient) deleteGroup(ctx context.Context, request common.OCI
 	return response, err
 }
 
-// DeleteIdentityProvider **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.cloud.oracle.com/Content/Identity/Reference/deprecatediamapis.htm).
+// DeleteIdentityProvider **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.oracle.com/iaas/Content/Identity/Reference/deprecatediamapis.htm).
 // Deletes the specified identity provider. The identity provider must not have
 // any group mappings (see IdpGroupMapping).
 // A default retry strategy applies to this operation DeleteIdentityProvider()
@@ -3903,7 +4099,7 @@ func (client IdentityClient) deleteIdentityProvider(ctx context.Context, request
 	return response, err
 }
 
-// DeleteIdpGroupMapping **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.cloud.oracle.com/Content/Identity/Reference/deprecatediamapis.htm).
+// DeleteIdpGroupMapping **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.oracle.com/iaas/Content/Identity/Reference/deprecatediamapis.htm).
 // Deletes the specified group mapping.
 // A default retry strategy applies to this operation DeleteIdpGroupMapping()
 func (client IdentityClient) DeleteIdpGroupMapping(ctx context.Context, request DeleteIdpGroupMappingRequest) (response DeleteIdpGroupMappingResponse, err error) {
@@ -4331,6 +4527,130 @@ func (client IdentityClient) deletePolicy(ctx context.Context, request common.OC
 	if err != nil {
 		apiReferenceLink := ""
 		err = common.PostProcessServiceError(err, "Identity", "DeletePolicy", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// DeletePolicyCorpusExport Delete the policy corpus export task for a given request OCID.
+// A default retry strategy applies to this operation DeletePolicyCorpusExport()
+func (client IdentityClient) DeletePolicyCorpusExport(ctx context.Context, request DeletePolicyCorpusExportRequest) (response DeletePolicyCorpusExportResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.deletePolicyCorpusExport, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = DeletePolicyCorpusExportResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = DeletePolicyCorpusExportResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(DeletePolicyCorpusExportResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into DeletePolicyCorpusExportResponse")
+	}
+	return
+}
+
+// deletePolicyCorpusExport implements the OCIOperation interface (enables retrying operations)
+func (client IdentityClient) deletePolicyCorpusExport(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodDelete, "/policyCorpusExports/{policyCorpusExportId}", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	host := client.Host
+	request.(DeletePolicyCorpusExportRequest).ReplaceMandatoryParamInPath(&client.BaseClient, client.requiredParamsInEndpoint)
+	common.UpdateEndpointTemplateForOptions(&client.BaseClient)
+	common.SetMissingTemplateParams(&client.BaseClient)
+	defer func() {
+		client.Host = host
+	}()
+
+	var response DeletePolicyCorpusExportResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/identity/20160918/PolicyCorpusExport/DeletePolicyCorpusExport"
+		err = common.PostProcessServiceError(err, "Identity", "DeletePolicyCorpusExport", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// DeletePolicySimulation Delete the details for a given policy simulation task OCID.
+// A default retry strategy applies to this operation DeletePolicySimulation()
+func (client IdentityClient) DeletePolicySimulation(ctx context.Context, request DeletePolicySimulationRequest) (response DeletePolicySimulationResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.deletePolicySimulation, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = DeletePolicySimulationResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = DeletePolicySimulationResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(DeletePolicySimulationResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into DeletePolicySimulationResponse")
+	}
+	return
+}
+
+// deletePolicySimulation implements the OCIOperation interface (enables retrying operations)
+func (client IdentityClient) deletePolicySimulation(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodDelete, "/policySimulations/{policySimulationId}", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	host := client.Host
+	request.(DeletePolicySimulationRequest).ReplaceMandatoryParamInPath(&client.BaseClient, client.requiredParamsInEndpoint)
+	common.UpdateEndpointTemplateForOptions(&client.BaseClient)
+	common.SetMissingTemplateParams(&client.BaseClient)
+	defer func() {
+		client.Host = host
+	}()
+
+	var response DeletePolicySimulationResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/identity/20160918/PolicySimulation/DeletePolicySimulation"
+		err = common.PostProcessServiceError(err, "Identity", "DeletePolicySimulation", apiReferenceLink)
 		return response, err
 	}
 
@@ -5436,7 +5756,7 @@ func (client IdentityClient) getIamWorkRequest(ctx context.Context, request comm
 	return response, err
 }
 
-// GetIdentityProvider **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.cloud.oracle.com/Content/Identity/Reference/deprecatediamapis.htm).
+// GetIdentityProvider **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.oracle.com/iaas/Content/Identity/Reference/deprecatediamapis.htm).
 // Gets the specified identity provider's information.
 // A default retry strategy applies to this operation GetIdentityProvider()
 func (client IdentityClient) GetIdentityProvider(ctx context.Context, request GetIdentityProviderRequest) (response GetIdentityProviderResponse, err error) {
@@ -5499,7 +5819,7 @@ func (client IdentityClient) getIdentityProvider(ctx context.Context, request co
 	return response, err
 }
 
-// GetIdpGroupMapping **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.cloud.oracle.com/Content/Identity/Reference/deprecatediamapis.htm).
+// GetIdpGroupMapping **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.oracle.com/iaas/Content/Identity/Reference/deprecatediamapis.htm).
 // Gets the specified group mapping.
 // A default retry strategy applies to this operation GetIdpGroupMapping()
 func (client IdentityClient) GetIdpGroupMapping(ctx context.Context, request GetIdpGroupMappingRequest) (response GetIdpGroupMappingResponse, err error) {
@@ -5865,6 +6185,130 @@ func (client IdentityClient) getPolicy(ctx context.Context, request common.OCIRe
 	if err != nil {
 		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/identity/20160918/Policy/GetPolicy"
 		err = common.PostProcessServiceError(err, "Identity", "GetPolicy", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// GetPolicyCorpusExport Get the policy export task details for a given task OCID.
+// A default retry strategy applies to this operation GetPolicyCorpusExport()
+func (client IdentityClient) GetPolicyCorpusExport(ctx context.Context, request GetPolicyCorpusExportRequest) (response GetPolicyCorpusExportResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.getPolicyCorpusExport, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = GetPolicyCorpusExportResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = GetPolicyCorpusExportResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(GetPolicyCorpusExportResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into GetPolicyCorpusExportResponse")
+	}
+	return
+}
+
+// getPolicyCorpusExport implements the OCIOperation interface (enables retrying operations)
+func (client IdentityClient) getPolicyCorpusExport(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodGet, "/policyCorpusExports/{policyCorpusExportId}", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	host := client.Host
+	request.(GetPolicyCorpusExportRequest).ReplaceMandatoryParamInPath(&client.BaseClient, client.requiredParamsInEndpoint)
+	common.UpdateEndpointTemplateForOptions(&client.BaseClient)
+	common.SetMissingTemplateParams(&client.BaseClient)
+	defer func() {
+		client.Host = host
+	}()
+
+	var response GetPolicyCorpusExportResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/identity/20160918/PolicyCorpusExport/GetPolicyCorpusExport"
+		err = common.PostProcessServiceError(err, "Identity", "GetPolicyCorpusExport", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// GetPolicySimulation Get the details for policy simulation task for a given policy simulation task OCID.
+// A default retry strategy applies to this operation GetPolicySimulation()
+func (client IdentityClient) GetPolicySimulation(ctx context.Context, request GetPolicySimulationRequest) (response GetPolicySimulationResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.getPolicySimulation, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = GetPolicySimulationResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = GetPolicySimulationResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(GetPolicySimulationResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into GetPolicySimulationResponse")
+	}
+	return
+}
+
+// getPolicySimulation implements the OCIOperation interface (enables retrying operations)
+func (client IdentityClient) getPolicySimulation(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodGet, "/policySimulations/{policySimulationId}", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	host := client.Host
+	request.(GetPolicySimulationRequest).ReplaceMandatoryParamInPath(&client.BaseClient, client.requiredParamsInEndpoint)
+	common.UpdateEndpointTemplateForOptions(&client.BaseClient)
+	common.SetMissingTemplateParams(&client.BaseClient)
+	defer func() {
+		client.Host = host
+	}()
+
+	var response GetPolicySimulationResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/identity/20160918/PolicySimulation/GetPolicySimulation"
+		err = common.PostProcessServiceError(err, "Identity", "GetPolicySimulation", apiReferenceLink)
 		return response, err
 	}
 
@@ -6820,7 +7264,7 @@ func (client IdentityClient) listAuthTokens(ctx context.Context, request common.
 
 // ListAvailabilityDomains Lists the availability domains in your tenancy. Specify the OCID of either the tenancy or another
 // of your compartments as the value for the compartment ID (remember that the tenancy is simply the root compartment).
-// See Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+// See Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five).
 // Note that the order of the results returned can change if availability domains are added or removed; therefore, do not
 // create a dependency on the list order.
 // A default retry strategy applies to this operation ListAvailabilityDomains()
@@ -6889,7 +7333,7 @@ func (client IdentityClient) listAvailabilityDomains(ctx context.Context, reques
 // and BulkMoveResources operations. The returned list of
 // resource-types provides the appropriate resource-type names to use with the bulk action operations along with
 // the type of identifying information you'll need to provide for each resource-type. Most resource-types just
-// require an OCID (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) to identify a specific resource, but some resource-types,
+// require an OCID (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm) to identify a specific resource, but some resource-types,
 // such as buckets, require you to provide other identifying information.
 // A default retry strategy applies to this operation ListBulkActionResourceTypes()
 func (client IdentityClient) ListBulkActionResourceTypes(ctx context.Context, request ListBulkActionResourceTypesRequest) (response ListBulkActionResourceTypesResponse, err error) {
@@ -7027,7 +7471,7 @@ func (client IdentityClient) listBulkEditTagsResourceTypes(ctx context.Context, 
 // tenancy (root compartment). When set to true, the entire hierarchy of compartments can be returned.
 // To get a full list of all compartments and subcompartments in the tenancy (root compartment),
 // set the parameter `compartmentIdInSubtree` to true and `accessLevel` to ANY.
-// See Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+// See Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five).
 // A default retry strategy applies to this operation ListCompartments()
 func (client IdentityClient) ListCompartments(ctx context.Context, request ListCompartmentsRequest) (response ListCompartmentsResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -7152,7 +7596,7 @@ func (client IdentityClient) listCompartmentsServiceSetting(ctx context.Context,
 }
 
 // ListCostTrackingTags Lists all the tags enabled for cost-tracking in the specified tenancy. For information about
-// cost-tracking tags, see Using Cost-tracking Tags (https://docs.cloud.oracle.com/Content/Tagging/Tasks/usingcosttrackingtags.htm).
+// cost-tracking tags, see Using Cost-tracking Tags (https://docs.oracle.com/iaas/Content/Tagging/Tasks/usingcosttrackingtags.htm).
 // A default retry strategy applies to this operation ListCostTrackingTags()
 func (client IdentityClient) ListCostTrackingTags(ctx context.Context, request ListCostTrackingTagsRequest) (response ListCostTrackingTagsResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -7403,7 +7847,7 @@ func (client IdentityClient) listDomains(ctx context.Context, request common.OCI
 
 // ListDynamicGroups Lists the dynamic groups in your tenancy. You must specify your tenancy's OCID as the value for
 // the compartment ID (remember that the tenancy is simply the root compartment).
-// See Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+// See Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five).
 // A default retry strategy applies to this operation ListDynamicGroups()
 func (client IdentityClient) ListDynamicGroups(ctx context.Context, request ListDynamicGroupsRequest) (response ListDynamicGroupsResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -7467,7 +7911,7 @@ func (client IdentityClient) listDynamicGroups(ctx context.Context, request comm
 
 // ListFaultDomains Lists the Fault Domains in your tenancy. Specify the OCID of either the tenancy or another
 // of your compartments as the value for the compartment ID (remember that the tenancy is simply the root compartment).
-// See Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+// See Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five).
 // A default retry strategy applies to this operation ListFaultDomains()
 func (client IdentityClient) ListFaultDomains(ctx context.Context, request ListFaultDomainsRequest) (response ListFaultDomainsResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -7531,7 +7975,7 @@ func (client IdentityClient) listFaultDomains(ctx context.Context, request commo
 
 // ListGroups Lists the groups in your tenancy. You must specify your tenancy's OCID as the value for
 // the compartment ID (remember that the tenancy is simply the root compartment).
-// See Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+// See Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five).
 // A default retry strategy applies to this operation ListGroups()
 func (client IdentityClient) ListGroups(ctx context.Context, request ListGroupsRequest) (response ListGroupsResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -7779,7 +8223,7 @@ func (client IdentityClient) listIamWorkRequests(ctx context.Context, request co
 	return response, err
 }
 
-// ListIdentityProviderGroups **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.cloud.oracle.com/Content/Identity/Reference/deprecatediamapis.htm).
+// ListIdentityProviderGroups **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.oracle.com/iaas/Content/Identity/Reference/deprecatediamapis.htm).
 // Lists the identity provider groups.
 // A default retry strategy applies to this operation ListIdentityProviderGroups()
 func (client IdentityClient) ListIdentityProviderGroups(ctx context.Context, request ListIdentityProviderGroupsRequest) (response ListIdentityProviderGroupsResponse, err error) {
@@ -7858,11 +8302,11 @@ func (m *listidentityprovider) UnmarshalPolymorphicJSON(data []byte) (interface{
 	return res, nil
 }
 
-// ListIdentityProviders **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.cloud.oracle.com/Content/Identity/Reference/deprecatediamapis.htm).
+// ListIdentityProviders **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.oracle.com/iaas/Content/Identity/Reference/deprecatediamapis.htm).
 // Lists all the identity providers in your tenancy. You must specify the identity provider type (e.g., `SAML2` for
 // identity providers using the SAML2.0 protocol). You must specify your tenancy's OCID as the value for the
 // compartment ID (remember that the tenancy is simply the root compartment).
-// See Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+// See Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five).
 // A default retry strategy applies to this operation ListIdentityProviders()
 func (client IdentityClient) ListIdentityProviders(ctx context.Context, request ListIdentityProvidersRequest) (response ListIdentityProvidersResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -7924,7 +8368,7 @@ func (client IdentityClient) listIdentityProviders(ctx context.Context, request 
 	return response, err
 }
 
-// ListIdpGroupMappings **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.cloud.oracle.com/Content/Identity/Reference/deprecatediamapis.htm).
+// ListIdpGroupMappings **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.oracle.com/iaas/Content/Identity/Reference/deprecatediamapis.htm).
 // Lists the group mappings for the specified identity provider.
 // A default retry strategy applies to this operation ListIdpGroupMappings()
 func (client IdentityClient) ListIdpGroupMappings(ctx context.Context, request ListIdpGroupMappingsRequest) (response ListIdpGroupMappingsResponse, err error) {
@@ -8239,7 +8683,7 @@ func (client IdentityClient) listNetworkLocations(ctx context.Context, request c
 
 // ListNetworkSources Lists the network sources in your tenancy. You must specify your tenancy's OCID as the value for
 // the compartment ID (remember that the tenancy is simply the root compartment).
-// See Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+// See Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five).
 // A default retry strategy applies to this operation ListNetworkSources()
 func (client IdentityClient) ListNetworkSources(ctx context.Context, request ListNetworkSourcesRequest) (response ListNetworkSourcesResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -8364,7 +8808,7 @@ func (client IdentityClient) listOAuthClientCredentials(ctx context.Context, req
 }
 
 // ListPolicies Lists the policies in the specified compartment (either the tenancy or another of your compartments).
-// See Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+// See Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five).
 // To determine which policies apply to a particular group or compartment, you must view the individual
 // statements inside all your policies. There isn't a way to automatically obtain that information via the API.
 // A default retry strategy applies to this operation ListPolicies()
@@ -8421,6 +8865,130 @@ func (client IdentityClient) listPolicies(ctx context.Context, request common.OC
 	if err != nil {
 		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/identity/20160918/Policy/ListPolicies"
 		err = common.PostProcessServiceError(err, "Identity", "ListPolicies", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// ListPolicyCorpusExports List the policy corpus export task status for a given tenancy.
+// A default retry strategy applies to this operation ListPolicyCorpusExports()
+func (client IdentityClient) ListPolicyCorpusExports(ctx context.Context, request ListPolicyCorpusExportsRequest) (response ListPolicyCorpusExportsResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.listPolicyCorpusExports, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = ListPolicyCorpusExportsResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = ListPolicyCorpusExportsResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(ListPolicyCorpusExportsResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into ListPolicyCorpusExportsResponse")
+	}
+	return
+}
+
+// listPolicyCorpusExports implements the OCIOperation interface (enables retrying operations)
+func (client IdentityClient) listPolicyCorpusExports(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodGet, "/policyCorpusExports", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	host := client.Host
+	request.(ListPolicyCorpusExportsRequest).ReplaceMandatoryParamInPath(&client.BaseClient, client.requiredParamsInEndpoint)
+	common.UpdateEndpointTemplateForOptions(&client.BaseClient)
+	common.SetMissingTemplateParams(&client.BaseClient)
+	defer func() {
+		client.Host = host
+	}()
+
+	var response ListPolicyCorpusExportsResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/identity/20160918/PolicyCorpusExport/ListPolicyCorpusExports"
+		err = common.PostProcessServiceError(err, "Identity", "ListPolicyCorpusExports", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// ListPolicySimulations Get details for all the policy simulation tasks for a given tenancy.
+// A default retry strategy applies to this operation ListPolicySimulations()
+func (client IdentityClient) ListPolicySimulations(ctx context.Context, request ListPolicySimulationsRequest) (response ListPolicySimulationsResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.DefaultRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.listPolicySimulations, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = ListPolicySimulationsResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = ListPolicySimulationsResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(ListPolicySimulationsResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into ListPolicySimulationsResponse")
+	}
+	return
+}
+
+// listPolicySimulations implements the OCIOperation interface (enables retrying operations)
+func (client IdentityClient) listPolicySimulations(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodGet, "/policySimulations", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	host := client.Host
+	request.(ListPolicySimulationsRequest).ReplaceMandatoryParamInPath(&client.BaseClient, client.requiredParamsInEndpoint)
+	common.UpdateEndpointTemplateForOptions(&client.BaseClient)
+	common.SetMissingTemplateParams(&client.BaseClient)
+	defer func() {
+		client.Host = host
+	}()
+
+	var response ListPolicySimulationsResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/identity/20160918/PolicySimulation/ListPolicySimulations"
+		err = common.PostProcessServiceError(err, "Identity", "ListPolicySimulations", apiReferenceLink)
 		return response, err
 	}
 
@@ -8857,10 +9425,10 @@ func (client IdentityClient) listTagNamespaces(ctx context.Context, request comm
 }
 
 // ListTagRules Lists the tag rules in the specified compartment (either the tenancy or another of your compartments).
-// See Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+// See Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five).
 // To use this and other API operations, you must be authorized in an IAM policy. If you're not authorized,
 // talk to an administrator. If you're an administrator who needs to write policies to give users access, see
-// Get Started with Policies (https://docs.cloud.oracle.com/Content/Identity/policiesgs/get-started-with-policies.htm).
+// Get Started with Policies (https://docs.oracle.com/iaas/Content/Identity/policiesgs/get-started-with-policies.htm).
 // A default retry strategy applies to this operation ListTagRules()
 func (client IdentityClient) ListTagRules(ctx context.Context, request ListTagRulesRequest) (response ListTagRulesResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -9296,7 +9864,7 @@ func (client IdentityClient) listTenancyCompartmentTree(ctx context.Context, req
 
 // ListUserGroupMemberships Lists the `UserGroupMembership` objects in your tenancy. You must specify your tenancy's OCID
 // as the value for the compartment ID
-// (see Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five)).
+// (see Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five)).
 // You must also then filter the list in one of these ways:
 // - You can limit the results to just the memberships for a given user by specifying a `userId`.
 // - Similarly, you can limit the results to just the memberships for a given group by specifying a `groupId`.
@@ -9366,7 +9934,7 @@ func (client IdentityClient) listUserGroupMemberships(ctx context.Context, reque
 
 // ListUsers Lists the users in your tenancy. You must specify your tenancy's OCID as the value for the
 // compartment ID (remember that the tenancy is simply the root compartment).
-// See Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+// See Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five).
 // A default retry strategy applies to this operation ListUsers()
 func (client IdentityClient) ListUsers(ctx context.Context, request ListUsersRequest) (response ListUsersResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -9496,7 +10064,7 @@ func (client IdentityClient) listWorkRequests(ctx context.Context, request commo
 // **IMPORTANT**: After you move a compartment to a new parent compartment, the access policies of
 // the new parent take effect and the policies of the previous parent no longer apply. Ensure that you
 // are aware of the implications for the compartment contents before you move it. For more
-// information, see Moving a Compartment (https://docs.cloud.oracle.com/Content/Identity/compartments/managingcompartments.htm#MoveCompartment).
+// information, see Moving a Compartment (https://docs.oracle.com/iaas/Content/Identity/compartments/managingcompartments.htm#MoveCompartment).
 // A default retry strategy applies to this operation MoveCompartment()
 func (client IdentityClient) MoveCompartment(ctx context.Context, request MoveCompartmentRequest) (response MoveCompartmentResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -10714,7 +11282,7 @@ func (client IdentityClient) updateGroup(ctx context.Context, request common.OCI
 	return response, err
 }
 
-// UpdateIdentityProvider **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.cloud.oracle.com/Content/Identity/Reference/deprecatediamapis.htm).
+// UpdateIdentityProvider **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.oracle.com/iaas/Content/Identity/Reference/deprecatediamapis.htm).
 // Updates the specified identity provider.
 // A default retry strategy applies to this operation UpdateIdentityProvider()
 func (client IdentityClient) UpdateIdentityProvider(ctx context.Context, request UpdateIdentityProviderRequest) (response UpdateIdentityProviderResponse, err error) {
@@ -10778,7 +11346,7 @@ func (client IdentityClient) updateIdentityProvider(ctx context.Context, request
 	return response, err
 }
 
-// UpdateIdpGroupMapping **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.cloud.oracle.com/Content/Identity/Reference/deprecatediamapis.htm).
+// UpdateIdpGroupMapping **Deprecated.** For more information, see Deprecated IAM Service APIs (https://docs.oracle.com/iaas/Content/Identity/Reference/deprecatediamapis.htm).
 // Updates the specified group mapping.
 // A default retry strategy applies to this operation UpdateIdpGroupMapping()
 func (client IdentityClient) UpdateIdpGroupMapping(ctx context.Context, request UpdateIdpGroupMappingRequest) (response UpdateIdpGroupMappingResponse, err error) {
@@ -11427,7 +11995,7 @@ func (client IdentityClient) updateTagDefault(ctx context.Context, request commo
 // namespace (changing `isRetired` from 'true' to 'false') does not reactivate tag definitions.
 // To reactivate the tag definitions, you must reactivate each one individually *after* you reactivate the namespace,
 // using UpdateTag. For more information about retiring tag namespaces, see
-// Retiring Key Definitions and Namespace Definitions (https://docs.cloud.oracle.com/Content/Tagging/Tasks/managingtagsandtagnamespaces.htm#retiringkeys).
+// Retiring Key Definitions and Namespace Definitions (https://docs.oracle.com/iaas/Content/Tagging/Tasks/managingtagsandtagnamespaces.htm#retiringkeys).
 // You can't add a namespace with the same name as a retired namespace in the same tenancy.
 // A default retry strategy applies to this operation UpdateTagNamespace()
 func (client IdentityClient) UpdateTagNamespace(ctx context.Context, request UpdateTagNamespaceRequest) (response UpdateTagNamespaceResponse, err error) {

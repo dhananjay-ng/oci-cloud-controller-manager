@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
@@ -14,13 +14,13 @@ import (
 // ConnectLocalPeeringConnectionsRequest wrapper for the ConnectLocalPeeringConnections operation
 type ConnectLocalPeeringConnectionsRequest struct {
 
-	// The OCID (https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the local peering connection. This feature is currently in preview and may change before public release. Do not use it for production workloads.
+	// The OCID (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the local peering connection. This feature is currently in preview and may change before public release. Do not use it for production workloads.
 	LocalPeeringConnectionId *string `mandatory:"true" contributesTo:"path" name:"localPeeringConnectionId"`
 
 	// Details regarding the local peering connection to connect.
 	ConnectLocalPeeringConnectionsDetails `contributesTo:"body"`
 
-	// A comma separated list of tenancy OCID (https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm)s that might be accessed by this request. Only required
+	// A comma separated list of tenancy OCID (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm)s that might be accessed by this request. Only required
 	// for cross tenancy requests. May be `null` for requests that do not cross tenancy boundaries.
 	XCrossTenancyRequest *string `mandatory:"false" contributesTo:"header" name:"x-cross-tenancy-request"`
 
@@ -52,21 +52,6 @@ func (request ConnectLocalPeeringConnectionsRequest) BinaryRequestBody() (*commo
 
 	return nil, false
 
-}
-
-// ReplaceMandatoryParamInPath replaces the mandatory parameter in the path with the value provided.
-// Not all services are supporting this feature and this method will be a no-op for those services.
-func (request ConnectLocalPeeringConnectionsRequest) ReplaceMandatoryParamInPath(client *common.BaseClient, mandatoryParamMap map[string][]common.TemplateParamForPerRealmEndpoint) {
-	if mandatoryParamMap["localPeeringConnectionId"] != nil {
-		templateParam := mandatoryParamMap["localPeeringConnectionId"]
-		for _, template := range templateParam {
-			replacementParam := *request.LocalPeeringConnectionId
-			if template.EndsWithDot {
-				replacementParam = replacementParam + "."
-			}
-			client.Host = strings.Replace(client.Host, template.Template, replacementParam, -1)
-		}
-	}
 }
 
 // RetryPolicy implements the OCIRetryableRequest interface. This retrieves the specified retry policy.

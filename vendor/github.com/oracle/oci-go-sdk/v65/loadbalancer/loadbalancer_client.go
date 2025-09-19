@@ -1,11 +1,11 @@
-// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
 // Load Balancing API
 //
 // API for the Load Balancing service. Use this API to manage load balancers, backend sets, and related items. For more
-// information, see Overview of Load Balancing (https://docs.cloud.oracle.com/iaas/Content/Balance/Concepts/balanceoverview.htm).
+// information, see Overview of Load Balancing (https://docs.oracle.com/iaas/Content/Balance/Concepts/balanceoverview.htm).
 //
 
 package loadbalancer
@@ -99,7 +99,7 @@ func (client *LoadBalancerClient) EnableDualStackEndpoints(enableDualStack bool)
 }
 
 // ChangeLoadBalancerCompartment Moves a load balancer into a different compartment within the same tenancy. For information about moving resources
-// between compartments, see Moving Resources to a Different Compartment (https://docs.cloud.oracle.com/iaas/Content/Identity/Tasks/managingcompartments.htm#moveRes).
+// between compartments, see Moving Resources to a Different Compartment (https://docs.oracle.com/iaas/Content/Identity/Tasks/managingcompartments.htm#moveRes).
 func (client LoadBalancerClient) ChangeLoadBalancerCompartment(ctx context.Context, request ChangeLoadBalancerCompartmentRequest) (response ChangeLoadBalancerCompartmentResponse, err error) {
 	var ociResponse common.OCIResponse
 	policy := common.NoRetryPolicy()
@@ -425,7 +425,7 @@ func (client LoadBalancerClient) createCidrBlocks(ctx context.Context, request c
 }
 
 // CreateHostname Adds a hostname resource to the specified load balancer. For more information, see
-// Managing Request Routing (https://docs.cloud.oracle.com/Content/Balance/Tasks/managingrequest.htm).
+// Managing Request Routing (https://docs.oracle.com/iaas/Content/Balance/Tasks/managingrequest.htm).
 func (client LoadBalancerClient) CreateHostname(ctx context.Context, request CreateHostnameRequest) (response CreateHostnameResponse, err error) {
 	var ociResponse common.OCIResponse
 	policy := common.NoRetryPolicy()
@@ -556,22 +556,22 @@ func (client LoadBalancerClient) createListener(ctx context.Context, request com
 }
 
 // CreateLoadBalancer Creates a new load balancer in the specified compartment. For general information about load balancers,
-// see Overview of the Load Balancing Service (https://docs.cloud.oracle.com/Content/Balance/Concepts/balanceoverview.htm).
+// see Overview of the Load Balancing Service (https://docs.oracle.com/iaas/Content/Balance/Concepts/balanceoverview.htm).
 // For the purposes of access control, you must provide the OCID of the compartment where you want
 // the load balancer to reside. Notice that the load balancer doesn't have to be in the same compartment as the VCN
 // or backend set. If you're not sure which compartment to use, put the load balancer in the same compartment as the VCN.
 // For information about access control and compartments, see
-// Overview of the IAM Service (https://docs.cloud.oracle.com/Content/Identity/Concepts/overview.htm).
+// Overview of the IAM Service (https://docs.oracle.com/iaas/Content/Identity/Concepts/overview.htm).
 // You must specify a display name for the load balancer. It does not have to be unique, and you can change it.
 // For information about Availability Domains, see
-// Regions and Availability Domains (https://docs.cloud.oracle.com/Content/General/Concepts/regions.htm).
+// Regions and Availability Domains (https://docs.oracle.com/iaas/Content/General/Concepts/regions.htm).
 // To get a list of Availability Domains, use the `ListAvailabilityDomains` operation
 // in the Identity and Access Management Service API.
 // All Oracle Cloud Infrastructure resources, including load balancers, get an Oracle-assigned,
 // unique ID called an Oracle Cloud Identifier (OCID). When you create a resource, you can find its OCID
 // in the response. You can also retrieve a resource's OCID by using a List API operation on that resource type,
 // or by viewing the resource in the Console. Fore more information, see
-// Resource Identifiers (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm).
+// Resource Identifiers (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm).
 // After you send your request, the new object's state will temporarily be PROVISIONING. Before using the
 // object, first make sure its state has changed to RUNNING.
 // When you create a load balancer, the system assigns an IP address.
@@ -641,7 +641,7 @@ func (client LoadBalancerClient) createLoadBalancer(ctx context.Context, request
 }
 
 // CreatePathRouteSet Adds a path route set to a load balancer. For more information, see
-// Managing Request Routing (https://docs.cloud.oracle.com/Content/Balance/Tasks/managingrequest.htm).
+// Managing Request Routing (https://docs.oracle.com/iaas/Content/Balance/Tasks/managingrequest.htm).
 func (client LoadBalancerClient) CreatePathRouteSet(ctx context.Context, request CreatePathRouteSetRequest) (response CreatePathRouteSetResponse, err error) {
 	var ociResponse common.OCIResponse
 	policy := common.NoRetryPolicy()
@@ -707,7 +707,7 @@ func (client LoadBalancerClient) createPathRouteSet(ctx context.Context, request
 }
 
 // CreateRoutingPolicy Adds a routing policy to a load balancer. For more information, see
-// Managing Request Routing (https://docs.cloud.oracle.com/Content/Balance/Tasks/managingrequest.htm).
+// Managing Request Routing (https://docs.oracle.com/iaas/Content/Balance/Tasks/managingrequest.htm).
 func (client LoadBalancerClient) CreateRoutingPolicy(ctx context.Context, request CreateRoutingPolicyRequest) (response CreateRoutingPolicyResponse, err error) {
 	var ociResponse common.OCIResponse
 	policy := common.NoRetryPolicy()
@@ -773,7 +773,7 @@ func (client LoadBalancerClient) createRoutingPolicy(ctx context.Context, reques
 }
 
 // CreateRuleSet Creates a new rule set associated with the specified load balancer. For more information, see
-// Managing Rule Sets (https://docs.cloud.oracle.com/Content/Balance/Tasks/managingrulesets.htm).
+// Managing Rule Sets (https://docs.oracle.com/iaas/Content/Balance/Tasks/managingrulesets.htm).
 func (client LoadBalancerClient) CreateRuleSet(ctx context.Context, request CreateRuleSetRequest) (response CreateRuleSetResponse, err error) {
 	var ociResponse common.OCIResponse
 	policy := common.NoRetryPolicy()
@@ -2110,6 +2110,66 @@ func (client LoadBalancerClient) getLoadBalancerHealth(ctx context.Context, requ
 	return response, err
 }
 
+// GetLogging Gets logging configuration for a given logId.
+func (client LoadBalancerClient) GetLogging(ctx context.Context, request GetLoggingRequest) (response GetLoggingResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.NoRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+	ociResponse, err = common.Retry(ctx, request, client.getLogging, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = GetLoggingResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = GetLoggingResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(GetLoggingResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into GetLoggingResponse")
+	}
+	return
+}
+
+// getLogging implements the OCIOperation interface (enables retrying operations)
+func (client LoadBalancerClient) getLogging(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodGet, "/loadBalancers/20190909/logging/{logId}", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	host := client.Host
+	common.UpdateEndpointTemplateForOptions(&client.BaseClient)
+	common.SetMissingTemplateParams(&client.BaseClient)
+	defer func() {
+		client.Host = host
+	}()
+
+	var response GetLoggingResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/loadbalancer/20170115/OciServiceLoggingConfig/GetLogging"
+		err = common.PostProcessServiceError(err, "LoadBalancer", "GetLogging", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
 // GetPathRouteSet Gets the specified path route set's configuration information.
 func (client LoadBalancerClient) GetPathRouteSet(ctx context.Context, request GetPathRouteSetRequest) (response GetPathRouteSetResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -3375,6 +3435,136 @@ func (client LoadBalancerClient) listWorkRequests(ctx context.Context, request c
 	return response, err
 }
 
+// StartLogging Starts logging for the specified category and parameters for the specified loadbalancer.
+func (client LoadBalancerClient) StartLogging(ctx context.Context, request StartLoggingRequest) (response StartLoggingResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.NoRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+
+	if !(request.OpcRetryToken != nil && *request.OpcRetryToken != "") {
+		request.OpcRetryToken = common.String(common.RetryToken())
+	}
+
+	ociResponse, err = common.Retry(ctx, request, client.startLogging, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = StartLoggingResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = StartLoggingResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(StartLoggingResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into StartLoggingResponse")
+	}
+	return
+}
+
+// startLogging implements the OCIOperation interface (enables retrying operations)
+func (client LoadBalancerClient) startLogging(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodPost, "/loadBalancers/20190909/logging", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	host := client.Host
+	common.UpdateEndpointTemplateForOptions(&client.BaseClient)
+	common.SetMissingTemplateParams(&client.BaseClient)
+	defer func() {
+		client.Host = host
+	}()
+
+	var response StartLoggingResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/loadbalancer/20170115/OciServiceLoggingConfig/StartLogging"
+		err = common.PostProcessServiceError(err, "LoadBalancer", "StartLogging", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// StopLogging Stops logging for the specified category for the specified loadbalancer.
+func (client LoadBalancerClient) StopLogging(ctx context.Context, request StopLoggingRequest) (response StopLoggingResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.NoRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+
+	if !(request.OpcRetryToken != nil && *request.OpcRetryToken != "") {
+		request.OpcRetryToken = common.String(common.RetryToken())
+	}
+
+	ociResponse, err = common.Retry(ctx, request, client.stopLogging, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = StopLoggingResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = StopLoggingResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(StopLoggingResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into StopLoggingResponse")
+	}
+	return
+}
+
+// stopLogging implements the OCIOperation interface (enables retrying operations)
+func (client LoadBalancerClient) stopLogging(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodDelete, "/loadBalancers/20190909/logging/{logId}", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	host := client.Host
+	common.UpdateEndpointTemplateForOptions(&client.BaseClient)
+	common.SetMissingTemplateParams(&client.BaseClient)
+	defer func() {
+		client.Host = host
+	}()
+
+	var response StopLoggingResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/loadbalancer/20170115/OciServiceLoggingConfig/StopLogging"
+		err = common.PostProcessServiceError(err, "LoadBalancer", "StopLogging", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
 // UpdateBackend Updates the configuration of a backend server within the specified backend set.
 func (client LoadBalancerClient) UpdateBackend(ctx context.Context, request UpdateBackendRequest) (response UpdateBackendResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -3894,6 +4084,71 @@ func (client LoadBalancerClient) updateLoadBalancerShape(ctx context.Context, re
 	if err != nil {
 		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/loadbalancer/20170115/LoadBalancer/UpdateLoadBalancerShape"
 		err = common.PostProcessServiceError(err, "LoadBalancer", "UpdateLoadBalancerShape", apiReferenceLink)
+		return response, err
+	}
+
+	err = common.UnmarshalResponse(httpResponse, &response)
+	return response, err
+}
+
+// UpdateLogging Updates logging for the specified category and parameters for the specified loadbalancer.
+func (client LoadBalancerClient) UpdateLogging(ctx context.Context, request UpdateLoggingRequest) (response UpdateLoggingResponse, err error) {
+	var ociResponse common.OCIResponse
+	policy := common.NoRetryPolicy()
+	if client.RetryPolicy() != nil {
+		policy = *client.RetryPolicy()
+	}
+	if request.RetryPolicy() != nil {
+		policy = *request.RetryPolicy()
+	}
+
+	if !(request.OpcRetryToken != nil && *request.OpcRetryToken != "") {
+		request.OpcRetryToken = common.String(common.RetryToken())
+	}
+
+	ociResponse, err = common.Retry(ctx, request, client.updateLogging, policy)
+	if err != nil {
+		if ociResponse != nil {
+			if httpResponse := ociResponse.HTTPResponse(); httpResponse != nil {
+				opcRequestId := httpResponse.Header.Get("opc-request-id")
+				response = UpdateLoggingResponse{RawResponse: httpResponse, OpcRequestId: &opcRequestId}
+			} else {
+				response = UpdateLoggingResponse{}
+			}
+		}
+		return
+	}
+	if convertedResponse, ok := ociResponse.(UpdateLoggingResponse); ok {
+		response = convertedResponse
+	} else {
+		err = fmt.Errorf("failed to convert OCIResponse into UpdateLoggingResponse")
+	}
+	return
+}
+
+// updateLogging implements the OCIOperation interface (enables retrying operations)
+func (client LoadBalancerClient) updateLogging(ctx context.Context, request common.OCIRequest, binaryReqBody *common.OCIReadSeekCloser, extraHeaders map[string]string) (common.OCIResponse, error) {
+
+	httpRequest, err := request.HTTPRequest(http.MethodPut, "/loadBalancers/20190909/logging", binaryReqBody, extraHeaders)
+	if err != nil {
+		return nil, err
+	}
+
+	host := client.Host
+	common.UpdateEndpointTemplateForOptions(&client.BaseClient)
+	common.SetMissingTemplateParams(&client.BaseClient)
+	defer func() {
+		client.Host = host
+	}()
+
+	var response UpdateLoggingResponse
+	var httpResponse *http.Response
+	httpResponse, err = client.Call(ctx, &httpRequest)
+	defer common.CloseBodyIfValid(httpResponse)
+	response.RawResponse = httpResponse
+	if err != nil {
+		apiReferenceLink := "https://docs.oracle.com/iaas/api/#/en/loadbalancer/20170115/OciServiceLoggingConfig/UpdateLogging"
+		err = common.PostProcessServiceError(err, "LoadBalancer", "UpdateLogging", apiReferenceLink)
 		return response, err
 	}
 

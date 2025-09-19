@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
@@ -14,7 +14,7 @@ import (
 // UpdateFlowLogConfigRequest wrapper for the UpdateFlowLogConfig operation
 type UpdateFlowLogConfigRequest struct {
 
-	// The OCID (https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the flow log configuration.
+	// The OCID (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the flow log configuration.
 	FlowLogConfigId *string `mandatory:"true" contributesTo:"path" name:"flowLogConfigId"`
 
 	// Flow log configuration details to be updated.
@@ -53,21 +53,6 @@ func (request UpdateFlowLogConfigRequest) BinaryRequestBody() (*common.OCIReadSe
 
 	return nil, false
 
-}
-
-// ReplaceMandatoryParamInPath replaces the mandatory parameter in the path with the value provided.
-// Not all services are supporting this feature and this method will be a no-op for those services.
-func (request UpdateFlowLogConfigRequest) ReplaceMandatoryParamInPath(client *common.BaseClient, mandatoryParamMap map[string][]common.TemplateParamForPerRealmEndpoint) {
-	if mandatoryParamMap["flowLogConfigId"] != nil {
-		templateParam := mandatoryParamMap["flowLogConfigId"]
-		for _, template := range templateParam {
-			replacementParam := *request.FlowLogConfigId
-			if template.EndsWithDot {
-				replacementParam = replacementParam + "."
-			}
-			client.Host = strings.Replace(client.Host, template.Template, replacementParam, -1)
-		}
-	}
 }
 
 // RetryPolicy implements the OCIRetryableRequest interface. This retrieves the specified retry policy.

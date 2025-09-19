@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
@@ -154,7 +154,7 @@ func (client *CompartmentsClient) refreshRegion() {
 
 // BulkDeleteResources Deletes multiple resources in the compartment. All resources must be in the same compartment. You must have the appropriate
 // permissions to delete the resources in the request. This API can only be invoked from the tenancy's
-// home region (https://docs.cloud.oracle.com/Content/Identity/regions/managingregions.htm#Home). This operation creates a
+// home region (https://docs.oracle.com/iaas/Content/Identity/regions/managingregions.htm#Home). This operation creates a
 // WorkRequest. Use the GetWorkRequest
 // API to monitor the status of the bulk action.
 // A default retry strategy applies to this operation BulkDeleteResources()
@@ -224,7 +224,7 @@ func (client CompartmentsClient) bulkDeleteResources(ctx context.Context, reques
 }
 
 // BulkEditResource Moves multiple resources from one compartment to another. All resources must be in the same compartment.
-// This API can only be invoked from the tenancy's home region (https://docs.cloud.oracle.com/Content/Identity/regions/managingregions.htm#Home).
+// This API can only be invoked from the tenancy's home region (https://docs.oracle.com/iaas/Content/Identity/regions/managingregions.htm#Home).
 // To move resources, you must have the appropriate permissions to move the resource in both the source and target
 // compartments. This operation creates a WorkRequest.
 // Use the GetWorkRequest API to monitor the status of the bulk action.
@@ -297,11 +297,11 @@ func (client CompartmentsClient) bulkEditResource(ctx context.Context, request c
 // CreateCompartment Creates a new compartment in the specified compartment.
 // Specify the parent compartment's OCID as the compartment ID in the request object. Remember that the tenancy
 // is simply the root compartment. For information about OCIDs, see
-// Resource Identifiers (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm).
+// Resource Identifiers (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm).
 // You must also specify a *name* for the compartment, which must be unique across all compartments in
 // your tenancy. You can use this name or the OCID when writing policies that apply
 // to the compartment. For more information about policies, see
-// How Policies Work (https://docs.cloud.oracle.com/Content/Identity/policieshow/how-policies-work.htm).
+// How Policies Work (https://docs.oracle.com/iaas/Content/Identity/policieshow/how-policies-work.htm).
 // You must also specify a *description* for the compartment (although it can be an empty string). It does
 // not have to be unique, and you can change it anytime with
 // UpdateCompartment.
@@ -702,7 +702,7 @@ func (client CompartmentsClient) getWorkRequest(ctx context.Context, request com
 
 // ListAvailabilityDomains Lists the availability domains in your tenancy. Specify the OCID of either the tenancy or another
 // of your compartments as the value for the compartment ID (remember that the tenancy is simply the root compartment).
-// See Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+// See Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five).
 // Note that the order of the results returned can change if availability domains are added or removed; therefore, do not
 // create a dependency on the list order.
 // A default retry strategy applies to this operation ListAvailabilityDomains()
@@ -771,7 +771,7 @@ func (client CompartmentsClient) listAvailabilityDomains(ctx context.Context, re
 // and BulkMoveResources operations. The returned list of
 // resource-types provides the appropriate resource-type names to use with the bulk action operations along with
 // the type of identifying information you'll need to provide for each resource-type. Most resource-types just
-// require an OCID (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) to identify a specific resource, but some resource-types,
+// require an OCID (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm) to identify a specific resource, but some resource-types,
 // such as buckets, require you to provide other identifying information.
 // A default retry strategy applies to this operation ListBulkActionResourceTypes()
 func (client CompartmentsClient) ListBulkActionResourceTypes(ctx context.Context, request ListBulkActionResourceTypesRequest) (response ListBulkActionResourceTypesResponse, err error) {
@@ -847,7 +847,7 @@ func (client CompartmentsClient) listBulkActionResourceTypes(ctx context.Context
 // tenancy (root compartment). When set to true, the entire hierarchy of compartments can be returned.
 // To get a full list of all compartments and subcompartments in the tenancy (root compartment),
 // set the parameter `compartmentIdInSubtree` to true and `accessLevel` to ANY.
-// See Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+// See Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five).
 // A default retry strategy applies to this operation ListCompartments()
 func (client CompartmentsClient) ListCompartments(ctx context.Context, request ListCompartmentsRequest) (response ListCompartmentsResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -911,7 +911,7 @@ func (client CompartmentsClient) listCompartments(ctx context.Context, request c
 
 // ListFaultDomains Lists the Fault Domains in your tenancy. Specify the OCID of either the tenancy or another
 // of your compartments as the value for the compartment ID (remember that the tenancy is simply the root compartment).
-// See Where to Get the Tenancy's OCID and User's OCID (https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#five).
+// See Where to Get the Tenancy's OCID and User's OCID (https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm#five).
 // A default retry strategy applies to this operation ListFaultDomains()
 func (client CompartmentsClient) ListFaultDomains(ctx context.Context, request ListFaultDomainsRequest) (response ListFaultDomainsResponse, err error) {
 	var ociResponse common.OCIResponse
@@ -1228,7 +1228,7 @@ func (client CompartmentsClient) listWorkRequests(ctx context.Context, request c
 // **IMPORTANT**: After you move a compartment to a new parent compartment, the access policies of
 // the new parent take effect and the policies of the previous parent no longer apply. Ensure that you
 // are aware of the implications for the compartment contents before you move it. For more
-// information, see Moving a Compartment (https://docs.cloud.oracle.com/Content/Identity/compartments/managingcompartments.htm#MoveCompartment).
+// information, see Moving a Compartment (https://docs.oracle.com/iaas/Content/Identity/compartments/managingcompartments.htm#MoveCompartment).
 // A default retry strategy applies to this operation MoveCompartment()
 func (client CompartmentsClient) MoveCompartment(ctx context.Context, request MoveCompartmentRequest) (response MoveCompartmentResponse, err error) {
 	var ociResponse common.OCIResponse

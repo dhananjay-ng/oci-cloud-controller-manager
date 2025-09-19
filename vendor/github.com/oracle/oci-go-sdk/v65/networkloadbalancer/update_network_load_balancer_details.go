@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
@@ -43,18 +43,27 @@ type UpdateNetworkLoadBalancerDetails struct {
 	// Example: "2607:9b80:9a0a:9a7e:abcd:ef01:2345:6789"
 	AssignedIpv6 *string `mandatory:"false" json:"assignedIpv6"`
 
+	// NAT translation mode between IPv4 and IPv6
+	IpVersionTranslation NetworkLoadBalancerIpVersionTranslationEnum `mandatory:"false" json:"ipVersionTranslation,omitempty"`
+
+	// Optional field for NAT46 use case. If specified, the CIDR must be from NLB's Subnet IPv6 Prefixes and
+	// can be of either /80 length or /64 length. If cidr prefix of length /80 is passed then entire cidr block will be used for NATing or
+	// if /64 is provided then a length of /80 will be derived internally and used for NATing.
+	// Example: "fc00:9b80:9a0a:9a7e:abcd::/80"
+	Nat46Ipv6CidrPrefix *string `mandatory:"false" json:"nat46Ipv6CidrPrefix"`
+
 	// Free-form tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace.
-	// For more information, see Resource Tags (https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+	// For more information, see Resource Tags (https://docs.oracle.com/iaas/Content/General/Concepts/resourcetags.htm).
 	// Example: `{"Department": "Finance"}`
 	FreeformTags map[string]string `mandatory:"false" json:"freeformTags"`
 
 	// Defined tags for this resource. Each key is predefined and scoped to a namespace.
-	// For more information, see Resource Tags (https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+	// For more information, see Resource Tags (https://docs.oracle.com/iaas/Content/General/Concepts/resourcetags.htm).
 	// Example: `{"Operations": {"CostCenter": "42"}}`
 	DefinedTags map[string]map[string]interface{} `mandatory:"false" json:"definedTags"`
 
 	// ZPR tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace.
-	// For more information, see Resource Tags (https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+	// For more information, see Resource Tags (https://docs.oracle.com/iaas/Content/General/Concepts/resourcetags.htm).
 	// Example: `{"oracle-zpr": {"td": {"value": "42", "mode": "audit"}}}`
 	SecurityAttributes map[string]map[string]interface{} `mandatory:"false" json:"securityAttributes"`
 }
@@ -71,6 +80,9 @@ func (m UpdateNetworkLoadBalancerDetails) ValidateEnumValue() (bool, error) {
 
 	if _, ok := GetMappingNlbIpVersionEnum(string(m.NlbIpVersion)); !ok && m.NlbIpVersion != "" {
 		errMessage = append(errMessage, fmt.Sprintf("unsupported enum value for NlbIpVersion: %s. Supported values are: %s.", m.NlbIpVersion, strings.Join(GetNlbIpVersionEnumStringValues(), ",")))
+	}
+	if _, ok := GetMappingNetworkLoadBalancerIpVersionTranslationEnum(string(m.IpVersionTranslation)); !ok && m.IpVersionTranslation != "" {
+		errMessage = append(errMessage, fmt.Sprintf("unsupported enum value for IpVersionTranslation: %s. Supported values are: %s.", m.IpVersionTranslation, strings.Join(GetNetworkLoadBalancerIpVersionTranslationEnumStringValues(), ",")))
 	}
 	if len(errMessage) > 0 {
 		return true, fmt.Errorf(strings.Join(errMessage, "\n"))

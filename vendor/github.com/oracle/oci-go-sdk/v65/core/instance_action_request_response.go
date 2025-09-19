@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
@@ -14,11 +14,11 @@ import (
 // InstanceActionRequest wrapper for the InstanceAction operation
 type InstanceActionRequest struct {
 
-	// The OCID (https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the instance.
+	// The OCID (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the instance.
 	InstanceId *string `mandatory:"true" contributesTo:"path" name:"instanceId"`
 
 	// The action to perform on the instance.
-	Action InstanceActionActionEnum `mandatory:"true" contributesTo:"query" name:"action" omitEmpty:"true"`
+	Action *string `mandatory:"true" contributesTo:"query" name:"action" omitEmpty:"true"`
 
 	// A token that uniquely identifies a request so it can be retried in case of a timeout or
 	// server error without risk of executing that same action again. Retry tokens expire after 24
@@ -65,21 +65,6 @@ func (request InstanceActionRequest) BinaryRequestBody() (*common.OCIReadSeekClo
 
 }
 
-// ReplaceMandatoryParamInPath replaces the mandatory parameter in the path with the value provided.
-// Not all services are supporting this feature and this method will be a no-op for those services.
-func (request InstanceActionRequest) ReplaceMandatoryParamInPath(client *common.BaseClient, mandatoryParamMap map[string][]common.TemplateParamForPerRealmEndpoint) {
-	if mandatoryParamMap["instanceId"] != nil {
-		templateParam := mandatoryParamMap["instanceId"]
-		for _, template := range templateParam {
-			replacementParam := *request.InstanceId
-			if template.EndsWithDot {
-				replacementParam = replacementParam + "."
-			}
-			client.Host = strings.Replace(client.Host, template.Template, replacementParam, -1)
-		}
-	}
-}
-
 // RetryPolicy implements the OCIRetryableRequest interface. This retrieves the specified retry policy.
 func (request InstanceActionRequest) RetryPolicy() *common.RetryPolicy {
 	return request.RequestMetadata.RetryPolicy
@@ -90,9 +75,6 @@ func (request InstanceActionRequest) RetryPolicy() *common.RetryPolicy {
 // Not recommended for calling this function directly
 func (request InstanceActionRequest) ValidateEnumValue() (bool, error) {
 	errMessage := []string{}
-	if _, ok := GetMappingInstanceActionActionEnum(string(request.Action)); !ok && request.Action != "" {
-		errMessage = append(errMessage, fmt.Sprintf("unsupported enum value for Action: %s. Supported values are: %s.", request.Action, strings.Join(GetInstanceActionActionEnumStringValues(), ",")))
-	}
 	if len(errMessage) > 0 {
 		return true, fmt.Errorf(strings.Join(errMessage, "\n"))
 	}
@@ -123,82 +105,4 @@ func (response InstanceActionResponse) String() string {
 // HTTPResponse implements the OCIResponse interface
 func (response InstanceActionResponse) HTTPResponse() *http.Response {
 	return response.RawResponse
-}
-
-// InstanceActionActionEnum Enum with underlying type: string
-type InstanceActionActionEnum string
-
-// Set of constants representing the allowable values for InstanceActionActionEnum
-const (
-	InstanceActionActionStop                    InstanceActionActionEnum = "STOP"
-	InstanceActionActionStart                   InstanceActionActionEnum = "START"
-	InstanceActionActionSoftreset               InstanceActionActionEnum = "SOFTRESET"
-	InstanceActionActionReset                   InstanceActionActionEnum = "RESET"
-	InstanceActionActionSoftstop                InstanceActionActionEnum = "SOFTSTOP"
-	InstanceActionActionValidatelivemigrate     InstanceActionActionEnum = "VALIDATELIVEMIGRATE"
-	InstanceActionActionSenddiagnosticinterrupt InstanceActionActionEnum = "SENDDIAGNOSTICINTERRUPT"
-	InstanceActionActionExtendscheduledstop     InstanceActionActionEnum = "EXTENDSCHEDULEDSTOP"
-	InstanceActionActionDiagnosticreboot        InstanceActionActionEnum = "DIAGNOSTICREBOOT"
-	InstanceActionActionSuspend                 InstanceActionActionEnum = "SUSPEND"
-	InstanceActionActionRebootmigrate           InstanceActionActionEnum = "REBOOTMIGRATE"
-)
-
-var mappingInstanceActionActionEnum = map[string]InstanceActionActionEnum{
-	"STOP":                    InstanceActionActionStop,
-	"START":                   InstanceActionActionStart,
-	"SOFTRESET":               InstanceActionActionSoftreset,
-	"RESET":                   InstanceActionActionReset,
-	"SOFTSTOP":                InstanceActionActionSoftstop,
-	"VALIDATELIVEMIGRATE":     InstanceActionActionValidatelivemigrate,
-	"SENDDIAGNOSTICINTERRUPT": InstanceActionActionSenddiagnosticinterrupt,
-	"EXTENDSCHEDULEDSTOP":     InstanceActionActionExtendscheduledstop,
-	"DIAGNOSTICREBOOT":        InstanceActionActionDiagnosticreboot,
-	"SUSPEND":                 InstanceActionActionSuspend,
-	"REBOOTMIGRATE":           InstanceActionActionRebootmigrate,
-}
-
-var mappingInstanceActionActionEnumLowerCase = map[string]InstanceActionActionEnum{
-	"stop":                    InstanceActionActionStop,
-	"start":                   InstanceActionActionStart,
-	"softreset":               InstanceActionActionSoftreset,
-	"reset":                   InstanceActionActionReset,
-	"softstop":                InstanceActionActionSoftstop,
-	"validatelivemigrate":     InstanceActionActionValidatelivemigrate,
-	"senddiagnosticinterrupt": InstanceActionActionSenddiagnosticinterrupt,
-	"extendscheduledstop":     InstanceActionActionExtendscheduledstop,
-	"diagnosticreboot":        InstanceActionActionDiagnosticreboot,
-	"suspend":                 InstanceActionActionSuspend,
-	"rebootmigrate":           InstanceActionActionRebootmigrate,
-}
-
-// GetInstanceActionActionEnumValues Enumerates the set of values for InstanceActionActionEnum
-func GetInstanceActionActionEnumValues() []InstanceActionActionEnum {
-	values := make([]InstanceActionActionEnum, 0)
-	for _, v := range mappingInstanceActionActionEnum {
-		values = append(values, v)
-	}
-	return values
-}
-
-// GetInstanceActionActionEnumStringValues Enumerates the set of values in String for InstanceActionActionEnum
-func GetInstanceActionActionEnumStringValues() []string {
-	return []string{
-		"STOP",
-		"START",
-		"SOFTRESET",
-		"RESET",
-		"SOFTSTOP",
-		"VALIDATELIVEMIGRATE",
-		"SENDDIAGNOSTICINTERRUPT",
-		"EXTENDSCHEDULEDSTOP",
-		"DIAGNOSTICREBOOT",
-		"SUSPEND",
-		"REBOOTMIGRATE",
-	}
-}
-
-// GetMappingInstanceActionActionEnum performs case Insensitive comparison on enum value and return the desired enum
-func GetMappingInstanceActionActionEnum(val string) (InstanceActionActionEnum, bool) {
-	enum, ok := mappingInstanceActionActionEnumLowerCase[strings.ToLower(val)]
-	return enum, ok
 }

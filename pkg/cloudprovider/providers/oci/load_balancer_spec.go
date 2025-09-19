@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/oracle/oci-go-sdk/v65/networkloadbalancer"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 	v1 "k8s.io/api/core/v1"
@@ -35,6 +36,7 @@ import (
 	"github.com/oracle/oci-cloud-controller-manager/pkg/util"
 	"github.com/oracle/oci-go-sdk/v65/common"
 	"github.com/oracle/oci-go-sdk/v65/loadbalancer"
+
 	"github.com/pkg/errors"
 	helper "k8s.io/cloud-provider/service/helpers"
 	net2 "k8s.io/utils/net"
@@ -51,8 +53,8 @@ const (
 	IPv4                      = string(client.GenericIPv4)
 	IPv6                      = string(client.GenericIPv6)
 	IPv4AndIPv6               = string("IPv4_AND_IPv6")
-	NAT46                     = "NAT46"
-	DISABLED                  = "DISABLED"
+	NAT46                     = networkloadbalancer.NetworkLoadBalancerIpVersionTranslationNat46
+	DISABLED                  = networkloadbalancer.NetworkLoadBalancerIpVersionTranslationDisabled
 )
 
 const (

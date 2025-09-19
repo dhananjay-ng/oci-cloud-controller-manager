@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
@@ -6,11 +6,11 @@
 //
 // Use the Core Services API to manage resources such as virtual cloud networks (VCNs),
 // compute instances, and block storage volumes. For more information, see the console
-// documentation for the Networking (https://docs.cloud.oracle.com/iaas/Content/Network/Concepts/overview.htm),
-// Compute (https://docs.cloud.oracle.com/iaas/Content/Compute/Concepts/computeoverview.htm), and
-// Block Volume (https://docs.cloud.oracle.com/iaas/Content/Block/Concepts/overview.htm) services.
+// documentation for the Networking (https://docs.oracle.com/iaas/Content/Network/Concepts/overview.htm),
+// Compute (https://docs.oracle.com/iaas/Content/Compute/Concepts/computeoverview.htm), and
+// Block Volume (https://docs.oracle.com/iaas/Content/Block/Concepts/overview.htm) services.
 // The required permissions are documented in the
-// Details for the Core Services (https://docs.cloud.oracle.com/iaas/Content/Identity/Reference/corepolicyreference.htm) article.
+// Details for the Core Services (https://docs.oracle.com/iaas/Content/Identity/Reference/corepolicyreference.htm) article.
 //
 
 package core
@@ -24,7 +24,7 @@ import (
 // CreateInternalVnicAttachmentDetails Details for attaching a service VNIC to VNICaaS fleet.
 type CreateInternalVnicAttachmentDetails struct {
 
-	// The OCID (https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the compartment to contain the VNIC attachment.
+	// The OCID (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the compartment to contain the VNIC attachment.
 	CompartmentId *string `mandatory:"true" json:"compartmentId"`
 
 	// A user-friendly name. Does not have to be unique, and it's changeable.
@@ -35,10 +35,10 @@ type CreateInternalVnicAttachmentDetails struct {
 	// available IP address within the subnet's CIDR. If you don't specify a
 	// value, Oracle automatically assigns a private IP address from the subnet.
 	// This is the VNIC's *primary* private IP address. The value appears in
-	// the `Vnic` object and also the
-	// `PrivateIp` object returned by
-	// `ListPrivateIps` and
-	// `GetPrivateIp`.
+	// the Vnic object and also the
+	// PrivateIp object returned by
+	// ListPrivateIps and
+	// GetPrivateIp.
 	// Example: `10.0.3.3`
 	PrivateIp *string `mandatory:"false" json:"privateIp"`
 
@@ -81,7 +81,7 @@ type CreateInternalVnicAttachmentDetails struct {
 	// Specifies the shard to attach the VNIC to.
 	ShardId *string `mandatory:"false" json:"shardId"`
 
-	// The OCID (https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of `Cluster Placement Group` to be used
+	// The OCID (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of `Cluster Placement Group` to be used
 	// for the ServiceVnic placement.
 	CpgId *string `mandatory:"false" json:"cpgId"`
 
@@ -99,6 +99,9 @@ type CreateInternalVnicAttachmentDetails struct {
 	LaunchType CreateInternalVnicAttachmentDetailsLaunchTypeEnum `mandatory:"false" json:"launchType,omitempty"`
 
 	VnicaasPodConfig *VnicaasPodConfig `mandatory:"false" json:"vnicaasPodConfig"`
+
+	// A list of tags as Service Vnic placement hints when attaching service vnic
+	ServiceVnicPlacementTags []string `mandatory:"false" json:"serviceVnicPlacementTags"`
 }
 
 func (m CreateInternalVnicAttachmentDetails) String() string {

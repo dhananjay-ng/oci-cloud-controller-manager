@@ -17,8 +17,8 @@ package oci
 import (
 	"context"
 	"fmt"
-	"strings"
 	"k8s.io/utils/pointer"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -239,7 +239,7 @@ func getNodePatchBytes(cacheNode *v1.Node, instance *core.Instance, logger *zap.
 	} else if isCompartmentIDAnnotationPresent {
 		//In this case FaultDomainLabel not present but CompartmentIDAnnotation present
 		logger.Infof("Adding node label from cloud provider: %s=%s", FaultDomainLabel, *instance.FaultDomain)
-		if client.IsIpv6SingleStackCluster()  {
+		if client.IsIpv6SingleStackCluster() {
 			logger.Infof("Adding node label from cloud provider: %s=%s", AvailabilityDomainLabel, availabilityDomainLabelValue)
 			nodePatchBytes = []byte(fmt.Sprintf("{\"metadata\": {\"labels\": {\"%s\":\"%s\",\"%s\":\"%s\"}}}", FaultDomainLabel, *instance.FaultDomain,
 				AvailabilityDomainLabel, availabilityDomainLabelValue))
@@ -252,7 +252,7 @@ func getNodePatchBytes(cacheNode *v1.Node, instance *core.Instance, logger *zap.
 		logger.Infof("Adding node label from cloud provider: %s=%s", FaultDomainLabel, *instance.FaultDomain)
 		logger.Infof("Adding node annotation from cloud provider: %s=%s", CompartmentIDAnnotation, *instance.CompartmentId)
 
-		if client.IsIpv6SingleStackCluster()  {
+		if client.IsIpv6SingleStackCluster() {
 			logger.Infof("Adding node label from cloud provider: %s=%s", AvailabilityDomainLabel, availabilityDomainLabelValue)
 			nodePatchBytes = []byte(fmt.Sprintf("{\"metadata\": {\"labels\": {\"%s\":\"%s\",\"%s\":\"%s\"},\"annotations\": {\"%s\":\"%s\"}}}",
 				FaultDomainLabel, *instance.FaultDomain, AvailabilityDomainLabel, availabilityDomainLabelValue, CompartmentIDAnnotation, *instance.CompartmentId))

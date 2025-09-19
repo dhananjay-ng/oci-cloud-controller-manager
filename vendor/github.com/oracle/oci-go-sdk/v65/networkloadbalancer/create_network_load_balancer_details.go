@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, 2024, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2016, 2018, 2025, Oracle and/or its affiliates.  All rights reserved.
 // This software is dual-licensed to you under the Universal Permissive License (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose either license.
 // Code generated. DO NOT EDIT.
 
@@ -16,22 +16,22 @@ import (
 )
 
 // CreateNetworkLoadBalancerDetails The properties that define a network load balancer. For more information, see
-// Managing a network load balancer (https://docs.cloud.oracle.com/Content/Balance/Tasks/managingloadbalancer.htm).
+// Introduction to Network Load Balancer (https://docs.oracle.com/iaas/Content/NetworkLoadBalancer/introduction.htm).
 // To use any of the API operations, you must be authorized in an IAM policy. If you are not authorized, then
 // contact an administrator. If you are an administrator who writes policies to give users access, then see
-// Getting Started with Policies (https://docs.cloud.oracle.com/Content/Identity/Concepts/policygetstarted.htm).
+// Getting Started with Policies (https://docs.oracle.com/iaas/Content/Identity/Concepts/policygetstarted.htm).
 // For information about endpoints and signing API requests, see
-// About the API (https://docs.cloud.oracle.com/Content/API/Concepts/usingapi.htm). For information about available SDKs and tools, see
-// SDKS and Other Tools (https://docs.cloud.oracle.com/Content/API/Concepts/sdks.htm).
+// About the API (https://docs.oracle.com/iaas/Content/API/Concepts/usingapi.htm). For information about available SDKs and tools, see
+// SDKS and Other Tools (https://docs.oracle.com/iaas/Content/API/Concepts/sdks.htm).
 type CreateNetworkLoadBalancerDetails struct {
 
-	// The OCID (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) of the compartment containing the network load balancer.
+	// The OCID (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of the compartment containing the network load balancer.
 	CompartmentId *string `mandatory:"true" json:"compartmentId"`
 
 	// Network load balancer identifier, which can be renamed.
 	DisplayName *string `mandatory:"true" json:"displayName"`
 
-	// The subnet in which the network load balancer is spawned OCIDs (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm).
+	// The subnet in which the network load balancer is spawned OCIDs (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm).
 	SubnetId *string `mandatory:"true" json:"subnetId"`
 
 	// This parameter can be enabled only if backends are compute OCIDs. When enabled, the skipSourceDestinationCheck parameter is automatically
@@ -49,14 +49,14 @@ type CreateNetworkLoadBalancerDetails struct {
 	// If "true", then the service assigns a private IP address to the network load balancer.
 	// If "false", then the service assigns a public IP address to the network load balancer.
 	// A public network load balancer is accessible from the internet, depending on the
-	// security list rules (https://docs.cloud.oracle.com/Content/network/Concepts/securitylists.htm) for your virtual cloud network. For more information about public and
+	// security list rules (https://docs.oracle.com/iaas/Content/network/Concepts/securitylists.htm) for your virtual cloud network. For more information about public and
 	// private network load balancers,
-	// see How Network Load Balancing Works (https://docs.cloud.oracle.com/Content/Balance/Concepts/balanceoverview.htm#how-network-load-balancing-works).
+	// see Network Load Balancer Types (https://docs.oracle.com/iaas/Content/NetworkLoadBalancer/introduction.htm#NetworkLoadBalancerTypes).
 	// This value is true by default.
 	// Example: `true`
 	IsPrivate *bool `mandatory:"false" json:"isPrivate"`
 
-	// An array of network security groups OCIDs (https://docs.cloud.oracle.com/Content/General/Concepts/identifiers.htm) associated with the network load
+	// An array of network security groups OCIDs (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm) associated with the network load
 	// balancer.
 	// During the creation of the network load balancer, the service adds the new load balancer to the specified network security groups.
 	// The benefits of associating the network load balancer with network security groups include:
@@ -99,9 +99,18 @@ type CreateNetworkLoadBalancerDetails struct {
 	// Indicates if VNIC is latency sensitive and needs to be placed in dedicated latency sensitive pod.
 	IsLatencySensitive *bool `mandatory:"false" json:"isLatencySensitive"`
 
-	// The OCID (https://docs.cloud.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of `Cluster Placement Group` to be used
+	// The OCID (https://docs.oracle.com/iaas/Content/General/Concepts/identifiers.htm) of `Cluster Placement Group` to be used
 	// for the NLB's ServiceVnic placement.
 	CpgId *string `mandatory:"false" json:"cpgId"`
+
+	// NAT translation mode between IPv4 and IPv6
+	IpVersionTranslation NetworkLoadBalancerIpVersionTranslationEnum `mandatory:"false" json:"ipVersionTranslation,omitempty"`
+
+	// Optional field for NAT46 use case. If specified, the CIDR must be from NLB's Subnet IPv6 Prefixes and
+	// can be of either /80 length or /64 length. If cidr prefix of length /80 is passed then entire cidr block will be used for NATing or
+	// if /64 is provided then a length of /80 will be derived internally and used for NATing.
+	// Example: "fc00:9b80:9a0a:9a7e:abcd::/80"
+	Nat46Ipv6CidrPrefix *string `mandatory:"false" json:"nat46Ipv6CidrPrefix"`
 
 	// Simple key-value pair that is applied without any predefined name, type, or scope. Exists for cross-compatibility only.
 	// Example: `{"bar-key": "value"}`
@@ -112,7 +121,7 @@ type CreateNetworkLoadBalancerDetails struct {
 	DefinedTags map[string]map[string]interface{} `mandatory:"false" json:"definedTags"`
 
 	// ZPR tags for this resource. Each tag is a simple key-value pair with no predefined name, type, or namespace.
-	// For more information, see Resource Tags (https://docs.cloud.oracle.com/Content/General/Concepts/resourcetags.htm).
+	// For more information, see Resource Tags (https://docs.oracle.com/iaas/Content/General/Concepts/resourcetags.htm).
 	// Example: `{"oracle-zpr": {"td": {"value": "42", "mode": "audit"}}}`
 	SecurityAttributes map[string]map[string]interface{} `mandatory:"false" json:"securityAttributes"`
 }
@@ -129,6 +138,9 @@ func (m CreateNetworkLoadBalancerDetails) ValidateEnumValue() (bool, error) {
 
 	if _, ok := GetMappingNlbIpVersionEnum(string(m.NlbIpVersion)); !ok && m.NlbIpVersion != "" {
 		errMessage = append(errMessage, fmt.Sprintf("unsupported enum value for NlbIpVersion: %s. Supported values are: %s.", m.NlbIpVersion, strings.Join(GetNlbIpVersionEnumStringValues(), ",")))
+	}
+	if _, ok := GetMappingNetworkLoadBalancerIpVersionTranslationEnum(string(m.IpVersionTranslation)); !ok && m.IpVersionTranslation != "" {
+		errMessage = append(errMessage, fmt.Sprintf("unsupported enum value for IpVersionTranslation: %s. Supported values are: %s.", m.IpVersionTranslation, strings.Join(GetNetworkLoadBalancerIpVersionTranslationEnumStringValues(), ",")))
 	}
 	if len(errMessage) > 0 {
 		return true, fmt.Errorf(strings.Join(errMessage, "\n"))
