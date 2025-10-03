@@ -748,6 +748,7 @@ func (cp *CloudProvider) EnsureLoadBalancer(ctx context.Context, clusterName str
 			}
 			// Update Listener TLS in SSL Config
 			sslBuilder := &SSLConfigBuilder{sslConfig: sslConfig}
+			logger.Info("SSL Config creating %v", sslConfig)
 			sslConfig = sslBuilder.WithListenerTls(listenerTlsConfigMap).Build()
 		}
 		logger.Info("SSL Config identified %v", sslConfig)
