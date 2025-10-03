@@ -750,7 +750,7 @@ func (cp *CloudProvider) EnsureLoadBalancer(ctx context.Context, clusterName str
 			sslBuilder := &SSLConfigBuilder{sslConfig: sslConfig}
 			sslConfig = sslBuilder.WithListenerTls(listenerTlsConfigMap).Build()
 		}
-
+		logger.Info("SSL Config identified %v", sslConfig)
 	}
 
 	lbSubnetIds, err := lbProvider.getLoadBalancerSubnets(ctx, service)
@@ -924,6 +924,7 @@ func (cp *CloudProvider) EnsureLoadBalancer(ctx context.Context, clusterName str
 	}
 
 	if !lbExists {
+		logger.With(ctx).Info("Attempting to create LB with specs %v", spec)
 		lbStatus, newLBOCID, err := lbProvider.createLoadBalancer(ctx, spec)
 		if err != nil && client.IsSystemTagNotFoundOrNotAuthorisedError(logger, err) {
 			logger.With(zap.Error(err)).Warn("LB creation failed due to error in adding system tags. sending metric & retrying without system tags")
