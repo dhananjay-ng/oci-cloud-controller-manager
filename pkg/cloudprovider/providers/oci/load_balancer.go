@@ -731,7 +731,7 @@ func (cp *CloudProvider) EnsureLoadBalancer(ctx context.Context, clusterName str
 		secretListenerString := service.Annotations[ServiceAnnotationLoadBalancerTLSSecret]
 		secretBackendSetString := service.Annotations[ServiceAnnotationLoadBalancerTLSBackendSetSecret]
 		sslConfig = NewSSLConfig(secretListenerString, secretBackendSetString, service, ports, cp)
-		if sslConfig, err = updateSSLConfigFromCertOCID(sslConfig, service); err != nil {
+		if sslConfig, err = updateSSLConfigFromCertOCID(sslConfig, service, logger); err != nil {
 			logger.With(zap.Error(err)).Error("Failed to update SSL certificate.")
 		}
 		logger.Info("SSL Config identified %v", sslConfig)
@@ -1632,7 +1632,7 @@ func (cp *CloudProvider) UpdateLoadBalancer(ctx context.Context, clusterName str
 		secretBackendSetString := service.Annotations[ServiceAnnotationLoadBalancerTLSBackendSetSecret]
 		sslConfig = NewSSLConfig(secretListenerString, secretBackendSetString, service, ports, cp)
 		// Update SSLConfig from certificate OCID
-		if sslConfig, err = updateSSLConfigFromCertOCID(sslConfig, service); err != nil {
+		if sslConfig, err = updateSSLConfigFromCertOCID(sslConfig, service, logger); err != nil {
 			logger.With(zap.Error(err)).Error("Failed to update SSL certificate.")
 		}
 	}
@@ -2677,7 +2677,7 @@ func (cp *CloudProvider) getIpAddressOcidMap(ctx context.Context, provisionedSvc
 	return ipAddressOcidMap, nil
 }
 
-func updateSSLConfigFromCertOCID(sslConfig *SSLConfig, service *v1.Service) (*SSLConfig, error) {
+func updateSSLConfigFromCertOCID(sslConfig *SSLConfig, service *v1.Service, logger *zap.SugaredLogger) (*SSLConfig, error) {
 	// SSL Config update with listeners port sslConfigurationDetails as certificate OCID
 	if _, ok := service.Annotations[ServiceAnnotationLoadBalancerCertificateOcid]; ok {
 		ports, err := getSSLEnabledPorts(service)
@@ -2686,10 +2686,11 @@ func updateSSLConfigFromCertOCID(sslConfig *SSLConfig, service *v1.Service) (*SS
 		}
 		ocid, _ := getTlsCertificateOCID(service)
 		listenerTlsConfigMap := make(map[int]string)
-		for port := range ports {
+		for _, port := range ports {
 			// CertificateIds are supported in oci sdk version v65
 			listenerTlsConfigMap[port] = ocid
 		}
+		logger.Info("Listener tlsconfig map", listenerTlsConfigMap)
 		// Update Listener TLS in SSL Config
 		sslBuilder := &SSLConfigBuilder{sslConfig: sslConfig}
 		sslConfig = sslBuilder.WithListenerTls(listenerTlsConfigMap).Build()

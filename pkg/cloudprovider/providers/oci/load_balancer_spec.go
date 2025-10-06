@@ -1477,7 +1477,7 @@ func getListenersOciLoadBalancer(svc *v1.Service, sslCfg *SSLConfig) (map[string
 		var secretName string
 		var err error
 		var sslConfiguration *client.GenericSslConfigurationDetails
-		if sslCfg != nil && len(sslCfg.ListenerSSLSecretName) != 0 {
+		if sslCfg != nil && (len(sslCfg.ListenerSSLSecretName) != 0 || len(sslCfg.ListenerPostSSLMap) != 0) {
 			secretName = sslCfg.ListenerSSLSecretName
 			listenerCipherSuiteAnnotation, _ := svc.Annotations[ServiceAnnotationLoadbalancerListenerSSLConfig]
 			sslConfiguration, err = getSSLConfiguration(sslCfg, secretName, port, listenerCipherSuiteAnnotation)
