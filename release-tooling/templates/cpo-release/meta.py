@@ -2,14 +2,15 @@
 integ_phx_target = "integ.oc1.us-phoenix-1.cell0"
 prod_phx_target = "prd.oc1.us-phoenix-1.cell0"
 
-app     = meta_variables.get('app')
-infra   = meta_variables.get('infra')
+app = meta_variables.get('app')
+infra = meta_variables.get('infra')
 
 # load common variables
 
 with open("templates/meta-commons.py") as commons:
     exec(commons.read())
-config_id="31a7ca97-4a5d-4426-846b-2f2f710fadc6"
+
+config_id = "31a7ca97-4a5d-4426-846b-2f2f710fadc6"
 
 app_release_template = {
     "alias": "image-push",

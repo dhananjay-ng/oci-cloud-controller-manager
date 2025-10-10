@@ -53,7 +53,7 @@
     h2. *Overview*
     h3. *Business Justification*
 
-    Images are needed to be pushed to the oke-native-steward tenancy and FROST tenancy to make a release of new Cloud Provider OCI (CPO) images with Software upgrades. The {{ config2.property }} property which manage the cloud-provider-oci component for OKE clusters with kubernetes version {{config2.k8s_versions}} need to be updated with the latest software. < Provide short description of key image changes >
+    Images are needed to be pushed to the oke-native-steward tenancy and FROST tenancy to make a release of new Cloud Provider OCI (CPO) images with Software upgrades. The {{ config2.property }} property which manage the cloud-provider-oci component for OKE clusters with kubernetes version {{config2.k8s_versions}} need to be updated with the latest software.{color:#00875a} < Provide short description of key image changes > {color}
 
     h2. Executive Summary:
 
@@ -111,7 +111,7 @@
 
     *Bitbucket PR(s)*
     ||kubernetes version||Bitbucket PR||
-    |{color:#00875a} {{config2.k8s_versions}}| {{ config2.pr }} {color}|
+    |{color:#00875a} {{config2.k8s_versions}} || {{ config2.pr }} {color}|
 
     List of Images
 
@@ -227,7 +227,7 @@
     {color:#00875a} < Yes/No - Provide Justification > {color}
 
     End-to-End integration tests in R1 -
-    N/a, We do not have an R1. Instead the E2Es are run in dev and integ0.
+    N/a, This change will first be released and validated in R1 before proceeding to production regions.
 
     Tested in pre-prod test (if applicable) -
     CCM e2e has been run on these images and captured in this ticket : {color:#00875a} {{ config2.e2e_ticket }} {color}
@@ -270,16 +270,6 @@
 {% block FINISH_DATE_TIME -%}
     {{ tomorrow_at(tz="UTC", hour=13, business_days=True) }}
 {%- endblock FINISH_DATE_TIME %}
-
-#
-# Change Location
-#
-{% block CHANGE_LOCATION scoped %}
-    {% for location in config2.change_locations %}
-        - value: {{ location }}
-    {% endfor %}
-{% endblock CHANGE_LOCATION %}
-#
 
 #
 # Implementation Method
@@ -380,7 +370,7 @@
 
     h4. Execution of infrastructure releases
     |1|Please go to your devops portal, search for the "oke" project under shepherd and use the*oke-ccm-csi*flock|
-    |2|Find the release name - {color:#00875a} *{{ config.infra_release_name }}* {color}|
+    |2|Find the release name - {color:#00875a} *{{ config2.infra_release_name }}* {color}|
     |3|Please wait for the release to finish planning|
     |4|Before starting the release, please note down the original values for the region using the below steps (Useful if rollback is needed)
     * Please navigate to your DevOps portal
@@ -395,7 +385,7 @@
     * If release fails, go to rollback step.|
     |7.|Click approve on the top right and enter this CM number and click Approve|
     |8.|If the release fails, navigate to the ODO deployment url mentioned in the shepherd error message. View the logs under 'starting new' in Node deployments.
-    <img src="validator.png" alt="validation failure">
+    !validator.png|alt="validation failure"!
     If the logs point out that an image from the list of images from this CM is missing, retry the image push (application) release. The list of images is mentioned under application release procedure.
     If some image other than the list of images mentioned in this CM is missing, reach out to @oke_csi. If the release gets applied in such case and there are failures in alarms/canaries mentioned in validation via monitoring section, proceed to rollback.|
 
@@ -446,7 +436,7 @@
 {% block TEST_RESULTS %}
     h3. Flock rollout tests
     ||Realm||Flock||Environment||Region/ Phase||Image push||Mapping update||Mapping update rollback||
-    |OC1|oke-ccm-csi|Integ|us-phoenix-1|{color:#00875a}[{{ config2.app_release_name }}| {{ config2.app_rollforward_test_link }}]|[{{ config2.infra_release_name }}| {{ config2.infra_rollforward_test_link }}]|[{{ config2.infra_rollback_release_name }}| {{ config2.infra_rollback_test_link }}]{color}|
+    |OC1|oke-ccm-csi|Integ|us-phoenix-1|{color:#00875a}[{{ config2.app_release_name }} | {{ config2.app_rollforward_test_link }}]|[{{ config2.infra_release_name }}| {{ config2.infra_rollforward_test_link }}]|[{{ config2.infra_rollback_release_name }}| {{ config2.infra_rollback_test_link }}]{color}|
     h4. spectre.values.integ.oc1.us-phoenix-1 infra release to integ
 
     {color:#00875a}< Add integ mapping update release link here > - [{{ config2.infra_rollforward_test_link }}]{color}
@@ -547,11 +537,11 @@
     ||Step||Process||
     |1.|Please go to your devops portal, search for the "oke" project under shepherd and use the*oke-ccm-csi* flock|
     |2.|Click on "State History"
-    <img src="state-history.png" alt="state history">|
+    !state-history.png|alt="state history"!|
     |3.|Select the appropriate execution target from the "Execution Targets" dropdown on the left. choose target as spectre.values.prd.<realm>.<region>
     Ex: spectre.values.prd.oc1.us-phoenix-1|
     |4.|From the list of states, select the state of Type: Apply (Final) from just before the latest roll-forward release. Note that if the roll-forward release for this CM was applied successfully, we want to select the second Apply (Final) type state from the list of states. The release ID should be different from the roll-forward release.
-    <img src="rollback-state-history-1.png" alt="rollback state history">|
+    !rollback-state-history-1.png|alt="rollback state history"!|
     |5.|Click on the Release ID link from the state info panel|
     |6.|Click on "Actions" -> "Clone release". Choose target as spectre.values.prd.<realm>.<region>. Ex: Ex: spectre.values.prd.oc1.us-phoenix-1
     Please wait for the release to finish planning|

@@ -94,7 +94,6 @@ jira = Jira(url=JIRA_URL)
 jira.session.headers.update({
     "Authorization": f"Bearer {BEARER_TOKEN}",
     "Accept": "application/json",
-    "Content-Type": "application/json"
 })
 
 # Fetch the existing issue and extract the deployment plan field
@@ -140,6 +139,20 @@ payload = {
 }
 print("Updating Jira issue...")
 jira.update_issue(issue_key, payload)
+
+# Add attachments to render the images in validation and rollback sections
+files_to_attach = [
+    "./templates/cpo-release/validator.png",
+    "./templates/cpo-release/state-history.png",
+    "./templates/cpo-release/rollback-state-history-1.png"
+]
+
+for f in files_to_attach:
+    try:
+        jira.add_attachment(issue_key, f)
+        print(f"Attached {f} successfully")
+    except Exception as e:
+        print(f"Failed to attach {f}: {str(e)}")
 
 # Confirm the update and print execution time
 elapsed_time = time.time() - start_time
