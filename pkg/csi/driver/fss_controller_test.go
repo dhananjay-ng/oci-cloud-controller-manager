@@ -443,6 +443,10 @@ func NewFSSClientProvisioner(pcData client.Interface, storage *MockFileStorageCl
 	return &MockFSSProvisionerClient{Storage: storage}
 }
 
+func (p *MockFSSProvisionerClient) CertManager() client.CertificateManagerInterface {
+	return MockCertificateManagerClient{}
+}
+
 func TestFSSControllerDriver_CreateVolume(t *testing.T) {
 	type fields struct {
 		KubeClient kubernetes.Interface

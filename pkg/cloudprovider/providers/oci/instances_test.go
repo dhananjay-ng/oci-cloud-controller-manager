@@ -904,6 +904,10 @@ func (MockOCIClient) Identity(ociClientConfig *client.OCIClientConfig) client.Id
 	return &MockIdentityClient{}
 }
 
+func (MockOCIClient) CertManager() client.CertificateManagerInterface {
+	return MockCertificateManagerClient{}
+}
+
 // MockComputeClient mocks Compute client implementation
 type MockComputeClient struct{}
 

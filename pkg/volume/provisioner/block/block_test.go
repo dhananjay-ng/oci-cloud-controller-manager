@@ -543,6 +543,17 @@ func NewClientProvisioner(pcData client.Interface, storage *MockBlockStorageClie
 	return &MockProvisionerClient{Storage: storage}
 }
 
+func (p *MockProvisionerClient) CertManager() client.CertificateManagerInterface {
+	return MockCertificateManagerClient{}
+}
+
+type MockCertificateManagerClient struct{}
+
+func (m MockCertificateManagerClient) GetValidCertificate(ctx context.Context, id string) (*certificatesmanagement.Certificate, error) {
+	//TODO implement me
+	return nil, nil
+}
+
 var (
 	volumeBackupID = "dummyVolumeBackupId"
 	defaultAD      = identity.AvailabilityDomain{Name: common.String("PHX-AD-1"), CompartmentId: common.String("ocid1.compartment.oc1")}

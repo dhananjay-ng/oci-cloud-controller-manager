@@ -2393,3 +2393,342 @@ func TestLoadBalancerToStatus(t *testing.T) {
 		})
 	}
 }
+
+// ===== Mocks specific to updateListenerSSLConfigFromCertMap tests =====
+
+type MockCertificateManagerClient struct {
+	err error
+}
+
+func (m MockCertificateManagerClient) GetValidCertificate(ctx context.Context, id string) (*certificatesmanagement.Certificate, error) {
+	if m.err != nil {
+		return nil, m.err
+	}
+	authId := "ocid1.authId"
+	if strings.Contains(id, "failed") {
+		return nil, fmt.Errorf("invalid certificate")
+	}
+	return &certificatesmanagement.Certificate{
+		Id:                           &id,
+		IssuerCertificateAuthorityId: &authId,
+	}, nil
+}
+
+type ociClientWithCert struct {
+	MockOCIClient
+	cm client.CertificateManagerInterface
+}
+
+func (m ociClientWithCert) CertManager() client.CertificateManagerInterface { return m.cm }
+
+// ===== Tests for updateListenerSSLConfigFromCertMap =====
+
+func deleteConfigMap(cp *CloudProvider) {
+	err := cp.kubeclient.CoreV1().ConfigMaps("ns").Delete(context.TODO(), "config-name", metav1.DeleteOptions{})
+	if err != nil {
+		return
+	}
+}
+
+func createConfigMap(cp *CloudProvider) (*v1.ConfigMap, error) {
+	return cp.kubeclient.CoreV1().ConfigMaps("ns").Create(context.TODO(), &v1.ConfigMap{
+		Data: map[string]string{
+			"443": fmt.Sprintf("[\"%v\"]", "ocid1.certificate.oc1..exampleuniqueID"),
+		},
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "ConfigMap",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "config-name",
+			Namespace: "ns",
+		},
+	}, metav1.CreateOptions{})
+}
+
+func createInvalidConfigMap(cp *CloudProvider) (*v1.ConfigMap, error) {
+	return cp.kubeclient.CoreV1().ConfigMaps("ns").Create(context.TODO(), &v1.ConfigMap{
+		Data: map[string]string{
+			"443": fmt.Sprintf("[\"%v\"]", "ocid1.cert.....failed"),
+		},
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "ConfigMap",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "config-name",
+			Namespace: "ns",
+		},
+	}, metav1.CreateOptions{})
+}
+
+func createInvalidConfigMapNotAnArray(cp *CloudProvider) (*v1.ConfigMap, error) {
+	return cp.kubeclient.CoreV1().ConfigMaps("ns").Create(context.TODO(), &v1.ConfigMap{
+		Data: map[string]string{
+			"443": fmt.Sprintf("\"%v\"", "ocid1.cert.....failed"),
+		},
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "ConfigMap",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "config-name",
+			Namespace: "ns",
+		},
+	}, metav1.CreateOptions{})
+}
+
+func createInvalidConfigMapWithInvalidJson(cp *CloudProvider) (*v1.ConfigMap, error) {
+	return cp.kubeclient.CoreV1().ConfigMaps("ns").Create(context.TODO(), &v1.ConfigMap{
+		Data: map[string]string{
+			"443": fmt.Sprintf("[\"%v\"", "ocid1.cert.....failed"),
+		},
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "ConfigMap",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "config-name",
+			Namespace: "ns",
+		},
+	}, metav1.CreateOptions{})
+}
+
+func Test_updateListenerSSLConfigFromCertMap_NoAnnotation(t *testing.T) {
+	cp := &CloudProvider{
+		client: ociClientWithCert{cm: MockCertificateManagerClient{}},
+		logger: zap.S(),
+	}
+	svc := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "ns",
+			Name:      "svc",
+			Annotations: map[string]string{
+				// Intentionally omit ServiceAnnotationLoadBalancerCertificateMap
+				ServiceAnnotationLoadBalancerSSLPorts: "443",
+			},
+		},
+	}
+	initial := &SSLConfig{
+		ListenerSSLSecretName: "oldTlsSecretName",
+	}
+	got, err := cp.updateListenerSSLConfigFromCertMap(context.Background(), initial, svc)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != initial {
+		t.Fatalf("expected returned sslConfig pointer to be unchanged")
+	}
+	if got.ListenerPortSSLMap != nil && len(got.ListenerPortSSLMap) != 0 {
+		t.Fatalf("expected ListenerPortSSLMap to be empty, got: %#v", got.ListenerPortSSLMap)
+	}
+}
+
+func Test_updateListenerSSLConfigFromCertMap(t *testing.T) {
+	cp := &CloudProvider{
+		client:     ociClientWithCert{cm: MockCertificateManagerClient{}},
+		kubeclient: testclient.NewSimpleClientset(),
+		logger:     zap.S(),
+	}
+	ocid := "ocid1.certificate.oc1..exampleuniqueID"
+	authId := "ocid1.authId"
+
+	tests := []struct {
+		name           string
+		service        *v1.Service
+		configModeller func(cp *CloudProvider) (*v1.ConfigMap, error)
+		expected       map[int][]CertAuthOcids
+		err            string
+	}{
+		{
+			name: "Success",
+			service: &v1.Service{
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: "ns",
+					Name:      "svc",
+					Annotations: map[string]string{
+						ServiceAnnotationLoadBalancerSSLPorts:       "443, 8443",
+						ServiceAnnotationLoadBalancerCertificateMap: "config-name",
+					},
+				},
+			},
+			expected: map[int][]CertAuthOcids{
+				443: {
+					{
+						CertificateOcid: ocid,
+						AuthorityOcid:   authId,
+					},
+				},
+			},
+			configModeller: createConfigMap,
+			err:            "",
+		},
+		{
+			name: "config_map_not_present",
+			service: &v1.Service{
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: "ns",
+					Name:      "svc",
+					Annotations: map[string]string{
+						ServiceAnnotationLoadBalancerSSLPorts:       "443, 8443",
+						ServiceAnnotationLoadBalancerCertificateMap: "config-name-1",
+					},
+				},
+			},
+			expected:       map[int][]CertAuthOcids(nil),
+			configModeller: createConfigMap,
+			err:            "error getting cert configmap ns/config-name-1: configmaps \"config-name-1\" not found",
+		},
+		{
+			name: "invalid_ssl_port",
+			service: &v1.Service{
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: "ns",
+					Name:      "svc",
+					Annotations: map[string]string{
+						ServiceAnnotationLoadBalancerSSLPorts:       "443,not-a-number",
+						ServiceAnnotationLoadBalancerCertificateMap: "",
+					},
+				},
+			},
+			configModeller: createConfigMap,
+			expected:       map[int][]CertAuthOcids(nil),
+			err:            "invalid certificate map: [] provided with annotation: oci-load-balancer.oraclecloud.com/tls-certificate-map",
+		},
+		{
+			name: "invalid_config_map",
+			service: &v1.Service{
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: "ns",
+					Name:      "svc",
+					Annotations: map[string]string{
+						ServiceAnnotationLoadBalancerSSLPorts:       "443",
+						ServiceAnnotationLoadBalancerCertificateMap: "",
+					},
+				},
+			},
+			configModeller: createConfigMap,
+			expected:       map[int][]CertAuthOcids(nil),
+			err:            fmt.Sprintf("invalid certificate map: [%s] provided with annotation: %s", "", ServiceAnnotationLoadBalancerCertificateMap),
+		},
+		{
+			name: "error_config_map_failed",
+			service: &v1.Service{
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: "ns",
+					Name:      "svc",
+					Annotations: map[string]string{
+						ServiceAnnotationLoadBalancerSSLPorts:       "443",
+						ServiceAnnotationLoadBalancerCertificateMap: "config-name",
+					},
+				},
+			},
+			configModeller: createInvalidConfigMap,
+			expected:       map[int][]CertAuthOcids(nil),
+			err:            fmt.Sprintf("failed to fetch certificate ocid1.cert.....failed. Error: invalid certificate"),
+		},
+		{
+			name: "error_config_map_not_an_array",
+			service: &v1.Service{
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: "ns",
+					Name:      "svc",
+					Annotations: map[string]string{
+						ServiceAnnotationLoadBalancerSSLPorts:       "443",
+						ServiceAnnotationLoadBalancerCertificateMap: "config-name",
+					},
+				},
+			},
+			configModeller: createInvalidConfigMapNotAnArray,
+			expected:       map[int][]CertAuthOcids(nil),
+			err:            fmt.Sprintf("port map is not a valid json format \"ocid1.cert.....failed\" due to error json: cannot unmarshal string into Go value of type []string"),
+		},
+		{
+			name: "error_config_map_invalid_json",
+			service: &v1.Service{
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: "ns",
+					Name:      "svc",
+					Annotations: map[string]string{
+						ServiceAnnotationLoadBalancerSSLPorts:       "443",
+						ServiceAnnotationLoadBalancerCertificateMap: "config-name",
+					},
+				},
+			},
+			configModeller: createInvalidConfigMapWithInvalidJson,
+			expected:       map[int][]CertAuthOcids(nil),
+			err:            fmt.Sprintf("port map is not a valid json format [\"ocid1.cert.....failed\" due to error unexpected end of JSON input"),
+		},
+		{
+			name: "error_both_tls_cert_present",
+			service: &v1.Service{
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: "ns",
+					Name:      "svc",
+					Annotations: map[string]string{
+						ServiceAnnotationLoadBalancerSSLPorts:       "443",
+						ServiceAnnotationLoadBalancerCertificateMap: "config-name",
+						ServiceAnnotationLoadBalancerTLSSecret:      "tls-secret",
+					},
+				},
+			},
+			configModeller: createConfigMap,
+			expected:       map[int][]CertAuthOcids(nil),
+			err:            fmt.Sprintf("sslConfiguration violation: CertificateIds cannot be specified in conjunction with certificateAlias"),
+		},
+	}
+	initial := &SSLConfig{
+		ListenerSSLSecretName: "oldTlsSecretName",
+		ListenerPortSSLMap:    map[int][]CertAuthOcids(nil),
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			test.configModeller(cp)
+			got, err := cp.updateListenerSSLConfigFromCertMap(context.Background(), initial, test.service)
+			if err != nil && err.Error() != test.err {
+				t.Fatalf("Expected [%v] Got [%v]", test.err, err)
+			}
+			if err != nil && !reflect.DeepEqual(got, initial) {
+				t.Fatalf("Should not update the initial value. expected: %v, got: %v", test.expected, got)
+			}
+			if !reflect.DeepEqual(got.ListenerPortSSLMap, test.expected) {
+				t.Errorf("ListenerPortSSLMap mismatch: got %#v, want %#v", got.ListenerPortSSLMap, test.expected)
+			}
+			// Clean up
+			deleteConfigMap(cp)
+		})
+	}
+}
+
+func Test_updateListenerSSLConfigFromCertMap_CertValidationFails(t *testing.T) {
+	cp := &CloudProvider{
+		client:     ociClientWithCert{cm: MockCertificateManagerClient{err: errors.New("invalid certificate")}},
+		kubeclient: testclient.NewSimpleClientset(),
+		logger:     zap.S(),
+	}
+	createConfigMap(cp)
+	initial := &SSLConfig{
+		ListenerSSLSecretName: "oldTlsSecretName",
+	}
+	svc := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "ns",
+			Name:      "svc",
+			Annotations: map[string]string{
+				ServiceAnnotationLoadBalancerSSLPorts:       "443",
+				ServiceAnnotationLoadBalancerCertificateMap: "config-name_v1",
+			},
+		},
+	}
+
+	got, err := cp.updateListenerSSLConfigFromCertMap(context.Background(), initial, svc)
+	if !reflect.DeepEqual(got, initial) {
+		t.Errorf("ListenerPortSSLMap mismatch: got %#v, want %#v", got, initial)
+	}
+	if err == nil {
+		t.Fatalf("expected error, got nil")
+	}
+	// Clean up
+	deleteConfigMap(cp)
+}

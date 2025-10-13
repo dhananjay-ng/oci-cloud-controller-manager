@@ -140,7 +140,12 @@ func init() {
 	flag.StringVar(&customDriverHandle, "custom-driver-handle", "", "Custom driver handle for custom CSI driver installation")
 	flag.BoolVar(&runUhpE2E, "run-uhp-e2e", false, "Run UHP E2Es as well")
 	flag.BoolVar(&enableParallelRun, "enable-parallel-run", true, "Enables parallel running of test suite")
-	flag.BoolVar(&addOkeSystemTags, "add-oke-system-tags", false, "Adds oke system tags to new and existing loadbalancers and storage resources")
+	flag.BoolVar(&addOkeSystemTags, "add-oke-system-tags", true, "Adds oke system tags to new and existing loadbalancers and storage resources")
+	flag.StringVar(&certOcid, "cert-ocid", "", "Certificate OCID to use for Loadbalancer Service listener")
+	flag.BoolVar(&enableCertificateCreation, "enable-cert-creation", false, "Whether or Not the test should a new certificate before test run")
+	flag.StringVar(&certAuthorityOcid, "cert-authority-ocid", "", "Authority Id to be used to create the Certificate to use for Loadbalancer Service listener")
+
+}
 
 	flag.StringVar(&clusterType, "cluster-type", "BASIC_CLUSTER", "Cluster type can be BASIC_CLUSTER or ENHANCED_CLUSTER")
 }
@@ -193,6 +198,10 @@ type Framework struct {
 	FSSProvisionerName		      string
 	LustreProvisionerName         string
 	AddOkeSystemTags        bool
+	CertOCID                string
+	EnableCertCreation      bool
+	CertAuthorityOCID       string
+	KMSKeyOCIDForCA         string
 }
 
 // New creates a new a framework that holds the context of the test
@@ -227,6 +236,11 @@ func NewWithConfig() *Framework {
 		CustomDriverHandle: 		   customDriverHandle,
 		AddOkeSystemTags:              addOkeSystemTags,
 		ClusterType:                   clusterTypeEnum,
+		CertOCID:                      certOcid,
+		EnableCertCreation:            enableCertificateCreation,
+		CertAuthorityOCID:             certAuthorityOcid,
+		KMSKeyOCIDForCA:               kmsKeyID,
+
 	}
 
 	f.CloudConfigPath = cloudConfigFile
@@ -308,6 +322,19 @@ func (f *Framework) Initialize() {
 	Logf("Cluster Type: %s", f.ClusterType)
 	f.ClusterKubeconfigPath = clusterkubeconfig
 	f.CloudConfigPath = cloudConfigFile
+	// Register a certificate management client
+    		certificatesClient, err := certificatesmanagement.NewCertificatesManagementClientWithConfigurationProvider(userConfigProvider)
+    		Expect(err).NotTo(HaveOccurred())
+    		f.certificateClient = &certificatesClient
+
+	f.CertOCID = certOcid
+    	f.EnableCertCreation = enableCertificateCreation
+    	if f.EnableCertCreation {
+    		f.CertAuthorityOCID = certAuthorityOcid
+    		f.KMSKeyOCIDForCA = kmsKeyID
+    		Logf("CertAuthorityOCID is: %s", f.CertAuthorityOCID)
+    	}
+    	Logf("CertOCID: %s, EnableCertificateCreation : %s", f.CertOCID, f.EnableCertCreation)
 }
 
 func (f *Framework) setImages() {
@@ -372,4 +399,8 @@ func getLustreProvisionerName(handle string) string {
 		return handle + "." + provisioner
 	}
 	return provisioner
+}
+
+func (f *Framework) GetCertOcid() string {
+	return f.CertOCID
 }

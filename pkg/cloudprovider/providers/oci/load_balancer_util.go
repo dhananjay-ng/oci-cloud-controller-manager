@@ -307,6 +307,7 @@ func hasBackendSetChanged(logger *zap.SugaredLogger, actual client.GenericBacken
 		logger.Infof("BackendSet needs to be updated for the change(s) - %s", strings.Join(backendSetChanges, ","))
 		return true
 	}
+
 	return false
 }
 
@@ -472,7 +473,19 @@ func getSSLConfigurationChanges(actual *client.GenericSslConfigurationDetails, d
 			sslConfigurationChanges = append(sslConfigurationChanges, fmt.Sprintf(changeFmtStr, "Listener:SSLConfiguration:Protocols", strings.Join(actual.Protocols, ","), strings.Join(desired.Protocols, ",")))
 		}
 	}
-
+	// Update the certificate Id change
+	// Case 1: New certificate added
+	// Case 2: Old Certificate is updated
+	// Case 3: Old certificate is removed
+	if desired.CertificateIds != nil {
+		// if the desired certificateIds differ from the actual certificate ids provided
+		isUpdated := actual.CertificateIds != nil && len(actual.CertificateIds) != 0 &&
+			(len(actual.CertificateIds) != len(desired.CertificateIds) ||
+				!reflect.DeepEqual(actual.CertificateIds, desired.CertificateIds))
+		if (isUpdated) || len(actual.CertificateIds) == 0 {
+			sslConfigurationChanges = append(sslConfigurationChanges, fmt.Sprintf(changeFmtStr, "Listener:SSLConfiguration:CertificateIds", actual.CertificateIds, desired.CertificateIds))
+		}
+	}
 	return sslConfigurationChanges
 }
 

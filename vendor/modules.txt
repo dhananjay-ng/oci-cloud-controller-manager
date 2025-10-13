@@ -413,6 +413,7 @@ github.com/opencontainers/selinux/go-selinux
 github.com/opencontainers/selinux/pkg/pwalkdir
 # github.com/oracle/oci-go-sdk/v65 v65.105.0
 ## explicit; go 1.23.0
+github.com/oracle/oci-go-sdk/v65/certificatesmanagement
 github.com/oracle/oci-go-sdk/v65/common
 github.com/oracle/oci-go-sdk/v65/common/auth
 github.com/oracle/oci-go-sdk/v65/common/utils

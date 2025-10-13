@@ -563,7 +563,7 @@ func (m MockConfigMaps) Get(ctx context.Context, name string, opts metav1.GetOpt
 				Namespace: "kube-system",
 			},
 			Data: map[string]string{
-				"lustre": `skipNodeUnstage: true
+				"lustre": `skipNodeUnstage: true 
 skipLustreParameters: true`,
 			},
 		}, nil

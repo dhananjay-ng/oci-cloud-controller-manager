@@ -12298,3 +12298,67 @@ func TestIsSkipPrivateIP_NLB(t *testing.T) {
 		})
 	}
 }
+
+func Test_getListenerTlsCertificateOCID(t *testing.T) {
+	tests := map[string]struct {
+		annotations map[string]string
+		want        string
+		wantErr     bool
+		errMsg      string
+	}{
+		"present_non_empty": {
+			annotations: map[string]string{
+				ServiceAnnotationLoadBalancerCertificateMap: "config-map_v1",
+			},
+			want:    "config-map_v1",
+			wantErr: false,
+		},
+		"missing_annotation": {
+			annotations: map[string]string{},
+			want:        "",
+			wantErr:     true,
+			errMsg:      fmt.Sprintf("invalid certificate map: [%s] provided with annotation: %s", "", ServiceAnnotationLoadBalancerCertificateMap),
+		},
+		"present_but_empty": {
+			annotations: map[string]string{
+				ServiceAnnotationLoadBalancerCertificateMap: "",
+			},
+			want:    "",
+			wantErr: true,
+			errMsg:  fmt.Sprintf("invalid certificate map: [%s] provided with annotation: %s", "", ServiceAnnotationLoadBalancerCertificateMap),
+		},
+	}
+
+	for name, tc := range tests {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			svc := &v1.Service{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: tc.annotations,
+				},
+			}
+
+			got, err := getListenerTlsCertificateConfigMapName(svc)
+
+			if tc.wantErr {
+				if err == nil {
+					t.Fatalf("expected error, got nil")
+				}
+				if err.Error() != tc.errMsg {
+					t.Fatalf("unexpected error message: want %q, got %q", tc.errMsg, err.Error())
+				}
+				if got != "" {
+					t.Fatalf("expected empty name on error, got %q", got)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if got != tc.want {
+				t.Fatalf("want %q, got %q", tc.want, got)
+			}
+		})
+	}
+}

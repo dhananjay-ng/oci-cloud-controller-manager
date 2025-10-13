@@ -19,6 +19,7 @@ import (
 	"time"
 
 	providercfg "github.com/oracle/oci-cloud-controller-manager/pkg/cloudprovider/providers/oci/config"
+	"github.com/oracle/oci-go-sdk/v65/certificatesmanagement"
 	"github.com/oracle/oci-go-sdk/v65/common"
 	"github.com/oracle/oci-go-sdk/v65/common/auth"
 	"github.com/oracle/oci-go-sdk/v65/core"
@@ -51,6 +52,7 @@ type Interface interface {
 	FSS(*OCIClientConfig) FileStorageInterface
 	Lustre() LustreInterface
 	Identity(*OCIClientConfig) IdentityInterface
+	CertManager() CertificateManagerInterface
 }
 
 type OCIClientConfig struct {
@@ -193,6 +195,7 @@ type client struct {
 	identity            identityClient
 	//compartment 		compartmentClient
 	lustre              lustrefilestorage.LustreFileStorageClient
+	certificatesManagementClient certificatesmanagement.CertificatesManagementClient
 
 	requestMetadata common.RequestMetadata
 	rateLimiter     RateLimiter
@@ -300,6 +303,11 @@ func New(logger *zap.SugaredLogger, cp common.ConfigurationProvider, opRateLimit
 
 	loadbalancer := NewLBClient(lb, requestMetadata, opRateLimiter)
 	networkloadbalancer := NewNLBClient(nlb, requestMetadata, opRateLimiter)
+	// Create Certificate Management tclient
+	certificateClient, err := certificatesmanagement.NewCertificatesManagementClientWithConfigurationProvider(cp)
+	if err != nil {
+		return nil, errors.Wrap(err, "configuration failed for NewCertificatesManagementClientWithConfigurationProvider")
+	}
 
 	c := &client{
 		compute:             &compute,
@@ -313,6 +321,8 @@ func New(logger *zap.SugaredLogger, cp common.ConfigurationProvider, opRateLimit
 		lustre:              lustreClient,
 		rateLimiter:     *opRateLimiter,
 		requestMetadata: requestMetadata,
+		certificatesManagementClient: certificateClient,
+
 
 		subnetCache: cache.NewTTLStore(subnetCacheKeyFn, time.Duration(24)*time.Hour),
 		logger:      logger,
@@ -511,6 +521,8 @@ func (c *client) FSS(ociClientConfig *OCIClientConfig) FileStorageInterface {
 func configureCustomTransport(logger *zap.SugaredLogger, baseClient *common.BaseClient) error {
 	return nil
 }
+func (c *client) CertManager() CertificateManagerInterface { return c }
+
 
 func getDefaultRequestMetadata(existingRequestMetadata common.RequestMetadata) common.RequestMetadata {
 	if existingRequestMetadata.RetryPolicy != nil {

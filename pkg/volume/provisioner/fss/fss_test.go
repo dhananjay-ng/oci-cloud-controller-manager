@@ -546,6 +546,18 @@ func NewClientProvisioner(pcData client.Interface, storage *MockBlockStorageClie
 	return &MockProvisionerClient{Storage: storage}
 }
 
+func (p *MockProvisionerClient) CertManager() client.CertificateManagerInterface {
+	return MockCertificateManagerClient{}
+}
+
+type MockCertificateManagerClient struct{}
+
+func (m MockCertificateManagerClient) GetValidCertificate(ctx context.Context, id string) (*certificatesmanagement.Certificate, error) {
+	//TODO implement me
+	return nil, nil
+}
+
+
 func TestCreateVolumeWithFSS(t *testing.T) {
 	fsp := filesystemProvisioner{
 		client: NewClientProvisioner(nil, nil),

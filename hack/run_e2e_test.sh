@@ -105,7 +105,11 @@ function run_e2e_tests_existing_cluster() {
                     --static-snapshot-compartment-id=${STATIC_SNAPSHOT_COMPARTMENT_ID} \
                     --enable-parallel-run=${ENABLE_PARALLEL_RUN} \
                     --run-uhp-e2e=${RUN_UHP_E2E} \
-                    --add-oke-system-tags="false"
+                    --add-oke-system-tags="false" \
+                    --cert-ocid=${CERT_OCID}\
+                    --enable-cert-creation=${ENABLE_CERT_CREATION}\
+                    --cert-authority-ocid=${CERT_AUTHORITY_OCID}\
+                    --kms-key-id=${KMS_KEY_ID}
     fi
     retval=$?
     return $retval

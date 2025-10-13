@@ -66,10 +66,12 @@ Note:
 - `loadbalancer-policy` and `oci-network-security-groups` use `oci.oraclecloud.com/` as prefix.
 ## TLS-related
 
-| Name                           | Description                                                                         | Default |
-|--------------------------------|-------------------------------------------------------------------------------------|---------|
-| `oci-load-balancer-tls-secret` | A reference in the form `<namespace>/<secretName>` to a Kubernetes [TLS secret][3]. | `""`    |
-| `oci-load-balancer-ssl-ports`  | A `,` separated list of port number(s) for which to enable SSL termination.         | `""`    |
+| Name                           | Description                                                                               | Default |
+|--------------------------------|-------------------------------------------------------------------------------------------|---------|
+| `oci-load-balancer-tls-secret` | A reference in the form `<namespace>/<secretName>` to a Kubernetes [TLS secret][3].       | `""`    |
+| `oci-load-balancer-ssl-ports`  | A `,` separated list of port number(s) for which to enable SSL termination.               | `""`    |
+| `oci-load-balancer-certificate-map` | A service annotation for providing the OCI certificate OCID as a configmap to LB Listener | `""`    |
+  
 
 ## Security List Management Modes
 | Mode         | Description                                                                                                                                                                                                                                                                                                     |

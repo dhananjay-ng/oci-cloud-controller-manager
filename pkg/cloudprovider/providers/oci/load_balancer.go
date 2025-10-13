@@ -16,6 +16,7 @@ package oci
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -30,6 +31,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/klog/v2"
 	k8sports "k8s.io/kubernetes/pkg/cluster/ports"
 	"k8s.io/utils/net"
 	"k8s.io/utils/pointer"
@@ -38,6 +40,7 @@ import (
 	"github.com/oracle/oci-cloud-controller-manager/pkg/metrics"
 	"github.com/oracle/oci-cloud-controller-manager/pkg/oci/client"
 	"github.com/oracle/oci-cloud-controller-manager/pkg/util"
+	"github.com/oracle/oci-go-sdk/v65/certificatesmanagement"
 	"github.com/oracle/oci-go-sdk/v65/common"
 	"github.com/oracle/oci-go-sdk/v65/core"
 	"github.com/oracle/oci-go-sdk/v65/loadbalancer"
@@ -652,6 +655,15 @@ func (cp *CloudProvider) EnsureLoadBalancer(ctx context.Context, clusterName str
 		secretListenerString := service.Annotations[ServiceAnnotationLoadBalancerTLSSecret]
 		secretBackendSetString := service.Annotations[ServiceAnnotationLoadBalancerTLSBackendSetSecret]
 		sslConfig = NewSSLConfig(secretListenerString, secretBackendSetString, service, ports, cp)
+		// Update SSLConfig from certificate OCID
+		if sslConfig, err = cp.updateListenerSSLConfigFromCertMap(ctx, sslConfig, service); err != nil {
+			logger.With(zap.Error(err)).Error("Failed to update SSL certificate for listener.")
+			errorType = util.GetError(err)
+			lbMetricDimension = util.GetComponentForMetricDimension(errorType, util.LoadBalancerType)
+			dimensionsMap[metrics.ComponentDimension] = lbMetricDimension
+			metrics.SendMetricData(cp.metricPusher, getMetric(loadBalancerType, Update), time.Since(startTime).Seconds(), dimensionsMap)
+			return nil, err
+		}
 	}
 	lbSubnetIds, err := cp.getLoadBalancerSubnets(ctx, logger, service)
 	if err != nil {
@@ -854,7 +866,7 @@ func (cp *CloudProvider) EnsureLoadBalancer(ctx context.Context, clusterName str
 		return lbStatus, err
 	}
 
-	if lb.LifecycleState == nil || *lb.LifecycleState != lbLifecycleStateActive {
+	if lb != nil && lb.LifecycleState == nil || *lb.LifecycleState != lbLifecycleStateActive {
 		logger := logger.With("lifecycleState", lb.LifecycleState)
 		switch loadBalancerType {
 		case NLB:
@@ -1497,6 +1509,10 @@ func (cp *CloudProvider) UpdateLoadBalancer(ctx context.Context, clusterName str
 		secretListenerString := service.Annotations[ServiceAnnotationLoadBalancerTLSSecret]
 		secretBackendSetString := service.Annotations[ServiceAnnotationLoadBalancerTLSBackendSetSecret]
 		sslConfig = NewSSLConfig(secretListenerString, secretBackendSetString, service, ports, cp)
+		// Update SSLConfig from certificate OCID
+		if sslConfig, err = cp.updateListenerSSLConfigFromCertMap(ctx, sslConfig, service); err != nil {
+			logger.With(zap.Error(err)).Error("Failed to update SSL certificate. Continue with present sslConfig")
+		}
 	}
 
 	lbSubnetIds, err := cp.getLoadBalancerSubnets(ctx, logger, service)
@@ -1840,7 +1856,7 @@ func (cp *CloudProvider) cleanupSecurityRulesForLoadBalancerDelete(lb *client.Ge
 		return errors.Wrapf(err, "failed to get ports from spec")
 	}
 	sourceCIDRs, err := getLoadBalancerSourceRanges(service)
-	if securityRuleManagerMode == NSG && len(managedNsg.backendNsgId) > 0 {
+	if securityRuleManagerMode == NSG && managedNsg != nil && len(managedNsg.backendNsgId) > 0 {
 		serviceComponents := securityRuleComponents{
 			frontendNsgOcid:  managedNsg.frontendNsgId,
 			backendNsgOcids:  managedNsg.backendNsgId,
@@ -2292,4 +2308,71 @@ func (cp *CloudProvider) getOciIpVersions(lbSubnets, nodeSubnets []*core.Subnet,
 		ListenerBackendIpVersion: ociListenerBackendIpVersion,
 	}
 	return ipVersions, nil
+}
+
+// updateBackendSSLConfigFromCertOCID Update the ssl config to add the port to certificate listener map if the certificate annotation is present
+func (cp *CloudProvider) updateListenerSSLConfigFromCertMap(ctx context.Context, sslConfig *SSLConfig, service *v1.Service) (*SSLConfig, error) {
+	// SSL Config update with listeners port sslConfigurationDetails as certificate OCID
+	if _, ok := service.Annotations[ServiceAnnotationLoadBalancerCertificateMap]; ok {
+		if _, secOk := service.Annotations[ServiceAnnotationLoadBalancerTLSSecret]; secOk {
+			return sslConfig, fmt.Errorf("sslConfiguration violation: CertificateIds cannot be specified in conjunction with certificateAlias")
+		}
+		var err error
+		// Get the Certificate port Map
+		if sslConfig.ListenerPortSSLMap, err = cp.getCertOcidForListenerPort(ctx, service); err != nil {
+			// Emit event to user that config map is not validated
+			cp.logger.Errorf("invalid certificate mapped to service port. continue to use existing sslConfiguration. %v", err.Error())
+			klog.V(2).Infof("invalid certificate mapped to service port. please check the documentation.")
+			return sslConfig, err
+		}
+	}
+	// return updated sslConfig
+	return sslConfig, nil
+}
+
+// getCertOcidForListenerPort identify the certificate to be associated with the service as derived from the config map provided
+func (cp *CloudProvider) getCertOcidForListenerPort(ctx context.Context, service *v1.Service) (map[int][]CertAuthOcids, error) {
+	certConfigMap, err := getListenerTlsCertificateConfigMapName(service)
+	if err != nil {
+		return nil, err
+	}
+	mapData, err := cp.kubeclient.CoreV1().ConfigMaps(service.Namespace).Get(ctx, certConfigMap, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		return nil, fmt.Errorf("error getting cert configmap %s/%s: %v", service.Namespace, certConfigMap, err)
+	}
+	portTLSMap := make(map[int][]CertAuthOcids)
+	// Validate the OCID from the OCI certificate service
+	ports, err := getSSLEnabledPorts(service)
+	if err != nil {
+		return nil, err
+	}
+	// Find the right certificate for the port
+	for _, port := range ports {
+		certMapDataValue, ok := mapData.Data[strconv.Itoa(port)]
+		if !ok {
+			cp.logger.Infof("certificare OCID is not provided for port %v", port)
+			continue
+		}
+		var certOcidValueAsJson []string
+		err = json.Unmarshal([]byte(certMapDataValue), &certOcidValueAsJson)
+		if err != nil {
+			return nil, fmt.Errorf("port map is not a valid json format %v due to error %s", certMapDataValue, err.Error())
+		}
+		for _, ocid := range certOcidValueAsJson {
+			// read the ocid list form the value
+			var cert *certificatesmanagement.Certificate
+			cert, err = cp.client.CertManager().GetValidCertificate(ctx, ocid)
+			if err != nil {
+				return nil, fmt.Errorf("failed to fetch certificate %v. Error: %s", ocid, err.Error())
+			} else {
+				certOcids := CertAuthOcids{
+					CertificateOcid: *cert.Id,
+					AuthorityOcid:   *cert.IssuerCertificateAuthorityId,
+				}
+				portTLSMap[port] = append(portTLSMap[port], certOcids)
+			}
+		}
+	}
+	cp.logger.Infof("found following map %+v for service %s", portTLSMap, service.Name)
+	return portTLSMap, nil
 }
