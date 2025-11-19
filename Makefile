@@ -241,3 +241,7 @@ validate-release-validator-pop:
 .PHONY: validate-images-auto-tfvars-json
 validate-images-auto-tfvars-json:
 	./hack/validate-images-auto-tfvars-json.sh
+
+.PHONY: validate-images-auto-tfvars-json-with-default-and-override-values
+validate-images-auto-tfvars-json-with-default-and-override-values:
+	./hack/validate-images-auto-tfvars-json-with-default-and-override-values.sh
