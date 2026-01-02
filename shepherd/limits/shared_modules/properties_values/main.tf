@@ -5,14 +5,16 @@ output "regional_properties_values_overrides" {
 module "all_values_validation" {
   source = "../validation"
 
-  for_each = local.all_values
+  # Validate only image mapping properties
+  for_each = { for k, v in local.all_values : k => v if length(regexall("image-version-mapping", v.name)) > 0 }
   image_mapping_values = lookup(each.value, "value", null)
 }
 
 module "overrides_validation" {
   source = "../validation"
 
-  for_each = local.tenancy_overrides_final
+  # Validate only image mapping properties
+  for_each = { for k, v in local.tenancy_overrides_final : k => v if length(regexall("image-version-mapping", v.name)) > 0 }
   image_mapping_values = lookup(each.value, "value", null)
 }
 
