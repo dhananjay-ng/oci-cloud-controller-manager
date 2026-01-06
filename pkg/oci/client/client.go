@@ -32,6 +32,7 @@ import (
 	"github.com/oracle/oci-go-sdk/v65/filestorage"
 	"github.com/oracle/oci-go-sdk/v65/identity"
 	"github.com/oracle/oci-go-sdk/v65/loadbalancer"
+	"github.com/oracle/oci-go-sdk/v65/lustrefilestorage"
 	"github.com/oracle/oci-go-sdk/v65/networkloadbalancer"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -63,6 +64,7 @@ type Interface interface {
 	Networking(*OCIClientConfig) NetworkingInterface
 	BlockStorage() BlockStorageInterface
 	FSS(*OCIClientConfig) FileStorageInterface
+	Lustre() LustreInterface
 	Identity(*OCIClientConfig) IdentityInterface
 	ContainerEngine() ContainerEngineInterface
 	NewWorkloadIdentityClient(logger *zap.SugaredLogger, lbType string, ociClientConfig *OCIClientConfig) Interface
@@ -222,6 +224,7 @@ type client struct {
 	loadbalancer                 GenericLoadBalancerInterface
 	networkloadbalancer          GenericLoadBalancerInterface
 	filestorage                  filestorageClient
+	lustre                       lustrefilestorage.LustreFileStorageClient
 	bs                           blockstorageClient
 	identity                     identityClient
 	containerEngine              containerEngineClient
@@ -376,6 +379,17 @@ func New(logger *zap.SugaredLogger, cp common.ConfigurationProvider, opRateLimit
 		return nil, errors.Wrap(err, "configuring file storage service client custom transport")
 	}
 
+	// Lustre File Storage client
+	lustreClient, err := lustrefilestorage.NewLustreFileStorageClientWithConfigurationProvider(cp)
+	if err != nil {
+		return nil, errors.Wrap(err, "NewLustreFileStorageClientWithConfigurationProvider")
+	}
+	setupBaseClient(logger, &lustreClient.BaseClient, signer, interceptor, "LUSTRE_ENDPOINT_OVERRIDE")
+	err = configureCustomTransport(logger, &lustreClient.BaseClient)
+	if err != nil {
+		return nil, errors.Wrap(err, "configuring lustre file storage client custom transport")
+	}
+
 	containerEngine, err := containerengine.NewContainerEngineClientWithConfigurationProvider(cp)
 	if err != nil {
 		return nil, errors.Wrap(err, "NewContainerEngineClientWithConfigurationProvider")
@@ -408,6 +422,7 @@ func New(logger *zap.SugaredLogger, cp common.ConfigurationProvider, opRateLimit
 		networkloadbalancer:          networkloadbalancer,
 		bs:                           &bs,
 		filestorage:                  &fss,
+		lustre:                       lustreClient,
 		containerEngine:              &containerEngine,
 		compartment:                  &compartment,
 		certificatesManagementClient: certificateClient,
@@ -546,6 +561,10 @@ func (c *client) Networking(ociClientConfig *OCIClientConfig) NetworkingInterfac
 			configProviderCache: c.configProviderCache,
 		}
 	}
+	return c
+}
+
+func (c *client) Lustre() LustreInterface {
 	return c
 }
 

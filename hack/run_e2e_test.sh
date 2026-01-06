@@ -215,6 +215,9 @@ function run_e2e_tests() {
                 --volume-handle=${FSS_VOLUME_HANDLE} \
                 --lustre-volume-handle=${LUSTRE_VOLUME_HANDLE} \
                 --lustre-subnet-cidr=${LUSTRE_SUBNET_CIDR} \
+                --enable-lustre-tests=${ENABLE_LUSTRE_TESTS} \
+                --lustre-worker-node-image=${LUSTRE_WORKER_NODE_IMAGE} \
+                --lustre-kms-key=${LUSTRE_KMS_KEY} \
                 --static-snapshot-compartment-id=${STATIC_SNAPSHOT_COMPARTMENT_ID} \
                 --custom-driver-handle=${CUSTOM_DRIVER_HANDLE} \
                 --create-uhp-nodepool=${CREATE_UHP_NODEPOOL} \
@@ -277,6 +280,9 @@ function run_e2e_tests() {
                 --volume-handle=${FSS_VOLUME_HANDLE} \
                 --lustre-volume-handle=${LUSTRE_VOLUME_HANDLE} \
                 --lustre-subnet-cidr=${LUSTRE_SUBNET_CIDR} \
+                --enable-lustre-tests=${ENABLE_LUSTRE_TESTS} \
+                --lustre-worker-node-image=${LUSTRE_WORKER_NODE_IMAGE} \
+                --lustre-kms-key=${LUSTRE_KMS_KEY} \
                 --static-snapshot-compartment-id=${STATIC_SNAPSHOT_COMPARTMENT_ID} \
                 --custom-driver-handle=${CUSTOM_DRIVER_HANDLE} \
                 --create-uhp-nodepool=${CREATE_UHP_NODEPOOL} \
@@ -325,6 +331,9 @@ function run_e2e_tests_existing_cluster() {
                 --volume-handle=${FSS_VOLUME_HANDLE} \
                 --lustre-volume-handle=${LUSTRE_VOLUME_HANDLE} \
                 --lustre-subnet-cidr=${LUSTRE_SUBNET_CIDR} \
+                --enable-lustre-tests=${ENABLE_LUSTRE_TESTS} \
+                --lustre-worker-node-image=${LUSTRE_WORKER_NODE_IMAGE} \
+                --lustre-kms-key=${LUSTRE_KMS_KEY} \
                 --static-snapshot-compartment-id=${STATIC_SNAPSHOT_COMPARTMENT_ID} \
                 --custom-driver-handle=${CUSTOM_DRIVER_HANDLE} \
                 --create-uhp-nodepool=${CREATE_UHP_NODEPOOL} \
@@ -362,6 +371,9 @@ function run_e2e_tests_existing_cluster() {
                         --volume-handle=${FSS_VOLUME_HANDLE} \
                         --lustre-volume-handle=${LUSTRE_VOLUME_HANDLE} \
                         --lustre-subnet-cidr=${LUSTRE_SUBNET_CIDR} \
+                        --enable-lustre-tests=${ENABLE_LUSTRE_TESTS} \
+                        --lustre-worker-node-image=${LUSTRE_WORKER_NODE_IMAGE} \
+                        --lustre-kms-key=${LUSTRE_KMS_KEY} \
                         --static-snapshot-compartment-id=${STATIC_SNAPSHOT_COMPARTMENT_ID} \
                         --custom-driver-handle=${CUSTOM_DRIVER_HANDLE} \
                         --create-uhp-nodepool=${CREATE_UHP_NODEPOOL} \
