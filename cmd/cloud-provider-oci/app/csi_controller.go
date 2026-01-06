@@ -63,6 +63,9 @@ func (c *CSIController) RunCsiController(config *cloudControllerManagerConfig.Co
 	csioption.FssCsiAddress = csioptions.GetFssAddress(csioption.CsiAddress, defaultFssAddress)
 	csioption.FssEndpoint = csioptions.GetFssAddress(csioption.Endpoint, defaultFssEndpoint)
 	csioption.FssVolumeNamePrefix = csioptions.GetFssVolumeNamePrefix(csioption.VolumeNamePrefix)
+	csioption.LustreCsiAddress = csioptions.GetLustreAddress(csioption.CsiAddress, defaultLustreAddress)
+	csioption.LustreEndpoint = csioptions.GetLustreAddress(csioption.Endpoint, defaultLustreEndpoint)
+	csioption.LustreVolumeNamePrefix = csioptions.GetLustreVolumeNamePrefix(csioption.VolumeNamePrefix)
 
 	// Check and update feature gate for CrossNamespaceDataSource
 	csioption.FeatureGates = csioptions.UpdateFeatureGates(csioption.FeatureGates)

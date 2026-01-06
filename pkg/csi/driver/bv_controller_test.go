@@ -283,6 +283,10 @@ type MockProvisionerClient struct {
 	Storage *MockBlockStorageClient
 }
 
+func (p *MockProvisionerClient) Lustre() client.LustreInterface {
+	return nil
+}
+
 type MockContainerEngineClient struct{}
 
 func (m MockContainerEngineClient) GetWorkRequest(ctx context.Context, workRequestId string) (*containerengine.WorkRequest, error) {
