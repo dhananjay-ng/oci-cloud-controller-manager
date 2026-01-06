@@ -399,6 +399,10 @@ type MockFSSProvisionerClient struct {
 	Storage *MockFileStorageClient
 }
 
+func (m MockFSSProvisionerClient) Lustre() client.LustreInterface {
+	return nil
+}
+
 func (m MockFSSProvisionerClient) ContainerEngine() client.ContainerEngineInterface {
 	return &MockContainerEngineClient{}
 }
