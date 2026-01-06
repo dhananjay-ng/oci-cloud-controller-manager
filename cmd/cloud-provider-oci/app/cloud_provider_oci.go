@@ -71,6 +71,8 @@ const initialRetryDelay = 5 * time.Second
 const (
 	defaultFssAddress  = "/var/run/shared-tmpfs/csi-fss.sock"
 	defaultFssEndpoint = "unix:///var/run/shared-tmpfs/csi-fss.sock"
+	defaultLustreAddress  = "/var/run/shared-tmpfs/csi-lustre.sock"
+	defaultLustreEndpoint = "unix:///var/run/shared-tmpfs/csi-lustre.sock"
 )
 
 // constant values for bvr and reboot APIs rate limiter used by node operation rule controller

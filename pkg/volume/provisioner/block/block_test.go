@@ -404,6 +404,10 @@ type MockProvisionerClient struct {
 	Storage *MockBlockStorageClient
 }
 
+func (p *MockProvisionerClient) Lustre() client.LustreInterface {
+	return nil
+}
+
 // BlockStorage mocks client BlockStorage implementation
 func (p *MockProvisionerClient) BlockStorage() client.BlockStorageInterface {
 	return p.Storage

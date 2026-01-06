@@ -3304,6 +3304,10 @@ func TestAddNodeToPendingNodesDueToMaxParallelism(t *testing.T) {
 type OciClientMock struct {
 }
 
+func (c OciClientMock) Lustre() client.LustreInterface {
+	return nil
+}
+
 func (c OciClientMock) LoadBalancer(logger *zap.SugaredLogger, s string, config *client.OCIClientConfig) client.GenericLoadBalancerInterface {
 	return nil
 }

@@ -1,0 +1,37 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: oci-lustre-high-perf
+provisioner: lustre.csi.oraclecloud.com
+reclaimPolicy: Delete
+allowVolumeExpansion: false
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  # Required
+  subnetId: "ocid1.subnet.oc1.phx.aaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  # Recommended/Optional
+  availabilityDomain: "PHX-AD-1"
+  compartmentId: "ocid1.compartment.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  # nsgIds must be provided as a JSON array string because StorageClass parameters are strings in Kubernetes.
+  # Example with two NSGs:
+  # nsgIds: '["ocid1.networksecuritygroup.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaa","ocid1.networksecuritygroup.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaa"]'
+  # Lustre filesystem parameters
+  performanceTier: "MBPS_PER_TB_125"   # allowed: MBPS_PER_TB_125|MBPS_PER_TB_250|MBPS_PER_TB_500|MBPS_PER_TB_1000
+  #kmsKeyId: "ocid1.key.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  # Optional filesystem name (<= 8 chars, [A-Za-z0-9_]); if omitted, defaults from volume name suffix
+  fileSystemName: "lustrefs"
+  # Root squash settings (optional)
+  rootSquashEnabled: "true"           # default false
+  rootSquashUid: "65534"              # default 65534
+  rootSquashGid: "65534"              # default 65534
+  rootSquashClientExceptions: '["10.0.2.4"]'  # max 10 entries
+  # Node pass-through flags (optional)
+  setupLnet: "false"
+  lustreSubnetCidr: "10.0.2.0/24"
+  lustrePostMountParameters: '[{"*.*.*MDT*.lru_size": 11200}]'
+  # Tag overrides (optional)
+  #oci.oraclecloud.com/initial-defined-tags-override: '{"Operations": {"CostCenter": "42"}}'
+  #oci.oraclecloud.com/initial-freeform-tags-override: '{"Department": "Finance"}'
+#mountOptions:
+#  - hard
+#  - noatime
