@@ -995,6 +995,10 @@ type MockSecurityListManagerFactory func(mode string) MockSecurityListManager
 
 type MockOCIClient struct{}
 
+func (c MockOCIClient) Lustre() client.LustreInterface {
+	return nil
+}
+
 func (MockOCIClient) Compute() client.ComputeInterface {
 	return &MockComputeClient{}
 }

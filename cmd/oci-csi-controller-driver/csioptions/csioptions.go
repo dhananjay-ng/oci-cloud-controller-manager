@@ -26,6 +26,10 @@ import (
 const (
 	fssAddressSuffix               = "-fss.sock"
 	fssVolumeNameAppendedPrefix    = "-fss"
+
+	lustreAddressSuffix            = "-lustre.sock"
+	lustreVolumeNameAppendedPrefix = "-lustre"
+
 	CrossNamespaceVolumeDataSource = "CrossNamespaceVolumeDataSource"
 	VolumeAttributesClass          = "VolumeAttributesClass"
 )
@@ -40,6 +44,9 @@ type CSIOptions struct {
 	FssEndpoint                 string
 	VolumeNamePrefix            string
 	FssVolumeNamePrefix         string
+	LustreCsiAddress           string
+	LustreEndpoint             string
+	LustreVolumeNamePrefix     string
 	VolumeNameUUIDLength        int
 	ShowVersion                 bool
 	RetryIntervalStart          time.Duration
@@ -79,6 +86,9 @@ func NewCSIOptions() *CSIOptions {
 		FssEndpoint:             *flag.String("fss-csi-endpoint", "unix://tmp/csi-fss.sock", "CSI FSS endpoint"),
 		VolumeNamePrefix:        *flag.String("csi-volume-name-prefix", "pvc", "Prefix to apply to the name of a created volume."),
 		FssVolumeNamePrefix:     *flag.String("fss-csi-volume-name-prefix", "pvc", "Prefix to apply to the name of a volume created for FSS."),
+		LustreCsiAddress:        *flag.String("lustre-csi-address", "/run/lustre/socket", "Address of the CSI Lustre driver socket."),
+		LustreEndpoint:          *flag.String("lustre-csi-endpoint", "unix://tmp/csi-lustre.sock", "CSI Lustre endpoint"),
+		LustreVolumeNamePrefix:  *flag.String("lustre-csi-volume-name-prefix", "pvc", "Prefix to apply to the name of a volume created for Lustre."),
 		VolumeNameUUIDLength:    *flag.Int("csi-volume-name-uuid-length", -1, "Truncates generated UUID of a created volume to this length. Defaults behavior is to NOT truncate."),
 		ShowVersion:             *flag.Bool("csi-version", false, "Show version."),
 		RetryIntervalStart:      *flag.Duration("csi-retry-interval-start", time.Second, "Initial retry interval of failed provisioning or deletion. It doubles with each failure, up to retry-interval-max."),
@@ -125,6 +135,23 @@ func GetFssAddress(csiAddress, defaultAddress string) string {
 // GetFssVolumeNamePrefix returns the fssVolumeNamePrefix based on csiVolumeNamePrefix
 func GetFssVolumeNamePrefix(csiVolumeNamePrefix string) string {
 	return csiVolumeNamePrefix + fssVolumeNameAppendedPrefix
+}
+
+// GetLustreAddress returns the lustreAddress based on csiAddress
+func GetLustreAddress(csiAddress, defaultAddress string) string {
+	logger := zap.L().Sugar()
+	address := strings.Split(csiAddress, ".sock")
+	if len(address) != 2 || !strings.HasSuffix(csiAddress, ".sock") {
+		logger.Errorf("failed to parse csi-address : %s. Defaulting to : %s", csiAddress, defaultAddress)
+		return defaultAddress
+	}
+	lustreAddress := address[0] + lustreAddressSuffix
+	return lustreAddress
+}
+
+// GetLustreVolumeNamePrefix returns the lustreVolumeNamePrefix based on csiVolumeNamePrefix
+func GetLustreVolumeNamePrefix(csiVolumeNamePrefix string) string {
+	return csiVolumeNamePrefix + lustreVolumeNameAppendedPrefix
 }
 
 // UpdateFeatureGates add CrossNamespaceVolumeDataSource (default value false) to featureGate if not present

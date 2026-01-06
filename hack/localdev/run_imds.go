@@ -5,14 +5,30 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
+	component := "default"
+	if len(os.Args) > 1 {
+		component = os.Args[1]
+	}
+
+	var filePath string
+	switch component {
+	case "csi":
+		filePath = "hack/localdev/imds_response_csi.json"
+	case "ccm":
+		filePath = "hack/localdev/imds_response_ccm.json"
+	default:
+		filePath = "hack/localdev/imds_response.json"
+	}
+
 	http.HandleFunc("/opc/v2/instance/", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Received request: %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr)
-		data, err := ioutil.ReadFile("hack/localdev/imds_response.json")
+		data, err := ioutil.ReadFile(filePath)
 		if err != nil {
-			log.Printf("Error reading file: %v", err)
+			log.Printf("Error reading file %s: %v", filePath, err)
 			http.Error(w, "Failed to read response", http.StatusInternalServerError)
 			return
 		}
@@ -32,7 +48,7 @@ func main() {
 		log.Println("Response sent successfully")
 	})
 
-	log.Println("Starting mock IMDS server at http://127.0.0.1:8081/opc/v2/instance/")
+	log.Printf("Starting mock IMDS server at http://127.0.0.1:8081/opc/v2/instance/ using %s", filePath)
 	if err := http.ListenAndServe("127.0.0.1:8081", nil); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}

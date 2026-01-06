@@ -29,6 +29,8 @@ import (
 // by the volume provisioner.
 type IdentityInterface interface {
 	GetAvailabilityDomainByName(ctx context.Context, compartmentID, name string) (*identity.AvailabilityDomain, error)
+	// ListAvailabilityDomains returns all ADs in the compartment (IPv4/dual-stack or IPv6 single-stack aware).
+	ListAvailabilityDomains(ctx context.Context, compartmentID string) ([]identity.AvailabilityDomain, error)
 }
 
 func (c *client) GetAvailabilityDomainByName(ctx context.Context, compartmentID, name string) (*identity.AvailabilityDomain, error) {
@@ -98,4 +100,13 @@ func (c *client) listAvailabilityDomains(ctx context.Context, compartmentID stri
 	}
 
 	return resp.Items, nil
+}
+
+// ListAvailabilityDomains implements IdentityInterface, returning the list of ADs for the given compartment.
+// It is IPv6 single-stack aware and delegates to the appropriate underlying implementation.
+func (c *client) ListAvailabilityDomains(ctx context.Context, compartmentID string) ([]identity.AvailabilityDomain, error) {
+	if IsIpv6SingleStackCluster() {
+		return c.listAvailabilityDomainsV6(ctx, compartmentID)
+	}
+	return c.listAvailabilityDomains(ctx, compartmentID)
 }

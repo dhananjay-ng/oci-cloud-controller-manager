@@ -19,7 +19,6 @@ package framework
 import (
 	"context"
 	"fmt"
-
 	"os"
 	"strings"
 	"time"
@@ -345,6 +344,7 @@ func (f *CloudProviderFramework) BeforeEach() {
 
 // AfterEach deletes the namespace(s).
 func (f *CloudProviderFramework) AfterEach() {
+	return
 	RemoveCleanupAction(f.cleanupHandle)
 
 	if isPreUpgradeBool || isPostUpgradeBool {

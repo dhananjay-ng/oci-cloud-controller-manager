@@ -41,7 +41,7 @@ if [ "$SKIP_VENDOR" = true ]; then
 fi
 
 #Runs mock imds server
-go run hack/localdev/run_imds.go &
+go run hack/localdev/run_imds.go ccm &
 IMDS_PID=$!
 # Trap to kill the server on script exit or interrupt
 trap "kill $IMDS_PID 2>/dev/null; echo 'Mock IMDS server terminated.'" EXIT INT TERM
