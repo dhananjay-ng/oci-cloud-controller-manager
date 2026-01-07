@@ -1,5 +1,7 @@
 # Ignore env
 env.sh
+#To be removed
+main.go
 
 # Ignore builds
 dist/

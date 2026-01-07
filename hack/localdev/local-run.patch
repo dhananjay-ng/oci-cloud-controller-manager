@@ -1,13 +1,143 @@
 diff --git a/hack/localdev/local-run.patch b/hack/localdev/local-run.patch
-index d24148f0ae..e69de29bb2 100644
+index 6791b90d6f..e69de29bb2 100644
 --- a/hack/localdev/local-run.patch
 +++ b/hack/localdev/local-run.patch
-@@ -1,302 +0,0 @@
+@@ -1,392 +0,0 @@
 -diff --git a/hack/localdev/local-run.patch b/hack/localdev/local-run.patch
--index 439dffe463..e69de29bb2 100644
+-index d24148f0ae..e69de29bb2 100644
 ---- a/hack/localdev/local-run.patch
 -+++ b/hack/localdev/local-run.patch
--@@ -1,125 +0,0 @@
+-@@ -1,302 +0,0 @@
+--diff --git a/hack/localdev/local-run.patch b/hack/localdev/local-run.patch
+--index 439dffe463..e69de29bb2 100644
+----- a/hack/localdev/local-run.patch
+--+++ b/hack/localdev/local-run.patch
+--@@ -1,125 +0,0 @@
+---diff --git a/pkg/cloudprovider/providers/oci/config/config.go b/pkg/cloudprovider/providers/oci/config/config.go
+---index 88f5003f37..c09abecc4e 100644
+------ a/pkg/cloudprovider/providers/oci/config/config.go
+---+++ b/pkg/cloudprovider/providers/oci/config/config.go
+---@@ -23,7 +23,6 @@ import (
+--- 
+--- 	"github.com/oracle/oci-cloud-controller-manager/pkg/oci/instance/metadata"
+--- 	"github.com/oracle/oci-go-sdk/v65/common"
+----	"github.com/oracle/oci-go-sdk/v65/common/auth"
+--- 	"github.com/pkg/errors"
+--- 	"github.com/spf13/viper"
+--- 	"go.uber.org/zap"
+---@@ -293,13 +292,13 @@ func NewConfigurationProvider(cfg *Config) (common.ConfigurationProvider, error)
+--- 		return cp, nil
+--- 	}
+--- 
+----	cp, err := auth.NewServicePrincipalWithInstancePrincipalConfigurationProvider("")
+----	if err != nil {
+----		cp, _ = NewConfigurationProviderWithUserPrincipal(cfg)
+---+	//cp, err := auth.NewServicePrincipalWithInstancePrincipalConfigurationProvider("")
+---+	//if err != nil {
+---+	cp, err := NewConfigurationProviderWithUserPrincipal(cfg)
+--- 		if cp == nil {
+--- 			return nil, errors.Wrap(err, "failed to instantiate ServicePrincipalWithInstancePrincipalConfigurationProvider")
+--- 		}
+----	}
+---+	//}
+--- 	return cp, nil
+--- 
+--- }
+---diff --git a/pkg/oci/instance/metadata/instance_metadata.go b/pkg/oci/instance/metadata/instance_metadata.go
+---index 18df28bda9..a2874dc026 100644
+------ a/pkg/oci/instance/metadata/instance_metadata.go
+---+++ b/pkg/oci/instance/metadata/instance_metadata.go
+---@@ -16,15 +16,16 @@ package metadata
+--- 
+--- import (
+--- 	"encoding/json"
+----	"go.uber.org/zap"
+--- 	"net/http"
+--- 	"time"
+--- 
+---+	"go.uber.org/zap"
+---+
+--- 	"github.com/pkg/errors"
+--- )
+--- 
+--- const (
+----	baseURL            = "http://169.254.169.254"
+---+	baseURL            = "http://127.0.0.1:8081"
+--- 	metadataEndpoint   = "/opc/v2/instance/"
+--- 	defaultHTTPTimeout = 5 * time.Second
+--- )
+---diff --git a/vendor/github.com/kubernetes-csi/external-provisioner/v5/pkg/features/features.go b/vendor/github.com/kubernetes-csi/external-provisioner/v5/pkg/features/features.go
+---index 0ec9216554..f421c85612 100644
+------ a/vendor/github.com/kubernetes-csi/external-provisioner/v5/pkg/features/features.go
+---+++ b/vendor/github.com/kubernetes-csi/external-provisioner/v5/pkg/features/features.go
+---@@ -19,6 +19,7 @@ package features
+--- import (
+--- 	"k8s.io/apiserver/pkg/util/feature"
+--- 	"k8s.io/component-base/featuregate"
+---+	"k8s.io/apimachinery/pkg/util/version"
+--- )
+--- 
+--- const (
+---@@ -27,15 +28,6 @@ const (
+--- 	// beta: v1.2
+--- 	Topology featuregate.Feature = "Topology"
+--- 
+----	// owner: @deepakkinni @xing-yang
+----	// kep: http://kep.k8s.io/2680
+----	// alpha: v1.23
+----	// beta: v1.31
+----	//
+----	// Honor Persistent Volume Reclaim Policy when it is "Delete" irrespective of PV-PVC
+----	// deletion ordering.
+----	HonorPVReclaimPolicy featuregate.Feature = "HonorPVReclaimPolicy"
+----
+--- 	// owner: @ttakahashi21 @mkimuram
+--- 	// kep: http://kep.k8s.io/3294
+--- 	// alpha: v1.26
+---@@ -54,13 +46,21 @@ const (
+--- 
+--- func init() {
+--- 	feature.DefaultMutableFeatureGate.Add(defaultKubernetesFeatureGates)
+---+	feature.DefaultMutableFeatureGate.AddVersioned(defaultKubernetesVersionedFeatureGates)
+--- }
+--- 
+--- // defaultKubernetesFeatureGates consists of all known feature keys specific to external-provisioner.
+--- // To add a new feature, define a key for it above and add it here.
+--- var defaultKubernetesFeatureGates = map[featuregate.Feature]featuregate.FeatureSpec{
+--- 	Topology:                       {Default: true, PreRelease: featuregate.GA},
+----	HonorPVReclaimPolicy:           {Default: true, PreRelease: featuregate.Beta},
+----	CrossNamespaceVolumeDataSource: {Default: false, PreRelease: featuregate.Alpha},
+----	VolumeAttributesClass:          {Default: false, PreRelease: featuregate.Beta},
+---+}
+---+
+---+var defaultKubernetesVersionedFeatureGates = map[featuregate.Feature]featuregate.VersionedSpecs{
+---+	CrossNamespaceVolumeDataSource: {
+---+		{Version: version.MustParse("1.26"), Default: false, PreRelease: featuregate.Alpha},
+---+	},
+---+	VolumeAttributesClass: {
+---+		{Version: version.MustParse("1.29"), Default: false, PreRelease: featuregate.Alpha},
+---+		{Version: version.MustParse("1.31"), Default: false, PreRelease: featuregate.Beta},
+---+	},
+--- }
+---diff --git a/vendor/k8s.io/client-go/tools/leaderelection/leaderelection.go b/vendor/k8s.io/client-go/tools/leaderelection/leaderelection.go
+---index c3c1d9be17..baf1c09876 100644
+------ a/vendor/k8s.io/client-go/tools/leaderelection/leaderelection.go
+---+++ b/vendor/k8s.io/client-go/tools/leaderelection/leaderelection.go
+---@@ -452,10 +452,10 @@ func (le *LeaderElector) tryAcquireOrRenew(ctx context.Context) bool {
+--- 
+--- 		le.observedRawRecord = oldLeaderElectionRawRecord
+--- 	}
+----	if len(oldLeaderElectionRecord.HolderIdentity) > 0 && le.isLeaseValid(now.Time) && !le.IsLeader() {
+----		klog.V(4).Infof("lock is held by %v and has not yet expired", oldLeaderElectionRecord.HolderIdentity)
+----		return false
+----	}
+---+	//if len(oldLeaderElectionRecord.HolderIdentity) > 0 && le.isLeaseValid(now.Time) && !le.IsLeader() {
+---+	//	klog.V(4).Infof("lock is held by %v and has not yet expired", oldLeaderElectionRecord.HolderIdentity)
+---+	//	return false
+---+	//}
+--- 
+--- 	// 4. We're going to try to update. The leaderElectionRecord is set to it's default
+--- 	// here. Let's correct it before updating.
 --diff --git a/pkg/cloudprovider/providers/oci/config/config.go b/pkg/cloudprovider/providers/oci/config/config.go
 --index 88f5003f37..c09abecc4e 100644
 ----- a/pkg/cloudprovider/providers/oci/config/config.go
@@ -38,6 +168,19 @@ index d24148f0ae..e69de29bb2 100644
 -- 	return cp, nil
 -- 
 -- }
+--diff --git a/pkg/csi/driver/driver.go b/pkg/csi/driver/driver.go
+--index ff9bb55d26..14fab3af0d 100644
+----- a/pkg/csi/driver/driver.go
+--+++ b/pkg/csi/driver/driver.go
+--@@ -177,7 +177,7 @@ func newNodeDriver(nodeID string, nodeMetaData *csi_util.NodeMetadata, kubeClien
+-- func GetControllerDriver(name string, kubeClientSet kubernetes.Interface, logger *zap.SugaredLogger, config *providercfg.Config, c client.Interface, clusterIpFamily string) csi.ControllerServer {
+-- 	controllerDriver := newControllerDriver(kubeClientSet, logger, config, c, nil, clusterIpFamily)
+-- 
+---	startMetricPusherInit(controllerDriver, logger)
+--+	//startMetricPusherInit(controllerDriver, logger)
+-- 
+-- 	switch name {
+-- 	case BlockVolumeDriverName:
 --diff --git a/pkg/oci/instance/metadata/instance_metadata.go b/pkg/oci/instance/metadata/instance_metadata.go
 --index 18df28bda9..a2874dc026 100644
 ----- a/pkg/oci/instance/metadata/instance_metadata.go
@@ -110,6 +253,40 @@ index d24148f0ae..e69de29bb2 100644
 --+		{Version: version.MustParse("1.26"), Default: false, PreRelease: featuregate.Alpha},
 --+	},
 --+	VolumeAttributesClass: {
+--+		{Version: version.MustParse("1.29"), Default: false, PreRelease: featuregate.Alpha},
+--+		{Version: version.MustParse("1.31"), Default: false, PreRelease: featuregate.Beta},
+--+	},
+-- }
+--diff --git a/vendor/github.com/kubernetes-csi/external-resizer/pkg/features/features.go b/vendor/github.com/kubernetes-csi/external-resizer/pkg/features/features.go
+--index ba5f7e4bdf..98e9f1a9c4 100644
+----- a/vendor/github.com/kubernetes-csi/external-resizer/pkg/features/features.go
+--+++ b/vendor/github.com/kubernetes-csi/external-resizer/pkg/features/features.go
+--@@ -19,6 +19,7 @@ package features
+-- import (
+-- 	utilfeature "k8s.io/apiserver/pkg/util/feature"
+-- 	"k8s.io/component-base/featuregate"
+--+	"k8s.io/apimachinery/pkg/util/version"
+-- )
+-- 
+-- const (
+--@@ -44,10 +45,19 @@ const (
+-- 
+-- func init() {
+-- 	utilfeature.DefaultMutableFeatureGate.Add(defaultResizerFeatureGates)
+--+	utilfeature.DefaultMutableFeatureGate.AddVersioned(defaultResizerVersionedFeatureGates)
+-- }
+-- 
+-- var defaultResizerFeatureGates = map[featuregate.Feature]featuregate.FeatureSpec{
+-- 	AnnotateFsResize:              {Default: false, PreRelease: featuregate.Alpha},
+---	RecoverVolumeExpansionFailure: {Default: true, PreRelease: featuregate.Beta},
+---	VolumeAttributesClass:         {Default: false, PreRelease: featuregate.Beta},
+--+}
+--+var defaultResizerVersionedFeatureGates = map[featuregate.Feature]featuregate.VersionedSpecs{
+--+	RecoverVolumeExpansionFailure: {
+--+		{Version: version.MustParse("1.23"), Default: false, PreRelease: featuregate.Alpha},
+--+		{Version: version.MustParse("1.32"), Default: true, PreRelease: featuregate.Beta},
+--+	},
+--+	VolumeAttributesClass :{
 --+		{Version: version.MustParse("1.29"), Default: false, PreRelease: featuregate.Alpha},
 --+		{Version: version.MustParse("1.31"), Default: false, PreRelease: featuregate.Beta},
 --+	},
@@ -199,93 +376,6 @@ index d24148f0ae..e69de29bb2 100644
 - 	metadataEndpoint   = "/opc/v2/instance/"
 - 	defaultHTTPTimeout = 5 * time.Second
 - )
--diff --git a/vendor/github.com/kubernetes-csi/external-provisioner/v5/pkg/features/features.go b/vendor/github.com/kubernetes-csi/external-provisioner/v5/pkg/features/features.go
--index 0ec9216554..f421c85612 100644
----- a/vendor/github.com/kubernetes-csi/external-provisioner/v5/pkg/features/features.go
--+++ b/vendor/github.com/kubernetes-csi/external-provisioner/v5/pkg/features/features.go
--@@ -19,6 +19,7 @@ package features
-- import (
-- 	"k8s.io/apiserver/pkg/util/feature"
-- 	"k8s.io/component-base/featuregate"
--+	"k8s.io/apimachinery/pkg/util/version"
-- )
-- 
-- const (
--@@ -27,15 +28,6 @@ const (
-- 	// beta: v1.2
-- 	Topology featuregate.Feature = "Topology"
-- 
---	// owner: @deepakkinni @xing-yang
---	// kep: http://kep.k8s.io/2680
---	// alpha: v1.23
---	// beta: v1.31
---	//
---	// Honor Persistent Volume Reclaim Policy when it is "Delete" irrespective of PV-PVC
---	// deletion ordering.
---	HonorPVReclaimPolicy featuregate.Feature = "HonorPVReclaimPolicy"
---
-- 	// owner: @ttakahashi21 @mkimuram
-- 	// kep: http://kep.k8s.io/3294
-- 	// alpha: v1.26
--@@ -54,13 +46,21 @@ const (
-- 
-- func init() {
-- 	feature.DefaultMutableFeatureGate.Add(defaultKubernetesFeatureGates)
--+	feature.DefaultMutableFeatureGate.AddVersioned(defaultKubernetesVersionedFeatureGates)
-- }
-- 
-- // defaultKubernetesFeatureGates consists of all known feature keys specific to external-provisioner.
-- // To add a new feature, define a key for it above and add it here.
-- var defaultKubernetesFeatureGates = map[featuregate.Feature]featuregate.FeatureSpec{
-- 	Topology:                       {Default: true, PreRelease: featuregate.GA},
---	HonorPVReclaimPolicy:           {Default: true, PreRelease: featuregate.Beta},
---	CrossNamespaceVolumeDataSource: {Default: false, PreRelease: featuregate.Alpha},
---	VolumeAttributesClass:          {Default: false, PreRelease: featuregate.Beta},
--+}
--+
--+var defaultKubernetesVersionedFeatureGates = map[featuregate.Feature]featuregate.VersionedSpecs{
--+	CrossNamespaceVolumeDataSource: {
--+		{Version: version.MustParse("1.26"), Default: false, PreRelease: featuregate.Alpha},
--+	},
--+	VolumeAttributesClass: {
--+		{Version: version.MustParse("1.29"), Default: false, PreRelease: featuregate.Alpha},
--+		{Version: version.MustParse("1.31"), Default: false, PreRelease: featuregate.Beta},
--+	},
-- }
--diff --git a/vendor/github.com/kubernetes-csi/external-resizer/pkg/features/features.go b/vendor/github.com/kubernetes-csi/external-resizer/pkg/features/features.go
--index ba5f7e4bdf..98e9f1a9c4 100644
----- a/vendor/github.com/kubernetes-csi/external-resizer/pkg/features/features.go
--+++ b/vendor/github.com/kubernetes-csi/external-resizer/pkg/features/features.go
--@@ -19,6 +19,7 @@ package features
-- import (
-- 	utilfeature "k8s.io/apiserver/pkg/util/feature"
-- 	"k8s.io/component-base/featuregate"
--+	"k8s.io/apimachinery/pkg/util/version"
-- )
-- 
-- const (
--@@ -44,10 +45,19 @@ const (
-- 
-- func init() {
-- 	utilfeature.DefaultMutableFeatureGate.Add(defaultResizerFeatureGates)
--+	utilfeature.DefaultMutableFeatureGate.AddVersioned(defaultResizerVersionedFeatureGates)
-- }
-- 
-- var defaultResizerFeatureGates = map[featuregate.Feature]featuregate.FeatureSpec{
-- 	AnnotateFsResize:              {Default: false, PreRelease: featuregate.Alpha},
---	RecoverVolumeExpansionFailure: {Default: true, PreRelease: featuregate.Beta},
---	VolumeAttributesClass:         {Default: false, PreRelease: featuregate.Beta},
--+}
--+var defaultResizerVersionedFeatureGates = map[featuregate.Feature]featuregate.VersionedSpecs{
--+	RecoverVolumeExpansionFailure: {
--+		{Version: version.MustParse("1.23"), Default: false, PreRelease: featuregate.Alpha},
--+		{Version: version.MustParse("1.32"), Default: true, PreRelease: featuregate.Beta},
--+	},
--+	VolumeAttributesClass :{
--+		{Version: version.MustParse("1.29"), Default: false, PreRelease: featuregate.Alpha},
--+		{Version: version.MustParse("1.31"), Default: false, PreRelease: featuregate.Beta},
--+	},
-- }
 -diff --git a/vendor/k8s.io/client-go/tools/leaderelection/leaderelection.go b/vendor/k8s.io/client-go/tools/leaderelection/leaderelection.go
 -index c3c1d9be17..baf1c09876 100644
 ---- a/vendor/k8s.io/client-go/tools/leaderelection/leaderelection.go
@@ -306,37 +396,57 @@ index d24148f0ae..e69de29bb2 100644
 - 	// 4. We're going to try to update. The leaderElectionRecord is set to it's default
 - 	// here. Let's correct it before updating.
 diff --git a/pkg/cloudprovider/providers/oci/config/config.go b/pkg/cloudprovider/providers/oci/config/config.go
-index 88f5003f37..c09abecc4e 100644
+index c6a255305f..90b79d5d15 100644
 --- a/pkg/cloudprovider/providers/oci/config/config.go
 +++ b/pkg/cloudprovider/providers/oci/config/config.go
-@@ -23,7 +23,6 @@ import (
+@@ -18,6 +18,8 @@ import (
+ 	"context"
+ 	"io"
+ 	"os"
++	"os/user"
++	"path/filepath"
  
- 	"github.com/oracle/oci-cloud-controller-manager/pkg/oci/instance/metadata"
- 	"github.com/oracle/oci-go-sdk/v65/common"
--	"github.com/oracle/oci-go-sdk/v65/common/auth"
- 	"github.com/pkg/errors"
- 	"github.com/spf13/viper"
- 	"go.uber.org/zap"
-@@ -293,13 +292,13 @@ func NewConfigurationProvider(cfg *Config) (common.ConfigurationProvider, error)
- 		return cp, nil
- 	}
+ 	"bitbucket.oci.oraclecorp.com/oke/oke-common/resourceprincipals"
  
--	cp, err := auth.NewServicePrincipalWithInstancePrincipalConfigurationProvider("")
--	if err != nil {
--		cp, _ = NewConfigurationProviderWithUserPrincipal(cfg)
-+	//cp, err := auth.NewServicePrincipalWithInstancePrincipalConfigurationProvider("")
-+	//if err != nil {
-+	cp, err := NewConfigurationProviderWithUserPrincipal(cfg)
- 		if cp == nil {
- 			return nil, errors.Wrap(err, "failed to instantiate ServicePrincipalWithInstancePrincipalConfigurationProvider")
- 		}
--	}
-+	//}
- 	return cp, nil
- 
+@@ -275,10 +277,35 @@ func FromFile(path string) (*Config, error) {
+ 	return ReadConfig(f)
  }
+ 
++const (
++	profileName = "INTEG"
++	cfgDirName  = ".oci"
++	cfgFileName = "config"
++)
++
++func CustomProfileConfigProvider() common.ConfigurationProvider {
++	homeFolder := getHomeFolder()
++	configFilePath := filepath.Join(homeFolder, cfgDirName, cfgFileName)
++	securityTokenBasedAuthConfigProvider := common.CustomProfileConfigProvider(configFilePath, profileName)
++	return securityTokenBasedAuthConfigProvider
++}
++func getHomeFolder() string {
++	current, e := user.Current()
++	if e != nil {
++		//Give up and try to return something sensible
++		home := os.Getenv("HOME")
++		if home == "" {
++			home = os.Getenv("USERPROFILE")
++		}
++		return home
++	}
++	return current.HomeDir
++}
++
+ // NewConfigurationProvider takes a cloud provider config file and returns an OCI ConfigurationProvider
+ // to be consumed by the OCI SDK.
+ func NewConfigurationProvider(cfg *Config) (common.ConfigurationProvider, error) {
+-
++	return CustomProfileConfigProvider(), nil
+ 	if cfg != nil {
+ 		err := cfg.Validate()
+ 		if err != nil {
 diff --git a/pkg/csi/driver/driver.go b/pkg/csi/driver/driver.go
-index ff9bb55d26..14fab3af0d 100644
+index e8d726e757..eb578dc780 100644
 --- a/pkg/csi/driver/driver.go
 +++ b/pkg/csi/driver/driver.go
 @@ -177,7 +177,7 @@ func newNodeDriver(nodeID string, nodeMetaData *csi_util.NodeMetadata, kubeClien
