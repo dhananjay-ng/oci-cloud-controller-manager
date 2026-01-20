@@ -237,6 +237,13 @@ func (j *PVCTestJig) newPVCTemplateStaticFSS(namespace, volumeSize, volumeName s
 	return pvc
 }
 
+func (j *PVCTestJig) NewPVCTemplateDynamicLustre(namespace, volumeSize, scName string) *v1.PersistentVolumeClaim {
+	pvc := j.CreatePVCTemplate(namespace, volumeSize)
+	pvc = j.pvcAddAccessMode(pvc, v1.ReadWriteMany)
+	pvc = j.pvcAddStorageClassName(pvc, scName)
+	return pvc
+}
+
 // NewPVCTemplateDynamicFSS returns the default template for this jig, but
 // does not actually create the PVC.  The default PVC has the same name
 // as the jig
@@ -346,6 +353,12 @@ func (j *PVCTestJig) CreatePVCorFailStaticLustre(namespace, volumeName, volumeSi
 	return j.CheckPVCorFail(pvc, tweak, namespace, volumeSize)
 }
 
+func (j *PVCTestJig) CreatePVCorFailDynamicLustre(namespace, volumeSize string, scName string,
+	tweak func(pvc *v1.PersistentVolumeClaim)) *v1.PersistentVolumeClaim {
+	pvc := j.NewPVCTemplateDynamicLustre(namespace, volumeSize, scName)
+	return j.CheckPVCorFail(pvc, tweak, namespace, volumeSize)
+}
+
 // CreatePVCorFailDynamicFSS creates a new claim based on the jig's
 // defaults. Callers can provide a function to tweak the claim object
 // before it is created.
@@ -434,6 +447,12 @@ func (j *PVCTestJig) CreateAndAwaitClonePVCOrFailCSI(namespace, volumeSize, scNa
 	tweak func(pvc *v1.PersistentVolumeClaim), volumeMode v1.PersistentVolumeMode, accessMode v1.PersistentVolumeAccessMode, expectedPVCPhase v1.PersistentVolumeClaimPhase) *v1.PersistentVolumeClaim {
 	pvc := j.CreateClonePVCorFailCSI(namespace, volumeSize, scName, sourcePvc, tweak, volumeMode, accessMode)
 	return j.CheckAndAwaitPVCOrFail(pvc, namespace, expectedPVCPhase)
+}
+
+func (j *PVCTestJig) CreateAndAwaitPVCOrFailDynamicLustre(namespace, volumeSize, scName string,
+	phase v1.PersistentVolumeClaimPhase, tweak func(pvc *v1.PersistentVolumeClaim)) *v1.PersistentVolumeClaim {
+	pvc := j.CreatePVCorFailDynamicLustre(namespace, volumeSize, scName, tweak)
+	return j.CheckAndAwaitPVCOrFail(pvc, namespace, phase)
 }
 
 // CreateAndAwaitPVCOrFailDynamicFSS creates a new PVC based on the

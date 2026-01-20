@@ -394,6 +394,7 @@ type Framework struct {
 	CustomDriverHandle            string
 	BlockProvisionerName          string
 	FSSProvisionerName            string
+	LustreProvisionerName         string
 	CreateUhpNodepool             bool
 
 	UpgradeTestingNamespace string
@@ -591,6 +592,8 @@ func (f *Framework) Initialize() {
 	Logf("Block Provisioner name: %s", f.BlockProvisionerName)
 	f.FSSProvisionerName = getFSSProvisionerName(customDriverHandle)
 	Logf("FSS Provisioner name: %s", f.FSSProvisionerName)
+	f.LustreProvisionerName = getLustreProvisionerName(customDriverHandle)
+	Logf("Lustre Provisioner name: %s", f.LustreProvisionerName)
 	f.CreateUhpNodepool = createUhpNodepool
 	Logf("Create Uhp Nodepool: %v", f.CreateUhpNodepool)
 	f.CMEKKMSKey = cmekKMSKey
@@ -1096,6 +1099,14 @@ func getBlockProvisionerName(handle string) string {
 
 func getFSSProvisionerName(handle string) string {
 	provisioner := "fss.csi.oraclecloud.com"
+	if handle != "" {
+		return handle + "." + provisioner
+	}
+	return provisioner
+}
+
+func getLustreProvisionerName(handle string) string {
+	provisioner := "lustre.csi.oraclecloud.com"
 	if handle != "" {
 		return handle + "." + provisioner
 	}
