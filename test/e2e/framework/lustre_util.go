@@ -29,7 +29,7 @@ func (f *CloudProviderFramework) GetLustreSummaryByDisplayName(ctx context.Conte
 	Logf("compartmentId: %+v", compartmentId)
 	Logf("adLocation: %+v", adLocation)
 	Logf("pvName: %+v", pvName)
-	fsVolumeSummaryList, err := f.Client.Lustre(nil).ListLustreFileSystems(ctx, compartmentId, adLocation, pvName)
+	fsVolumeSummaryList, err := f.Client.Lustre().ListLustreFileSystems(ctx, compartmentId, adLocation, pvName)
 	if client.IsNotFound(err) {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (f *CloudProviderFramework) GetLustreFSIdByDisplayName(ctx context.Context,
 }
 
 func (f *CloudProviderFramework) CheckLustreVolumeExist(ctx context.Context, fsId string) bool {
-	fs, err := f.Client.Lustre(nil).GetLustreFileSystem(ctx, fsId)
+	fs, err := f.Client.Lustre().GetLustreFileSystem(ctx, fsId)
 	if client.IsNotFound(err) {
 		return false
 	}

@@ -27,6 +27,9 @@ var _ = Describe("Lustre Dynamic", func() {
 	f := framework.NewDefaultFramework("lustre-dynamic-e2e")
 	Context("[cloudprovider][storage][csi][lustre][dynamic]", func() {
 		It("Should create and delete lustre volumes", func() {
+			if !setupF.EnableLustreTests {
+				Skip("Skipping Lustre tests as Lustre tests are not been enabled (Env var: ENABLE_LUSTRE_TESTS)")
+			}
 			pvcJig := framework.NewPVCTestJig(f.ClientSet, "csi-lustre-e2e-test")
 
 			parameters := map[string]string{

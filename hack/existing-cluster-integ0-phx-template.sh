@@ -13,7 +13,7 @@
 ##################################################################################################
 
 # The test suites to run (can replace or add tags)
-export FOCUS="\[cloudprovider\]\[ccm\]\[noroperator\]"
+export FOCUS="\[fstypes\]\[paravirtualized\]"
 
 # This variable tells the test not to install oci cli and wipe out your .oci/config
 export LOCAL_RUN=1
@@ -58,8 +58,8 @@ export BACKEND_NSG_OCIDS="ocid1.networksecuritygroup.oc1.phx.aaaaaaaa5mcufaaxor2
 # export DELETE_NAMESPACE=false
 
 
-export HTTP_PROXY=http://www-proxy-idc.in.oracle.com:80
-export HTTPS_PROXY=http://www-proxy-idc.in.oracle.com:80
+#export HTTP_PROXY=http://www-proxy-idc.in.oracle.com:80
+#export HTTPS_PROXY=http://www-proxy-idc.in.oracle.com:80
 
 
 # FSS volume handle
@@ -76,6 +76,9 @@ export FSS_VOLUME_HANDLE_IPV6="ocid1.filesystem.oc1.phx.aaaaaaaaaahoeurpobuhqllq
 export LUSTRE_VOLUME_HANDLE=""
 export LUSTRE_VOLUME_HANDLE_ARM=""
 export LUSTRE_SUBNET_CIDR=""
+export ENABLE_LUSTRE_TESTS=true
+export LUSTRE_WORKER_NODE_IMAGE="ocid1.image.oc1.phx.aaaaaaaaa4h5frsda4fiqjr73raowfig6vudw5b5ryvdbferzwg2tuqcv5cq"
+
 
 export STATIC_SNAPSHOT_COMPARTMENT_ID=""
 export ENABLE_PARALLEL_RUN=false
@@ -102,7 +105,7 @@ export OCI_NODESUBNET_IPV6="ocid1.subnet.oc1.phx.aaaaaaaa6umsjm6bszml73xzll4t2p4
 export OCI_NODESUBNET_DUAL_STACK="ocid1.subnet.oc1.phx.aaaaaaaassdb32w5fq4rkeo3gt2lw6fnhhg4gqrdlehlgpamn42b35hb4w3q"
 export LBRGNSUBNET_IPV6="ocid1.subnet.oc1.phx.aaaaaaaaj54463vrghmqii2g4xlegichxiqgajjwsjhotkj2xl73ckbbaqca"
 export LBRGNSUBNET_DUAL_STACK="ocid1.subnet.oc1.phx.aaaaaaaadbekwkbgmbe6fcfcgj23ibf2jtohissdn6flk3u7vykdovjr3jqa"
-export EXISTING_CLUSTER_OCID="ocid1.clusterinteg.oc1.phx.aaaaaaaa4ycy7lu26vblfiijcwubmpkegq5m7r45kbbovmpgucgce2dm5ioq"
+export EXISTING_CLUSTER_OCID="ocid1.clusterinteg.oc1.phx.aaaaaaaatplsb2nfooubxn6xy3jk4a3tau4l2v7l3o4gtu4b2crxuc5fmpta"
 
 
 export OKE_ENDPOINT=containerengine-integ.us-phoenix-1.oci.oraclecloud.com
@@ -123,3 +126,4 @@ export OCI_NODESUBNET="ocid1.subnet.oc1.phx.aaaaaaaaegz7agsaqt5d6fdbwhtq2m3vmlzw
 export NODEPOOL_SIZE="3"
 export E2E_NODE_COUNT=1
 export E2E_BRANCH=private-e2e
+

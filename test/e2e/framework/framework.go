@@ -125,6 +125,8 @@ var (
 	volumeHandle                  string // The FSS mount volume handle
 	lustreVolumeHandle            string // The Lustre mount volume handle
 	lustreSubnetCidr              string // The Lustre Subnet Cidr
+	enableLustreTests             bool   // Flag to enable disable lustre tests
+	lustreWorkerNodeImage         string // Ocid of worker node image having backed in lustre clients to create separate nodepool
 	staticSnapshotCompartmentOCID string // Compartment ID for cross compartment snapshot test
 	customDriverHandle            string // Custom driver handle for custom CSI driver installation
 	createUhpNodepool             bool   // Creates UHP nodepool instead of normal nodepool
@@ -203,6 +205,8 @@ func init() {
 	flag.StringVar(&volumeHandle, "volume-handle", "", "FSS volume handle used to mount the File System")
 	flag.StringVar(&lustreVolumeHandle, "lustre-volume-handle", "", "Lustre volume handle used to mount the File System")
 	flag.StringVar(&lustreSubnetCidr, "lustre-subnet-cidr", "", "Lustre subnet cidr to identify SVNIC in lustre subnet to configure lnet.")
+	flag.BoolVar(&enableLustreTests, "enable-lustre-tests", false, "Flag to control lustre tests.")
+	flag.StringVar(&lustreWorkerNodeImage, "lustre-worker-node-image", "", "Worker node image which has lustre clients backed in for creating node pool.")
 
 	flag.StringVar(&imagePullRepo, "image-pull-repo", "", "Repo to pull images from. Will pull public images if not specified.")
 	flag.StringVar(&cmekKMSKey, "cmek-kms-key", "", "KMS key to be used for CMEK testing")
@@ -387,7 +391,9 @@ type Framework struct {
 	VolumeHandle       string
 	LustreVolumeHandle string
 
-	LustreSubnetCidr string
+	LustreSubnetCidr      string
+	EnableLustreTests     bool
+	LustreWorkerNodeImage string
 
 	// Compartment ID for cross compartment snapshot test
 	StaticSnapshotCompartmentOcid string
@@ -489,6 +495,8 @@ func NewWithConfig(config *FrameworkConfig) *Framework {
 		VolumeHandle:                  volumeHandle,
 		LustreVolumeHandle:            lustreVolumeHandle,
 		LustreSubnetCidr:              lustreSubnetCidr,
+		LustreWorkerNodeImage:         lustreWorkerNodeImage,
+		EnableLustreTests:             enableLustreTests,
 		StaticSnapshotCompartmentOcid: staticSnapshotCompartmentOCID,
 		CustomDriverHandle:            customDriverHandle,
 		CreateUhpNodepool:             createUhpNodepool,
@@ -584,6 +592,10 @@ func (f *Framework) Initialize() {
 	Logf("Lustre Volume Handle is : %s", f.LustreVolumeHandle)
 	f.LustreSubnetCidr = lustreSubnetCidr
 	Logf("Lustre Subnet CIDR is : %s", f.LustreSubnetCidr)
+	f.EnableLustreTests = enableLustreTests
+	Logf("EnableLustreTests is : %s", f.EnableLustreTests)
+	f.LustreWorkerNodeImage = lustreWorkerNodeImage
+	Logf("LustreWorkerNodeImage : %s", f.LustreWorkerNodeImage)
 	f.StaticSnapshotCompartmentOcid = staticSnapshotCompartmentOCID
 	Logf("Static Snapshot Compartment OCID: %s", f.StaticSnapshotCompartmentOcid)
 	f.CustomDriverHandle = customDriverHandle

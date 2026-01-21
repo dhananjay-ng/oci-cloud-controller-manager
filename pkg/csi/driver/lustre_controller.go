@@ -122,7 +122,7 @@ func (d *LustreControllerDriver) CreateVolume(ctx context.Context, req *csi.Crea
 			if err != nil || existingLustreFs == nil {
 				metricDimensions[metrics.ComponentDimension] = util.GetComponentForMetricDimension(util.GetError(err), util.CSIStorageType)
 				metrics.SendMetricData(d.metricPusher, metrics.LustreProvision, time.Since(startTime).Seconds(), metricDimensions)
-				return nil, status.Errorf(codes.DeadlineExceeded, "Error occurred while waiting for LustreFilesystem to become active, error : %v", err)
+				return nil, status.Errorf(codes.DeadlineExceeded, "deadline reached while waiting for LustreFilesystem to become active, error : %v", err)
 			}
 			return d.sendCreateVolumeSuccessResponse(log, existingLustreFs, metricDimensions, startTime, sc)
 
@@ -185,7 +185,7 @@ func (d *LustreControllerDriver) CreateVolume(ctx context.Context, req *csi.Crea
 		log.With(zap.Error(err)).Error("Error occurred while waiting for LustreFilesystem to become active.")
 		metricDimensions[metrics.ComponentDimension] = util.GetComponentForMetricDimension(util.GetError(err), util.CSIStorageType)
 		metrics.SendMetricData(d.metricPusher, metrics.LustreProvision, time.Since(startTime).Seconds(), metricDimensions)
-		return nil, status.Errorf(codes.DeadlineExceeded, "Error occurred while waiting for LustreFilesystem to become active, error : %v", err)
+		return nil, status.Errorf(codes.DeadlineExceeded, "deadline reached while waiting for LustreFilesystem to become active, error : %v", err)
 	}
 
 	return d.sendCreateVolumeSuccessResponse(log, lustreFs, metricDimensions, startTime, sc)

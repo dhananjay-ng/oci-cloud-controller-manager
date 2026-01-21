@@ -25,10 +25,13 @@ var _ = Describe("Lustre Static", func() {
 	Context("[cloudprovider][storage][csi][lustre][static]", func() {
 
 		It("Multiple Pods should be able consume same PVC and read, write to same file", func() {
+			if !setupF.EnableLustreTests {
+				Skip("Skipping Lustre tests as Lustre tests are not been enabled (Env var: ENABLE_LUSTRE_TESTS)")
+			}
 			pvcJig := framework.NewPVCTestJig(f.ClientSet, "csi-lustre-e2e-test")
-			pvVolumeAttributes := map[string]string{ "setupLnet": "true"}
+			pvVolumeAttributes := map[string]string{"setupLnet": "true"}
 			if setupF.LustreSubnetCidr != "" {
-				pvVolumeAttributes["lustreSubnetCidr"]= setupF.LustreSubnetCidr
+				pvVolumeAttributes["lustreSubnetCidr"] = setupF.LustreSubnetCidr
 			}
 
 			pv := pvcJig.CreatePVorFailLustre(f.Namespace.Name, setupF.LustreVolumeHandle, []string{}, pvVolumeAttributes)
@@ -38,7 +41,9 @@ var _ = Describe("Lustre Static", func() {
 		})
 
 		It("Multiple CSI Drivers (BV, FSS, Lustre) should work in same cluster and be able to handle mount, unmounts", func() {
-
+			if !setupF.EnableLustreTests {
+				Skip("Skipping Lustre tests as Lustre tests are not been enabled (Env var: ENABLE_LUSTRE_TESTS)")
+			}
 			//BV
 			bvPVCJig := framework.NewPVCTestJig(f.ClientSet, "csi-bv-e2e-test")
 			scName := f.CreateStorageClassOrFail(framework.ClassOCICSI, setupF.BlockProvisionerName, nil, bvPVCJig.Labels, "WaitForFirstConsumer", true, "Delete", nil)
@@ -55,9 +60,9 @@ var _ = Describe("Lustre Static", func() {
 
 			//LUSTRE
 			lusterPVCJig := framework.NewPVCTestJig(f.ClientSet, "csi-lustre-e2e-test")
-			pvVolumeAttributes := map[string]string{ "setupLnet": "true"}
+			pvVolumeAttributes := map[string]string{"setupLnet": "true"}
 			if setupF.LustreSubnetCidr != "" {
-				pvVolumeAttributes["lustreSubnetCidr"]= setupF.LustreSubnetCidr
+				pvVolumeAttributes["lustreSubnetCidr"] = setupF.LustreSubnetCidr
 			}
 			lustrePV := lusterPVCJig.CreatePVorFailLustre(f.Namespace.Name, setupF.LustreVolumeHandle, []string{}, pvVolumeAttributes)
 			lustrePVC := lusterPVCJig.CreateAndAwaitPVCOrFailStaticLustre(f.Namespace.Name, lustrePV.Name, "50Gi", nil)
@@ -70,11 +75,14 @@ var _ = Describe("Lustre Static", func() {
 		})
 
 		It("Create PV PVC and POD for CSI-Lustre with mount options", func() {
+			if !setupF.EnableLustreTests {
+				Skip("Skipping Lustre tests as Lustre tests are not been enabled (Env var: ENABLE_LUSTRE_TESTS)")
+			}
 			pvcJig := framework.NewPVCTestJig(f.ClientSet, "csi-lustre-e2e-test")
 			mountOptions := []string{"flock"}
-			pvVolumeAttributes := map[string]string{ "setupLnet": "true"}
+			pvVolumeAttributes := map[string]string{"setupLnet": "true"}
 			if setupF.LustreSubnetCidr != "" {
-				pvVolumeAttributes["lustreSubnetCidr"]= setupF.LustreSubnetCidr
+				pvVolumeAttributes["lustreSubnetCidr"] = setupF.LustreSubnetCidr
 			}
 
 			pv := pvcJig.CreatePVorFailLustre(f.Namespace.Name, setupF.LustreVolumeHandle, mountOptions, pvVolumeAttributes)
@@ -84,8 +92,11 @@ var _ = Describe("Lustre Static", func() {
 		})
 
 		It("Create PV PVC and POD for CSI-Lustre with lustre post mount parameters", func() {
+			if !setupF.EnableLustreTests {
+				Skip("Skipping Lustre tests as Lustre tests are not been enabled (Env var: ENABLE_LUSTRE_TESTS)")
+			}
 			pvcJig := framework.NewPVCTestJig(f.ClientSet, "csi-lustre-e2e-test")
-			pvVolumeAttributes := map[string]string{ "setupLnet": "true", "lustrePostMountParameters" : "[{\"*.*.*MDT*.lru_size\" : 11201}]"}
+			pvVolumeAttributes := map[string]string{"setupLnet": "true", "lustrePostMountParameters": "[{\"*.*.*MDT*.lru_size\" : 11201}]"}
 
 			pv := pvcJig.CreatePVorFailLustre(f.Namespace.Name, setupF.LustreVolumeHandle, []string{}, pvVolumeAttributes)
 			pvc := pvcJig.CreateAndAwaitPVCOrFailStaticLustre(f.Namespace.Name, pv.Name, "50Gi", nil)
@@ -96,11 +107,14 @@ var _ = Describe("Lustre Static", func() {
 		})
 
 		It("Verify volume group ownership change for Lustre when fsGroup is defined", func() {
+			if !setupF.EnableLustreTests {
+				Skip("Skipping Lustre tests as Lustre tests are not been enabled (Env var: ENABLE_LUSTRE_TESTS)")
+			}
 			pvcJig := framework.NewPVCTestJig(f.ClientSet, "csi-lustre-e2e-test")
 
-			pvVolumeAttributes := map[string]string{ "setupLnet": "true"}
+			pvVolumeAttributes := map[string]string{"setupLnet": "true"}
 			if setupF.LustreSubnetCidr != "" {
-				pvVolumeAttributes["lustreSubnetCidr"]= setupF.LustreSubnetCidr
+				pvVolumeAttributes["lustreSubnetCidr"] = setupF.LustreSubnetCidr
 			}
 
 			pv := pvcJig.CreatePVorFailLustre(f.Namespace.Name, setupF.LustreVolumeHandle, []string{}, pvVolumeAttributes)

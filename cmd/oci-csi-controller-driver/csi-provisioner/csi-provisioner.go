@@ -107,7 +107,7 @@ func StartCSIProvisioner(csioptions csioptions.CSIOptions, csiDriver driver.CSID
 		volumeNamePrefix = csioptions.LustreVolumeNamePrefix
 		fsType = "lustre"
 		endpoint = csioptions.LustreEndpoint
-		csioptions.Timeout = 360 * time.Second // 6 min timeout
+		csioptions.Timeout = 720 * time.Second // 12 min timeout, LFS takes ~10 min for filesystem smallest filesystem creation
 	} else {
 		csiAddress = csioptions.FssCsiAddress
 		volumeNamePrefix = csioptions.FssVolumeNamePrefix
