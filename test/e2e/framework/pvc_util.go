@@ -57,6 +57,12 @@ const (
 	FsTypeLustre = "lustre"
 )
 
+// PodConfig defines optional pod scheduling configurations
+type PodConfig struct {
+	NodeSelector map[string]string
+	Tolerations  []v1.Toleration
+}
+
 // PVCTestJig is a jig to help create PVC tests.
 type PVCTestJig struct {
 	ID                 string
@@ -1416,6 +1422,137 @@ func (j *PVCTestJig) NewPodForCSIFSSRead(matchString string, namespace string, c
 	return pod.Name
 }
 
+// NewPodWritingToVolume creates pod that writes data to volume. This will be generic method and not CSI driver specific.
+func (j *PVCTestJig) NewPodWritingToVolume(name string, namespace string, claimName string, fileName string, config *PodConfig) string {
+	By("Creating a pod with the claiming PVC created by CSI")
+
+	command := fmt.Sprintf("while true; do echo %s >> /data/%s; sleep 5; done", name, fileName)
+	podSpec := v1.PodSpec{
+		Containers: []v1.Container{
+			{
+				Name:    name,
+				Image:   centos,
+				Command: []string{"/bin/sh"},
+				Args:    []string{"-c", command},
+				VolumeMounts: []v1.VolumeMount{
+					{
+						Name:      "persistent-storage",
+						MountPath: "/data",
+					},
+				},
+			},
+		},
+		Volumes: []v1.Volume{
+			{
+				Name: "persistent-storage",
+				VolumeSource: v1.VolumeSource{
+					PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{
+						ClaimName: claimName,
+					},
+				},
+			},
+		},
+	}
+
+	if config != nil {
+		podSpec.NodeSelector = config.NodeSelector
+		podSpec.Tolerations = config.Tolerations
+	}
+
+	pod, err := j.KubeClient.CoreV1().Pods(namespace).Create(context.Background(), &v1.Pod{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Pod",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			GenerateName: j.Name,
+			Namespace:    namespace,
+		},
+		Spec: podSpec,
+	}, metav1.CreateOptions{})
+	if err != nil {
+		Failf("Pod %q Create API error: %v", pod.Name, err)
+	}
+
+	// Waiting for pod to be running
+	err = j.WaitTimeoutForPodRunningInNamespace(pod.Name, namespace, slowPodStartTimeout)
+	if err != nil {
+		Logf("Pod failed to come up, logging debug info\n")
+		j.LogPodDebugInfo(namespace, pod.Name)
+		Failf("Pod %q is not Running: %v", pod.Name, err)
+	}
+	zap.S().With(pod.Namespace).With(pod.Name).Info("CSI POD is created.")
+	return pod.Name
+}
+
+// NewPodReadingFromVolume creates pod that reads data from volume. This will be generic method and not CSI driver specific..
+func (j *PVCTestJig) NewPodReadingFromVolume(matchString string, namespace string, claimName string, fileName string, config *PodConfig) string {
+	By("Creating a pod with the claiming PVC created by CSI")
+
+	nodeSelectorMap := make(map[string]string)
+
+	command := fmt.Sprintf("grep -q -i %s /data/%s; exit $?", matchString, fileName)
+	podSpec := v1.PodSpec{
+		Containers: []v1.Container{
+			{
+				Name:    "readapp",
+				Image:   centos,
+				Command: []string{"/bin/sh"},
+				Args:    []string{"-c", command},
+				VolumeMounts: []v1.VolumeMount{
+					{
+						Name:      "persistent-storage",
+						MountPath: "/data",
+					},
+				},
+			},
+		},
+		RestartPolicy: v1.RestartPolicyNever,
+		Volumes: []v1.Volume{
+			{
+				Name: "persistent-storage",
+				VolumeSource: v1.VolumeSource{
+					PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{
+						ClaimName: claimName,
+					},
+				},
+			},
+		},
+		NodeSelector: nodeSelectorMap,
+	}
+
+	if config != nil {
+		podSpec.NodeSelector = config.NodeSelector
+		podSpec.Tolerations = config.Tolerations
+	}
+
+	pod, err := j.KubeClient.CoreV1().Pods(namespace).Create(context.Background(), &v1.Pod{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Pod",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			GenerateName: j.Name,
+			Namespace:    namespace,
+		},
+		Spec: podSpec,
+	}, metav1.CreateOptions{})
+	if err != nil {
+		Failf("CSI read POD Create API error: %v", err)
+	}
+
+	// Waiting for pod to be running
+	err = j.waitTimeoutForPodCompletedSuccessfullyInNamespace(pod.Name, namespace, slowPodStartTimeout)
+	if err != nil {
+		Logf("Pod failed to come up, logging debug info\n")
+		j.LogPodDebugInfo(namespace, pod.Name)
+		Failf("Pod %q failed: %v", pod.Name, err)
+	}
+	zap.S().With(pod.Namespace).With(pod.Name).Info("CSI Fss read POD is created.")
+
+	return pod.Name
+}
+
 // WaitForPVCPhase waits for a PersistentVolumeClaim to be in a specific phase or until timeout occurs, whichever comes first.
 func (j *PVCTestJig) WaitForPVCPhase(phase v1.PersistentVolumeClaimPhase, ns string, pvcName string) error {
 	Logf("Waiting up to %v for PersistentVolumeClaim %s to have phase %s", DefaultTimeout, pvcName, phase)
@@ -1811,6 +1948,52 @@ func (j *PVCTestJig) CheckMultiplePodReadWrite(namespace string, pvcName string,
 	By("Creating Pod that can read contents of existing file")
 	j.NewPodForCSIFSSRead(string(uuid2), namespace, pvcName, fileName, checkEncryption)
 }
+func (j *PVCTestJig) CheckMultiplePodReadWriteGeneric(namespace string, pvcName string, podconfig *PodConfig) {
+	uid := uuid.NewUUID()
+	fileName := fmt.Sprintf("out_%s.txt", uid)
+	By("Creating Pod that can create and write to the file")
+	uuid1 := uuid.NewUUID()
+	podName1 := j.NewPodWritingToVolume(string(uuid1), namespace, pvcName, fileName, podconfig)
+	time.Sleep(30 * time.Second) //waiting for pod to become up and running
+
+	By("check if the file exists")
+	j.CheckFileExists(namespace, podName1, "/data", fileName)
+
+	By("Creating Pod that can create and write to the file")
+	uuid2 := uuid.NewUUID()
+	podName2 := j.NewPodWritingToVolume(string(uuid2), namespace, pvcName, fileName, podconfig)
+	time.Sleep(30 * time.Second) //waiting for pod to become up and running
+	By("check if the file exists")
+	j.CheckFileExists(namespace, podName2, "/data", fileName)
+
+	By("Creating Pod that can read contents of existing file")
+	podName3 := j.NewPodReadingFromVolume(string(uuid1), namespace, pvcName, fileName, podconfig)
+
+	By("Creating Pod that can read contents of existing file")
+	podName4 := j.NewPodReadingFromVolume(string(uuid2), namespace, pvcName, fileName, podconfig)
+
+	By("Deleting all the pods")
+	err := j.DeleteAndAwaitPod(namespace, podName1)
+	if err != nil {
+		Failf("Unable to terminate pod %v", podName1)
+		return
+	}
+	err = j.DeleteAndAwaitPod(namespace, podName2)
+	if err != nil {
+		Failf("Unable to terminate pod %v", podName2)
+		return
+	}
+	err = j.DeleteAndAwaitPod(namespace, podName3)
+	if err != nil {
+		Failf("Unable to terminate pod %v", podName3)
+		return
+	}
+	err = j.DeleteAndAwaitPod(namespace, podName4)
+	if err != nil {
+		Failf("Unable to terminate pod %v", podName4)
+		return
+	}
+}
 
 type PodCommands struct {
 	podRunning       string
@@ -1983,6 +2166,15 @@ func (j *PVCTestJig) DeleteAndAwaitPVC(namespace, pvcName string) error {
 	return wait.PollImmediate(Poll, 5*time.Minute, j.pvcDeleted(namespace, pvcName))
 }
 
+func (j *PVCTestJig) DeleteAndAwaitPV(pvName string) error {
+	err := j.KubeClient.CoreV1().PersistentVolumes().Delete(context.Background(), pvName, metav1.DeleteOptions{})
+	if err != nil {
+		Failf("Error deleting PV %s: %v", pvName, err)
+	}
+
+	return wait.PollImmediate(Poll, 5*time.Minute, j.pvDeleted(pvName))
+}
+
 func (j *PVCTestJig) DeleteAndAwaitPod(namespace, podName string) error {
 	err := j.KubeClient.CoreV1().Pods(namespace).Delete(context.Background(), podName, metav1.DeleteOptions{})
 	if err != nil {
@@ -2058,6 +2250,11 @@ func (j *PVCTestJig) GetPVCByName(pvcName, namespace string) v1.PersistentVolume
 	return *pvc
 }
 
+func (j *PVCTestJig) GetPVByName(pvName string) v1.PersistentVolume {
+	pv, _ := j.KubeClient.CoreV1().PersistentVolumes().Get(context.Background(), pvName, metav1.GetOptions{})
+	return *pv
+}
+
 func (j *PVCTestJig) CheckPVExists(pvName string) bool {
 	_, err := j.KubeClient.CoreV1().PersistentVolumes().Get(context.Background(), pvName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
@@ -2080,6 +2277,20 @@ func (j *PVCTestJig) ChangePVReclaimPolicy(pvName string, newReclaimPolicy strin
 func (j *PVCTestJig) pvcDeleted(namespace, pvcName string) wait.ConditionFunc {
 	return func() (bool, error) {
 		_, err := j.KubeClient.CoreV1().PersistentVolumeClaims(namespace).Get(context.Background(), pvcName, metav1.GetOptions{})
+
+		if apierrors.IsNotFound(err) {
+			return true, nil // done
+		}
+		if err != nil {
+			return true, err // stop wait with error
+		}
+		return false, nil
+	}
+}
+
+func (j *PVCTestJig) pvDeleted(pvName string) wait.ConditionFunc {
+	return func() (bool, error) {
+		_, err := j.KubeClient.CoreV1().PersistentVolumes().Get(context.Background(), pvName, metav1.GetOptions{})
 
 		if apierrors.IsNotFound(err) {
 			return true, nil // done
