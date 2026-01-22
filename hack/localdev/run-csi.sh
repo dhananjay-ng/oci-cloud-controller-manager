@@ -41,7 +41,7 @@ if [ "$SKIP_VENDOR" = true ]; then
 fi
 
 #Runs mock imds server
-go run hack/localdev/run_imds.go &
+go run hack/localdev/run_imds.go csi &
 IMDS_PID=$!
 # Trap to kill the server on script exit or interrupt
 trap "kill $IMDS_PID 2>/dev/null; echo 'Mock IMDS server terminated.'" EXIT INT TERM
@@ -54,8 +54,8 @@ rsync -av "${EXCLUSIONS[@]}" "$ORIGINAL_DIR/" "$TEMP_DIR/"
 # Apply patch in temp dir
 cd "$TEMP_DIR"
 if [ -f .git ]; then
-    git apply "$PATCH_FILE"
-    git apply "$SIDECAR_PATCH_FILE"
+    git apply "$PATCH_FILE" --3way --union
+    git apply "$SIDECAR_PATCH_FILE" --3way --union
 else
     patch -p1 < "$PATCH_FILE"
     patch -p1 < "$SIDECAR_PATCH_FILE"
