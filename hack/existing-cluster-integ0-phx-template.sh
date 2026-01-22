@@ -13,7 +13,7 @@
 ##################################################################################################
 
 # The test suites to run (can replace or add tags)
-export FOCUS="\[cloudprovider\]\[ccm\]\[noroperator\]"
+export FOCUS="\[lustre\]"
 
 # This variable tells the test not to install oci cli and wipe out your .oci/config
 export LOCAL_RUN=1
@@ -33,7 +33,7 @@ export CLOUD_CONFIG_ARM="$HOME/cloudconfig_integ_phx"
 export CNI_TYPE=OCI_VCN_IP_NATIVE
 
 export IMAGE_PULL_REPO="iad.ocir.io/okedev/e2e-tests/"
-export ADLOCATION="zkJl:PHX-AD-3"
+export ADLOCATION="zkJl:PHX-AD-2"
 
 
 #KMS key for CMEK testing
@@ -58,8 +58,8 @@ export BACKEND_NSG_OCIDS="ocid1.networksecuritygroup.oc1.phx.aaaaaaaa5mcufaaxor2
 # export DELETE_NAMESPACE=false
 
 
-export HTTP_PROXY=http://www-proxy-idc.in.oracle.com:80
-export HTTPS_PROXY=http://www-proxy-idc.in.oracle.com:80
+#export HTTP_PROXY=http://www-proxy-idc.in.oracle.com:80
+#export HTTPS_PROXY=http://www-proxy-idc.in.oracle.com:80
 
 
 # FSS volume handle
@@ -76,6 +76,9 @@ export FSS_VOLUME_HANDLE_IPV6="ocid1.filesystem.oc1.phx.aaaaaaaaaahoeurpobuhqllq
 export LUSTRE_VOLUME_HANDLE=""
 export LUSTRE_VOLUME_HANDLE_ARM=""
 export LUSTRE_SUBNET_CIDR=""
+export ENABLE_LUSTRE_TESTS=true
+export LUSTRE_WORKER_NODE_IMAGE="ocid1.image.oc1.phx.aaaaaaaaa4h5frsda4fiqjr73raowfig6vudw5b5ryvdbferzwg2tuqcv5cq"
+#export LUSTRE_KMS_KEY="ocid1.key.oc1.phx.efuxb3z7aaef6.abyhqljsncobtl4xyg4z6toswulfiqgide7azpr6rf43ijli4cx3uuqpsxlq"
 
 export STATIC_SNAPSHOT_COMPARTMENT_ID=""
 export ENABLE_PARALLEL_RUN=false
@@ -102,14 +105,14 @@ export OCI_NODESUBNET_IPV6="ocid1.subnet.oc1.phx.aaaaaaaa6umsjm6bszml73xzll4t2p4
 export OCI_NODESUBNET_DUAL_STACK="ocid1.subnet.oc1.phx.aaaaaaaassdb32w5fq4rkeo3gt2lw6fnhhg4gqrdlehlgpamn42b35hb4w3q"
 export LBRGNSUBNET_IPV6="ocid1.subnet.oc1.phx.aaaaaaaaj54463vrghmqii2g4xlegichxiqgajjwsjhotkj2xl73ckbbaqca"
 export LBRGNSUBNET_DUAL_STACK="ocid1.subnet.oc1.phx.aaaaaaaadbekwkbgmbe6fcfcgj23ibf2jtohissdn6flk3u7vykdovjr3jqa"
-export EXISTING_CLUSTER_OCID="ocid1.clusterinteg.oc1.phx.aaaaaaaa4ycy7lu26vblfiijcwubmpkegq5m7r45kbbovmpgucgce2dm5ioq"
+export EXISTING_CLUSTER_OCID="ocid1.clusterinteg.oc1.phx.aaaaaaaauaw7hmcndm4c7w7xpayi57rccofswp4kwvz6p5rmmcpczkzmkhwa"
 
 
 export OKE_ENDPOINT=containerengine-integ.us-phoenix-1.oci.oraclecloud.com
 export VCN="ocid1.vcn.oc1.phx.amaaaaaah4gjgpyawe7o7zyoiela3ctlakaixqim3vcjoc2hkjcqbqglgjyq"
-export POD_SUBNET_AMD="ocid1.subnet.oc1.phx.aaaaaaaav2utw4kk2rgilrseo5zbp7hwzcgnanokx2kdvsfjksj5e4gbrt2a"
-export POD_SUBNET_ARM="ocid1.subnet.oc1.phx.aaaaaaaav2utw4kk2rgilrseo5zbp7hwzcgnanokx2kdvsfjksj5e4gbrt2a"
-export POD_SUBNET="ocid1.subnet.oc1.phx.aaaaaaaav2utw4kk2rgilrseo5zbp7hwzcgnanokx2kdvsfjksj5e4gbrt2a"
+export POD_SUBNET_AMD="ocid1.subnet.oc1.phx.aaaaaaaarg7i3skfu6aki6ue6d7wtbaj72arkqyzsjl7vw4pg4a2n6nvgorq"
+export POD_SUBNET_ARM="ocid1.subnet.oc1.phx.aaaaaaaarg7i3skfu6aki6ue6d7wtbaj72arkqyzsjl7vw4pg4a2n6nvgorq"
+export POD_SUBNET="ocid1.subnet.oc1.phx.aaaaaaaarg7i3skfu6aki6ue6d7wtbaj72arkqyzsjl7vw4pg4a2n6nvgorq"
 export POD_SUBNET_DUAL_STACK="ocid1.subnet.oc1.phx.aaaaaaaav2utw4kk2rgilrseo5zbp7hwzcgnanokx2kdvsfjksj5e4gbrt2a"
 export ADD_OKE_SYSTEM_TAGS=true
 
@@ -123,3 +126,4 @@ export OCI_NODESUBNET="ocid1.subnet.oc1.phx.aaaaaaaaegz7agsaqt5d6fdbwhtq2m3vmlzw
 export NODEPOOL_SIZE="3"
 export E2E_NODE_COUNT=1
 export E2E_BRANCH=private-e2e
+export COMPARTMENT="ocid1.compartment.oc1..aaaaaaaa7cgk4a3z2vknlyixzhibvdpauuvxdbs5c6n67yktnxdgh53zhibq"

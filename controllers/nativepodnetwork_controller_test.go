@@ -1658,6 +1658,10 @@ func TestConvertCoreVNICtoNPNStatus(t *testing.T) {
 type MockOCIClient struct {
 }
 
+func (c MockOCIClient) Lustre() client.LustreInterface {
+	return nil
+}
+
 func (c MockOCIClient) LoadBalancer(*zap.SugaredLogger, string, *client.OCIClientConfig) client.GenericLoadBalancerInterface {
 	return nil
 }

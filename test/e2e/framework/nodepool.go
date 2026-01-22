@@ -42,6 +42,8 @@ type NodePoolCreateConfig struct {
 
 	NodeMetadata map[string]string
 
+	InitialNodeLabels []oke.KeyValue
+
 	// Options contain the test related options that are to be used when doing Cluster create operations.
 	Options TestOptions
 }
@@ -304,7 +306,7 @@ func (f *Framework) DeleteNodePool(nodepoolID string, waitForDeleted bool) {
 // will block until the nodepool is provisioned and active. Defaults to latest cluster k8s version
 func (f *Framework) CreateNodePool(clusterID, compartmentID string, nodeImageName, nodeShape string, size int,
 	k8sversion string, subnets []string,
-	nodeShapeConfig oke.CreateNodeShapeConfigDetails) (np *oke.NodePool) {
+	nodeShapeConfig oke.CreateNodeShapeConfigDetails, nodeImageId string, nodeInitialLabels []oke.KeyValue) (np *oke.NodePool) {
 
 	if k8sversion == "" {
 		k8sversion = f.OkeNodePoolK8sVersion
@@ -312,7 +314,7 @@ func (f *Framework) CreateNodePool(clusterID, compartmentID string, nodeImageNam
 	if os.Getenv("USE_REGIONALSUBNET") == "true" {
 		return f.CreateNodePoolInRgnSubnetWithVersion(clusterID, compartmentID, nodeShape, &size,
 			subnets[0], k8sversion, nil,
-			nodeShapeConfig)
+			nodeShapeConfig, nodeImageId, nodeInitialLabels)
 	}
 
 	return f.CreateNodePoolWithVersion(clusterID, nodeImageName, nodeShape, size/(len(subnets)-1), subnets[1:], k8sversion, nil)
@@ -321,12 +323,12 @@ func (f *Framework) CreateNodePool(clusterID, compartmentID string, nodeImageNam
 // CreateNodePoolInRgnSubnetWithVersion use the NodeConfigDetails property
 func (f *Framework) CreateNodePoolInRgnSubnetWithVersion(clusterID, compartmentID string, nodeShape string,
 	size *int, rgnSubnet string, kubeVersion string,
-	expectedError common.ServiceError, nodeShapeConfig oke.CreateNodeShapeConfigDetails) *oke.NodePool {
+	expectedError common.ServiceError, nodeShapeConfig oke.CreateNodeShapeConfigDetails, nodeImageId string, nodeInitialLabels []oke.KeyValue) *oke.NodePool {
 	ctx, cancel := context.WithTimeout(f.context, f.timeout)
 	defer cancel()
 	ads := f.ListADs()
 	var poolSize *int
-	var imageId string
+	var imageId = nodeImageId
 	var imageName string
 
 	if size == nil {
@@ -377,13 +379,12 @@ func (f *Framework) CreateNodePoolInRgnSubnetWithVersion(clusterID, compartmentI
 		}
 	}
 
-	imageId = ""
-	imageName = ""
-	var nonGPUImageFound = false
-	images := f.ListNodePoolImages(clusterID)
-
-	imageId, imageName, nonGPUImageFound = f.PickNonGPUImageWithArchCompatibility(images, kubeVersion, f.Architecture, f.NpImageOS)
-	Expect(nonGPUImageFound).To(BeTrue(), "Unable to find a Non-GPU Node Pool image")
+	if imageId == "" {
+		var nonGPUImageFound = false
+		images := f.ListNodePoolImages(clusterID)
+		imageId, imageName, nonGPUImageFound = f.PickNonGPUImageWithArchCompatibility(images, kubeVersion, f.Architecture, f.NpImageOS)
+		Expect(nonGPUImageFound).To(BeTrue(), "Unable to find a Non-GPU Node Pool image")
+	}
 
 	nodeSourceViaImageDetails := &oke.NodeSourceViaImageDetails{
 		ImageId: common.String(imageId),
@@ -403,6 +404,10 @@ func (f *Framework) CreateNodePoolInRgnSubnetWithVersion(clusterID, compartmentI
 
 	if f.Architecture == "ARM" || strings.Contains(nodeShape, "Flex") {
 		cfg.NodeShapeConfig = nodeShapeConfig
+	}
+
+	if nodeInitialLabels != nil {
+		cfg.InitialNodeLabels = nodeInitialLabels
 	}
 
 	response, _ := f.createNodePoolWithConfig(cfg, ctx)
@@ -466,6 +471,9 @@ func (f *Framework) createNodePoolWithConfig(cfg *NodePoolCreateConfig, ctx cont
 			NodeSourceDetails: cfg.NodeSourceDetails,
 			NodeMetadata:      f.NodeMetadata,
 		},
+	}
+	if cfg.InitialNodeLabels != nil && len(cfg.InitialNodeLabels) > 0 {
+		request.CreateNodePoolDetails.InitialNodeLabels = append(request.CreateNodePoolDetails.InitialNodeLabels, cfg.InitialNodeLabels...)
 	}
 	if f.Architecture == "ARM" || strings.Contains(cfg.NodeShape, "Flex") {
 		request.CreateNodePoolDetails.NodeShapeConfig = &cfg.NodeShapeConfig

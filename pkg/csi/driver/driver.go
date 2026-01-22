@@ -34,11 +34,14 @@ import (
 var (
 	BlockVolumeDriverName string
 	FSSDriverName         string
+	LustreDriverName string
 )
 
 func init() {
 	BlockVolumeDriverName = getEnv("BLOCK_VOLUME_DRIVER_NAME", "blockvolume.csi.oraclecloud.com")
 	FSSDriverName = getEnv("FSS_VOLUME_DRIVER_NAME", "fss.csi.oraclecloud.com")
+	LustreDriverName = getEnv("LUSTRE_VOLUME_DRIVER_NAME", "lustre.csi.oraclecloud.com")
+
 }
 
 func getEnv(key, fallback string) string {
@@ -55,9 +58,6 @@ const (
 
 	// FSSDriverVersion is the version of the CSI driver
 	FSSDriverVersion = "0.1.0"
-
-	// LustreDriverName defines the driver name to be used in Kubernetes
-	LustreDriverName = "lustre.csi.oraclecloud.com"
 
 	// LustreDriverVersion is the version of the CSI driver
 	LustreDriverVersion = "0.1.0"
@@ -112,6 +112,11 @@ type BlockVolumeControllerDriver struct {
 type FSSControllerDriver struct {
 	*ControllerDriver
 	serviceAccountLister listersv1.ServiceAccountLister
+}
+
+// LustreControllerDriver extends ControllerDriver for Lustre CSI Controller RPCs.
+type LustreControllerDriver struct {
+	*ControllerDriver
 }
 
 // NodeDriver implements CSI Node interfaces
@@ -202,6 +207,9 @@ func GetControllerDriver(name string, kubeClientSet kubernetes.Interface, logger
 			ControllerDriver:     controllerDriver,
 			serviceAccountLister: serviceAccountInformer.Lister(),
 		}
+
+	case LustreDriverName:
+		return &LustreControllerDriver{ControllerDriver: controllerDriver}
 
 	default:
 		logger.Errorf("Unknown controller driver name: %s", name)
@@ -309,6 +317,9 @@ func (d *Driver) GetControllerDriver() csi.ControllerServer {
 	}
 	if d.name == FSSDriverName {
 		return d.controllerDriver.(*FSSControllerDriver)
+	}
+	if d.name == LustreDriverName {
+		return d.controllerDriver.(*LustreControllerDriver)
 	}
 	return nil
 }

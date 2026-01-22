@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 	sharedfw "github.com/oracle/oci-cloud-controller-manager/test/e2e/framework"
 	oke "github.com/oracle/oci-go-sdk/v65/containerengine"
+	"k8s.io/utils/pointer"
 )
 
 var setupF *sharedfw.Framework
@@ -78,7 +79,7 @@ var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 				nodepool := setupF.CreateNodePool(clusterOCID, setupF.Compartment1, "Oracle-Linux-7.6",
 					setupF.NodeShape, size, setupF.OkeNodePoolK8sVersion,
 					[]string{setupF.NodeSubnet, setupF.NodeSubnet, setupF.NodeSubnet},
-					NodeShapeConfig)
+					NodeShapeConfig, "", nil)
 				Expect(nodepool).ShouldNot(BeNil())
 				sharedfw.Logf(" Created cluster %s with nodepool %s ", clusterOCID, *nodepool.Id)
 			} else {
@@ -92,13 +93,40 @@ var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 				nodepool := setupF.CreateNodePool(clusterOCID, setupF.Compartment1, "Oracle-Linux-7.6",
 					setupF.NodeShape, size, setupF.OkeNodePoolK8sVersion,
 					[]string{setupF.NodeSubnet, setupF.NodeSubnet, setupF.NodeSubnet},
-					NodeShapeConfig)
+					NodeShapeConfig, "", nil)
 				Expect(nodepool).ShouldNot(BeNil())
 				sharedfw.Logf(" Created cluster %s with nodepool %s ", clusterOCID, *nodepool.Id)
 				setupF.EnableBVMPluginOnNodepool(nodepool)
 				sharedfw.Logf("Waiting 10 mins for block volume management plugin to be enabled")
 				time.Sleep(10 * time.Minute)
 			}
+
+			if setupF.EnableLustreTests {
+				//Adding new nodepool for lustre tests, this is required because lustre tests require lustre client packages to be installed
+				//These packages are not currently available in YUM repos, so new nodepool with custom OL8 image will be created for this.
+				var ocpus = float32(2.0)
+				var memoryInGBs = float32(16.0)
+				var NodeShapeConfig = oke.CreateNodeShapeConfigDetails{
+					Ocpus:       &ocpus,
+					MemoryInGBs: &memoryInGBs,
+				}
+				var nodeInitialLabels = []oke.KeyValue{{
+					Key:   pointer.String("oci.oraclecloud.com/lustre-client-configured"),
+					Value: pointer.String("true"),
+				},
+				}
+				//Adding custom cloud init with taint --kubelet-extra-args "--register-with-taints=dedicated=lustre:NoSchedule, so that other pods are no scheduled on this node"
+				setupF.NodeMetadata["user_data"] = "IyEvYmluL2Jhc2gKY3VybCAtLWZhaWwgLUggIkF1dGhvcml6YXRpb246IEJlYXJlciBPcmFjbGUiIC1MMCBodHRwOi8vMTY5LjI1NC4xNjkuMjU0L29wYy92Mi9pbnN0YW5jZS9tZXRhZGF0YS9va2VfaW5pdF9zY3JpcHQgfCBiYXNlNjQgLS1kZWNvZGUgPi92YXIvcnVuL29rZS1pbml0LnNoCmJhc2ggL3Zhci9ydW4vb2tlLWluaXQuc2ggLS1rdWJlbGV0LWV4dHJhLWFyZ3MgIi0tcmVnaXN0ZXItd2l0aC10YWludHM9ZGVkaWNhdGVkPWx1c3RyZTpOb1NjaGVkdWxlIg=="
+
+				size, _ := strconv.Atoi(setupF.NodePoolSize)
+				nodepool := setupF.CreateNodePool(clusterOCID, setupF.Compartment1, "",
+					setupF.NodeShape, size, setupF.OkeNodePoolK8sVersion,
+					[]string{setupF.NodeSubnet, setupF.NodeSubnet, setupF.NodeSubnet},
+					NodeShapeConfig, setupF.LustreWorkerNodeImage, nodeInitialLabels)
+				Expect(nodepool).ShouldNot(BeNil())
+				sharedfw.Logf(" Created cluster %s with Lustre nodepool %s ", clusterOCID, *nodepool.Id)
+			}
+
 			setupF.CrossValidateCluster(clusterOCID, setupF.ValidateChildResources)
 			if setupF.CustomDriverHandle != "" {
 				sharedfw.Logf("Installing custom driver using helm")
