@@ -17,13 +17,14 @@ package csiprovisioner
 import (
 	"context"
 	"fmt"
-	"k8s.io/klog/v2"
 	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"k8s.io/klog/v2"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -68,6 +69,7 @@ var (
 	defaultFSType       = "ext4"
 	version             = "unknown"
 	bvCsiDriver         = "BV"
+	lustreCsiDriver     = "Lustre"
 	capacityThreads     = flag.Uint("capacity-threads", 1, "Number of simultaneously running threads, handling CSIStorageCapacity objects")
 	kubeAPIQPS          = flag.Float32("kube-api-qps", 5, "QPS to use while communicating with the kubernetes apiserver. Defaults to 5.0.")
 	kubeAPIBurst        = flag.Int("kube-api-burst", 10, "Burst to use while communicating with the kubernetes apiserver. Defaults to 10.")
@@ -100,6 +102,24 @@ func StartCSIProvisioner(csioptions csioptions.CSIOptions, csiDriver driver.CSID
 	if string(csiDriver) == bvCsiDriver {
 		csiAddress = csioptions.CsiAddress
 		endpoint = csioptions.Endpoint
+	} else if string(csiDriver) == lustreCsiDriver {
+		csiAddress = csioptions.LustreCsiAddress
+		volumeNamePrefix = csioptions.LustreVolumeNamePrefix
+		fsType = "lustre"
+		endpoint = csioptions.LustreEndpoint
+		csioptions.Timeout = time.Duration(720) * time.Second // 12 min default timeout, LFS takes ~10 min for smallest filesystem creation
+		if v := os.Getenv("LUSTRE_CSI_PROVISIONER_TIMEOUT"); v != "" {
+			if n, err := strconv.Atoi(v); err == nil && n > 0 {
+				csioptions.Timeout = time.Duration(n) * time.Second
+			}
+		}
+		csioptions.WorkerThreads = uint(10) //default
+		if v := os.Getenv("LUSTRE_CSI_PROVISIONER_WORKER_THREADS"); v != "" {
+			if n, err := strconv.Atoi(v); err == nil && n > 0 {
+				klog.Infof("Using  %v worker threads for CSI provisioner.", uint(n))
+				csioptions.WorkerThreads = uint(n)
+			}
+		}
 	} else {
 		csiAddress = csioptions.FssCsiAddress
 		volumeNamePrefix = csioptions.FssVolumeNamePrefix

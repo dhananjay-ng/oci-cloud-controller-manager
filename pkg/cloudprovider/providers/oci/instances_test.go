@@ -995,6 +995,10 @@ type MockSecurityListManagerFactory func(mode string) MockSecurityListManager
 
 type MockOCIClient struct{}
 
+func (c MockOCIClient) Lustre() client.LustreInterface {
+	return nil
+}
+
 func (MockOCIClient) Compute() client.ComputeInterface {
 	return &MockComputeClient{}
 }
@@ -1557,10 +1561,6 @@ func (MockFileStorageClient) DeleteMountTarget(ctx context.Context, id string) e
 type MockIdentityClient struct{}
 
 func (MockIdentityClient) GetAvailabilityDomainByName(ctx context.Context, compartmentID, name string) (*identity.AvailabilityDomain, error) {
-	return nil, nil
-}
-
-func (MockIdentityClient) ListAvailabilityDomains(ctx context.Context, compartmentID string) ([]identity.AvailabilityDomain, error) {
 	return nil, nil
 }
 

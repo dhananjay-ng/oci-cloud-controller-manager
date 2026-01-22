@@ -31,7 +31,7 @@ const (
 	K8sResourcePoll = 2 * time.Second
 	// DefaultTimeout is how long we wait for long-running operations in the
 	// test suite before giving up.
-	DefaultTimeout = 10 * time.Minute
+	DefaultTimeout = 15 * time.Minute
 	// Some pods can take much longer to get ready due to volume attach/detach latency.
 	slowPodStartTimeout = 15 * time.Minute
 
@@ -125,6 +125,9 @@ var (
 	volumeHandle                  string // The FSS mount volume handle
 	lustreVolumeHandle            string // The Lustre mount volume handle
 	lustreSubnetCidr              string // The Lustre Subnet Cidr
+	enableLustreTests             bool   // Flag to enable disable lustre tests
+	lustreWorkerNodeImage         string // Ocid of worker node image having backed in lustre clients to create separate nodepool
+	lustreKMSKey                  string
 	staticSnapshotCompartmentOCID string // Compartment ID for cross compartment snapshot test
 	customDriverHandle            string // Custom driver handle for custom CSI driver installation
 	createUhpNodepool             bool   // Creates UHP nodepool instead of normal nodepool
@@ -203,7 +206,9 @@ func init() {
 	flag.StringVar(&volumeHandle, "volume-handle", "", "FSS volume handle used to mount the File System")
 	flag.StringVar(&lustreVolumeHandle, "lustre-volume-handle", "", "Lustre volume handle used to mount the File System")
 	flag.StringVar(&lustreSubnetCidr, "lustre-subnet-cidr", "", "Lustre subnet cidr to identify SVNIC in lustre subnet to configure lnet.")
-
+	flag.BoolVar(&enableLustreTests, "enable-lustre-tests", false, "Flag to control lustre tests.")
+	flag.StringVar(&lustreWorkerNodeImage, "lustre-worker-node-image", "", "Worker node image which has lustre clients backed in for creating node pool.")
+	flag.StringVar(&lustreKMSKey, "lustre-kms-key", "", "Lustre KMS Key")
 	flag.StringVar(&imagePullRepo, "image-pull-repo", "", "Repo to pull images from. Will pull public images if not specified.")
 	flag.StringVar(&cmekKMSKey, "cmek-kms-key", "", "KMS key to be used for CMEK testing")
 	flag.StringVar(&nsgOCIDS, "nsg-ocids", "", "NSG OCIDs to be used to associate to LB")
@@ -387,13 +392,17 @@ type Framework struct {
 	VolumeHandle       string
 	LustreVolumeHandle string
 
-	LustreSubnetCidr string
+	LustreSubnetCidr      string
+	EnableLustreTests     bool
+	LustreWorkerNodeImage string
+	LustreKMSKey          string
 
 	// Compartment ID for cross compartment snapshot test
 	StaticSnapshotCompartmentOcid string
 	CustomDriverHandle            string
 	BlockProvisionerName          string
 	FSSProvisionerName            string
+	LustreProvisionerName         string
 	CreateUhpNodepool             bool
 
 	UpgradeTestingNamespace string
@@ -488,6 +497,9 @@ func NewWithConfig(config *FrameworkConfig) *Framework {
 		VolumeHandle:                  volumeHandle,
 		LustreVolumeHandle:            lustreVolumeHandle,
 		LustreSubnetCidr:              lustreSubnetCidr,
+		LustreWorkerNodeImage:         lustreWorkerNodeImage,
+		LustreKMSKey:                  lustreKMSKey,
+		EnableLustreTests:             enableLustreTests,
 		StaticSnapshotCompartmentOcid: staticSnapshotCompartmentOCID,
 		CustomDriverHandle:            customDriverHandle,
 		CreateUhpNodepool:             createUhpNodepool,
@@ -583,6 +595,13 @@ func (f *Framework) Initialize() {
 	Logf("Lustre Volume Handle is : %s", f.LustreVolumeHandle)
 	f.LustreSubnetCidr = lustreSubnetCidr
 	Logf("Lustre Subnet CIDR is : %s", f.LustreSubnetCidr)
+	f.EnableLustreTests = enableLustreTests
+	Logf("EnableLustreTests is : %s", f.EnableLustreTests)
+	f.LustreWorkerNodeImage = lustreWorkerNodeImage
+	Logf("LustreWorkerNodeImage : %s", f.LustreWorkerNodeImage)
+	f.LustreKMSKey = lustreKMSKey
+	Logf("LustreKMSKey : %s", f.LustreKMSKey)
+
 	f.StaticSnapshotCompartmentOcid = staticSnapshotCompartmentOCID
 	Logf("Static Snapshot Compartment OCID: %s", f.StaticSnapshotCompartmentOcid)
 	f.CustomDriverHandle = customDriverHandle
@@ -591,6 +610,8 @@ func (f *Framework) Initialize() {
 	Logf("Block Provisioner name: %s", f.BlockProvisionerName)
 	f.FSSProvisionerName = getFSSProvisionerName(customDriverHandle)
 	Logf("FSS Provisioner name: %s", f.FSSProvisionerName)
+	f.LustreProvisionerName = getLustreProvisionerName(customDriverHandle)
+	Logf("Lustre Provisioner name: %s", f.LustreProvisionerName)
 	f.CreateUhpNodepool = createUhpNodepool
 	Logf("Create Uhp Nodepool: %v", f.CreateUhpNodepool)
 	f.CMEKKMSKey = cmekKMSKey
@@ -606,6 +627,10 @@ func (f *Framework) Initialize() {
 	f.Compartment1 = compartment1
 	Logf("OCI compartment1 OCID: %s", f.Compartment1)
 	f.setImages()
+
+	f.PodSubnet = podsubnet
+	Logf("OCI pod subnet OCID: %s", f.PodSubnet)
+
 	if !enableCreateCluster {
 		Logf("Cluster Creation Disabled")
 		f.ClusterKubeconfigPath = clusterkubeconfig
@@ -661,9 +686,6 @@ func (f *Framework) Initialize() {
 	}
 	f.ClusterType = clusterTypeEnum
 	Logf("Cluster Type: %s", f.ClusterType)
-
-	f.PodSubnet = podsubnet
-	Logf("OCI pod subnet OCID: %s", f.PodSubnet)
 
 	f.MaxPodsPerNode = maxPodsPerNode
 	Logf("Max pods per node: %s", f.MaxPodsPerNode)
@@ -1096,6 +1118,14 @@ func getBlockProvisionerName(handle string) string {
 
 func getFSSProvisionerName(handle string) string {
 	provisioner := "fss.csi.oraclecloud.com"
+	if handle != "" {
+		return handle + "." + provisioner
+	}
+	return provisioner
+}
+
+func getLustreProvisionerName(handle string) string {
+	provisioner := "lustre.csi.oraclecloud.com"
 	if handle != "" {
 		return handle + "." + provisioner
 	}

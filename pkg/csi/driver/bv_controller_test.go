@@ -283,6 +283,10 @@ type MockProvisionerClient struct {
 	Storage *MockBlockStorageClient
 }
 
+func (p *MockProvisionerClient) Lustre() client.LustreInterface {
+	return nil
+}
+
 type MockContainerEngineClient struct{}
 
 func (m MockContainerEngineClient) GetWorkRequest(ctx context.Context, workRequestId string) (*containerengine.WorkRequest, error) {
@@ -849,10 +853,6 @@ func (p *MockProvisionerClient) Compute() client.ComputeInterface {
 // MockIdentityClient mocks identity client structure
 type MockIdentityClient struct {
 	common.BaseClient
-}
-
-func (mockClient MockIdentityClient) ListAvailabilityDomains(ctx context.Context, compartmentID string) ([]identity.AvailabilityDomain, error) {
-	return nil, nil
 }
 
 // ListAvailabilityDomains mocks the client ListAvailabilityDomains implementation

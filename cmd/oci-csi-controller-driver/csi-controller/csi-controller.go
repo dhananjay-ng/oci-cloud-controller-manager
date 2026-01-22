@@ -15,6 +15,8 @@
 package csicontroller
 
 import (
+	"os"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -61,6 +63,12 @@ func Run(csioptions csioptions.CSIOptions, stopCh <-chan struct{}) error {
 	logger.Info("starting csi-provisioner go routine for FSS")
 	go csiprovisioner.StartCSIProvisioner(csioptions, driver.FSS)
 
+	// provisioner for lustre (guarded by env flag; default enabled if unset)
+	if func() bool { v := os.Getenv("LUSTRE_CSI_CONTROLLER_DRIVER_ENABLED"); return v == "" || strings.EqualFold(v, "true") }() {
+		logger.Info("starting csi-provisioner go routine for Lustre")
+		go csiprovisioner.StartCSIProvisioner(csioptions, driver.Lustre)
+	}
+
 	//setting timeout to 200 seconds for BV driver (used for ControllerPublish/ControllerUnpublish/ControllerExpand gRPCs)
 	csioptions.Timeout = 200 * time.Second
 	logger.Info("starting csi-attacher go routine for BV")
@@ -82,6 +90,12 @@ func Run(csioptions csioptions.CSIOptions, stopCh <-chan struct{}) error {
 	// controller for fss
 	logger.Info("starting csi-controller go routine for FSS")
 	go csicontrollerdriver.StartControllerDriver(csioptions, driver.FSS)
+
+	// controller for lustre (guarded by env flag; default enabled if unset)
+	if func() bool { v := os.Getenv("LUSTRE_CSI_CONTROLLER_DRIVER_ENABLED"); return v == "" || strings.EqualFold(v, "true") }() {
+		logger.Info("starting csi-controller go routine for Lustre")
+		go csicontrollerdriver.StartControllerDriver(csioptions, driver.Lustre)
+	}
 
 	<-stopCh
 	return nil
