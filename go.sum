@@ -10,6 +10,8 @@ bitbucket.oci.oraclecorp.com/goiam/ocihttpiam v0.0.0-20201112171351-7818abc80432
 bitbucket.oci.oraclecorp.com/oke/bmc-go-sdk v0.0.0-20180119173458-fe578152e621 h1:M1WcJxHwJnkbsSHqVW+Qvt4am3JTAzsXBpOV9Z6v4+M=
 bitbucket.oci.oraclecorp.com/oke/bmc-go-sdk v0.0.0-20180119173458-fe578152e621/go.mod h1:QsX8wOl/1qYr+wRFQzl1AunrURQLg56MhPu3aMzyXas=
 bitbucket.oci.oraclecorp.com/oke/oci-go-common v1.0.4-0.20200706161333-eb59f40527dd/go.mod h1:vV+DBk4RXaIh/Fw9q5BIy7Z/oqPWb/jVeVHt6NkykKY=
+bitbucket.oci.oraclecorp.com/oke/oke-common v1.0.0 h1:sGsjZv8P9XljlHYcXZhldhnpU7CzrOmEab3iqNvbFW4=
+bitbucket.oci.oraclecorp.com/oke/oke-common v1.0.0/go.mod h1:p5nMyoMH/1Akq1Kd5ksnz75v/mgcE4txXvVKbb4QKK8=
 bitbucket.oci.oraclecorp.com/oke/oke-common v1.0.1-0.20220429183118-f0129d710185 h1:ce+1Z2Bvv+gqbmC1n+RUZ8dMG9QGEMoW95PA6G1p11U=
 bitbucket.oci.oraclecorp.com/oke/oke-common v1.0.1-0.20220429183118-f0129d710185/go.mod h1:UZ8NMW2U4h4NVbHaP6TYLjRKkvUBuSAtEspw23Um2WI=
 cel.dev/expr v0.20.0 h1:OunBvVCfvpWlt4dN7zg3FM6TDkzOePe1+foGJ9AXeeI=
