@@ -162,7 +162,12 @@ func (d *LustreControllerDriver) CreateVolume(ctx context.Context, req *csi.Crea
 		}
 	}
 
-	capacityInGbs := int(csi_util.RoundUpSize(req.CapacityRange.RequiredBytes, 1*client.GiB))
+	capacityRange := req.GetCapacityRange()
+	capacityInBytes := capacityRange.GetRequiredBytes()
+	capacityInGbs := 31200 //Setting default capacity of 31200 Gi
+	if capacityInBytes > 0 {
+		capacityInGbs = int(csi_util.RoundUpSize(req.CapacityRange.RequiredBytes, 1*client.GiB))
+	}
 	log = log.With("Capacity", capacityInGbs)
 
 	// Create new filesystem

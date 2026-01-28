@@ -107,10 +107,11 @@ func StartCSIProvisioner(csioptions csioptions.CSIOptions, csiDriver driver.CSID
 		volumeNamePrefix = csioptions.LustreVolumeNamePrefix
 		fsType = "lustre"
 		endpoint = csioptions.LustreEndpoint
-		csioptions.Timeout = time.Duration(720) * time.Second // 12 min default timeout, LFS takes ~10 min for smallest filesystem creation
+		csioptions.OperationTimeout = time.Duration(720) * time.Second // 12 min default timeout, LFS takes ~10 min for smallest filesystem creation
 		if v := os.Getenv("LUSTRE_CSI_PROVISIONER_TIMEOUT"); v != "" {
 			if n, err := strconv.Atoi(v); err == nil && n > 0 {
-				csioptions.Timeout = time.Duration(n) * time.Second
+				csioptions.OperationTimeout = time.Duration(n) * time.Second
+				klog.Infof("Using  %v sec timeout for lustre csi  provisioner.", uint(n))
 			}
 		}
 		csioptions.WorkerThreads = uint(10) //default
