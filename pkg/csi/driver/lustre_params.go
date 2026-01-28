@@ -95,23 +95,6 @@ func extractLustreStorageClassParameters(
 	}
 	log = log.With("compartmentId", params.CompartmentId)
 
-	// availabilityDomain (mandatory)
-	if ad, ok := parameters["availabilityDomain"]; ok && strings.TrimSpace(ad) != "" {
-		// Validate with Identity if provided, and normalize to full AD name (tenancy-prefixed)
-		adTrim := strings.TrimSpace(ad)
-		if full, err := identityClient.GetAvailabilityDomainByName(ctx, params.CompartmentId, adTrim); err != nil {
-			log.With(zap.Error(err)).Errorf("Invalid availabilityDomain: %s (from storage class) for compartment: %s", adTrim, params.CompartmentId)
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid availabilityDomain: %s for compartment %s, error: %v", adTrim, params.CompartmentId, err), true
-		} else {
-			params.AvailabilityDomain = *full.Name
-		}
-		log = log.With("availabilityDomain", params.AvailabilityDomain)
-		log.Info("AD is provided in storage class.")
-	} else {
-		log.Errorf("Missing required parameter: availabilityDomain")
-		return log, nil, nil, status.Errorf(codes.InvalidArgument, "Missing required parameter: availabilityDomain"), true
-	}
-
 	if nsgJSON, ok := parameters["nsgIds"]; ok && strings.TrimSpace(nsgJSON) != "" {
 		var nsgs []string
 		if err := json.Unmarshal([]byte(nsgJSON), &nsgs); err != nil {
@@ -235,6 +218,23 @@ func extractLustreStorageClassParameters(
 			return log, nil, nil, status.Errorf(codes.InvalidArgument, "failed to parse defined tags provided for storageclass"), true
 		}
 		params.SCTags.DefinedTags = defined
+	}
+
+	// availabilityDomain (mandatory)
+	if ad, ok := parameters["availabilityDomain"]; ok && strings.TrimSpace(ad) != "" {
+		// Validate with Identity if provided, and normalize to full AD name (tenancy-prefixed)
+		adTrim := strings.TrimSpace(ad)
+		if full, err := identityClient.GetAvailabilityDomainByName(ctx, params.CompartmentId, adTrim); err != nil {
+			log.With(zap.Error(err)).Errorf("Invalid availabilityDomain: %s (from storage class) for compartment: %s", adTrim, params.CompartmentId)
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid availabilityDomain: %s for compartment %s, error: %v", adTrim, params.CompartmentId, err), true
+		} else {
+			params.AvailabilityDomain = *full.Name
+		}
+		log = log.With("availabilityDomain", params.AvailabilityDomain)
+		log.Info("AD is provided in storage class.")
+	} else {
+		log.Errorf("Missing required parameter: availabilityDomain")
+		return log, nil, nil, status.Errorf(codes.InvalidArgument, "Missing required parameter: availabilityDomain"), true
 	}
 
 	log.Info("Successfully parsed Lustre storage class parameters")
