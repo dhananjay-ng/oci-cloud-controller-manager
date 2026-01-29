@@ -16,44 +16,13 @@ package framework
 
 import (
 	"context"
-	"fmt"
+	"strings"
 	"time"
 
 	"github.com/oracle/oci-cloud-controller-manager/pkg/oci/client"
 	"github.com/oracle/oci-go-sdk/v65/lustrefilestorage"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
-
-func (f *CloudProviderFramework) GetLustreSummaryByDisplayName(ctx context.Context, compartmentId, adLocation, pvName string) (*lustrefilestorage.LustreFileSystemSummary, error) {
-	Logf("GetLustreFileSystemSummaryByDisplayName request params")
-	Logf("compartmentId: %+v", compartmentId)
-	Logf("adLocation: %+v", adLocation)
-	Logf("pvName: %+v", pvName)
-	fsVolumeSummaryList, err := f.Client.Lustre().ListLustreFileSystems(ctx, compartmentId, adLocation, pvName)
-	if client.IsNotFound(err) {
-		return nil, err
-	}
-	if err != nil {
-		return nil, err
-	}
-	if len(fsVolumeSummaryList) == 0 {
-		Logf("fsVolumeSummaryList is empty or nil")
-		return nil, fmt.Errorf("no Lustre file system volume found")
-	}
-
-	Logf("fsVolumeSummaryList length: %d", len(fsVolumeSummaryList))
-	Logf("First volume summary: %+v", fsVolumeSummaryList[0])
-
-	return &fsVolumeSummaryList[0], nil
-}
-
-func (f *CloudProviderFramework) GetLustreFSIdByDisplayName(ctx context.Context, compartmentId, adLocation, pvName string) (string, error) {
-	fsSummary, err := f.GetLustreSummaryByDisplayName(ctx, compartmentId, adLocation, pvName)
-	if err != nil {
-		return "", err
-	}
-	return *fsSummary.Id, nil
-}
 
 func (f *CloudProviderFramework) CheckLustreVolumeExist(ctx context.Context, fsId string) bool {
 	fs, err := f.Client.Lustre().GetLustreFileSystem(ctx, fsId)
@@ -69,17 +38,14 @@ func (f *CloudProviderFramework) CheckLustreVolumeExist(ctx context.Context, fsI
 	return true
 }
 
-func (f *CloudProviderFramework) WaitForLustreFSDeleted(ctx context.Context, compartmentId, adLocation, pvName string, pollInterval, timeout time.Duration) bool {
+func (f *CloudProviderFramework) WaitForLustreFSDeleted(ctx context.Context, compartmentId, adLocation, volumeHandle string, pollInterval, timeout time.Duration) bool {
+	if volumeHandle == "" {
+		return true
+	}
+	fsId := volumeHandle[:strings.Index(volumeHandle, ":")]
+	Logf("Waiting for lustre filesystem %v to be deleted", fsId)
 	var deleted bool
 	err := wait.Poll(pollInterval, timeout, func() (done bool, err error) {
-		fsId, err := f.GetLustreFSIdByDisplayName(ctx, compartmentId, adLocation, pvName)
-		if err != nil {
-			if client.IsNotFound(err) {
-				deleted = true
-				return true, nil
-			}
-			return false, err
-		}
 		exists := f.CheckLustreVolumeExist(ctx, fsId)
 		if !exists {
 			deleted = true

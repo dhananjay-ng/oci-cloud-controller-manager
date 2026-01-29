@@ -155,7 +155,7 @@ var _ = Describe("Lustre E2E Tests", func() {
 			By("Running test: Delete dynamically created PVC for lustre file storage and make sure its deleted.")
 			err = pvcJig.DeleteAndAwaitPVC(f.Namespace.Name, pvc.Name)
 			Expect(err).NotTo(HaveOccurred(), "PVC Deletion failed")
-			deleted := f.WaitForLustreFSDeleted(context.Background(), setupF.Compartment1, setupF.AdLocation, pvc.Spec.VolumeName, framework.Poll, framework.DefaultTimeout)
+			deleted := f.WaitForLustreFSDeleted(context.Background(), setupF.Compartment1, setupF.AdLocation, pv.Spec.CSI.VolumeHandle, framework.Poll, framework.DefaultTimeout)
 			Expect(deleted).To(BeTrue(), "Lustre FS was not deleted")
 			By("Completed test: Delete dynamically created PVC for lustre file storage and make sure its deleted.")
 
