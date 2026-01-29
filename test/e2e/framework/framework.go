@@ -128,6 +128,8 @@ var (
 	enableLustreTests             bool   // Flag to enable disable lustre tests
 	lustreWorkerNodeImage         string // Ocid of worker node image having backed in lustre clients to create separate nodepool
 	lustreKMSKey                  string
+	lustreSubnet                  string
+	lustreAD                      string
 	staticSnapshotCompartmentOCID string // Compartment ID for cross compartment snapshot test
 	customDriverHandle            string // Custom driver handle for custom CSI driver installation
 	createUhpNodepool             bool   // Creates UHP nodepool instead of normal nodepool
@@ -209,6 +211,8 @@ func init() {
 	flag.BoolVar(&enableLustreTests, "enable-lustre-tests", false, "Flag to control lustre tests.")
 	flag.StringVar(&lustreWorkerNodeImage, "lustre-worker-node-image", "", "Worker node image which has lustre clients backed in for creating node pool.")
 	flag.StringVar(&lustreKMSKey, "lustre-kms-key", "", "Lustre KMS Key")
+	flag.StringVar(&lustreSubnet, "lustre-subnet", "", "Lustre Subnet to create lustre filesystem in.")
+	flag.StringVar(&lustreAD, "lustre-ad", "", "Lustre AD to create filesystem in.")
 	flag.StringVar(&imagePullRepo, "image-pull-repo", "", "Repo to pull images from. Will pull public images if not specified.")
 	flag.StringVar(&cmekKMSKey, "cmek-kms-key", "", "KMS key to be used for CMEK testing")
 	flag.StringVar(&nsgOCIDS, "nsg-ocids", "", "NSG OCIDs to be used to associate to LB")
@@ -396,6 +400,8 @@ type Framework struct {
 	EnableLustreTests     bool
 	LustreWorkerNodeImage string
 	LustreKMSKey          string
+	LustreSubnet          string
+	LustreAD              string
 
 	// Compartment ID for cross compartment snapshot test
 	StaticSnapshotCompartmentOcid string
@@ -499,6 +505,8 @@ func NewWithConfig(config *FrameworkConfig) *Framework {
 		LustreSubnetCidr:              lustreSubnetCidr,
 		LustreWorkerNodeImage:         lustreWorkerNodeImage,
 		LustreKMSKey:                  lustreKMSKey,
+		LustreSubnet:                  lustreSubnet,
+		LustreAD:                      lustreAD,
 		EnableLustreTests:             enableLustreTests,
 		StaticSnapshotCompartmentOcid: staticSnapshotCompartmentOCID,
 		CustomDriverHandle:            customDriverHandle,
@@ -601,6 +609,10 @@ func (f *Framework) Initialize() {
 	Logf("LustreWorkerNodeImage : %s", f.LustreWorkerNodeImage)
 	f.LustreKMSKey = lustreKMSKey
 	Logf("LustreKMSKey : %s", f.LustreKMSKey)
+	f.LustreSubnet = lustreSubnet
+	Logf("LustreSubnet : %s", f.LustreSubnet)
+	f.LustreAD = lustreAD
+	Logf("LustreAD : %s", f.LustreAD)
 
 	f.StaticSnapshotCompartmentOcid = staticSnapshotCompartmentOCID
 	Logf("Static Snapshot Compartment OCID: %s", f.StaticSnapshotCompartmentOcid)

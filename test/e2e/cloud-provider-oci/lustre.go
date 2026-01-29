@@ -40,8 +40,8 @@ var _ = Describe("Lustre E2E Tests", func() {
 			pvcJig := framework.NewPVCTestJig(f.ClientSet, "csi-lustre-e2e-test")
 
 			parameters := map[string]string{
-				"subnetId":                  setupF.PodSubnet,
-				"availabilityDomain":        setupF.AdLocation,
+				"subnetId":                  setupF.LustreSubnet,
+				"availabilityDomain":        setupF.LustreAD,
 				"performanceTier":           "MBPS_PER_TB_125",
 				"setupLnet":                 "true",
 				"lustrePostMountParameters": "[{\"*.*.*MDT*.lru_size\" : 11201}]",

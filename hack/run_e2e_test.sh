@@ -218,6 +218,8 @@ function run_e2e_tests() {
                 --enable-lustre-tests=${ENABLE_LUSTRE_TESTS} \
                 --lustre-worker-node-image=${LUSTRE_WORKER_NODE_IMAGE} \
                 --lustre-kms-key=${LUSTRE_KMS_KEY} \
+                --lustre-subnet=${LUSTRE_SUBNET} \
+                --lustre-ad=${LUSTRE_AD} \
                 --static-snapshot-compartment-id=${STATIC_SNAPSHOT_COMPARTMENT_ID} \
                 --custom-driver-handle=${CUSTOM_DRIVER_HANDLE} \
                 --create-uhp-nodepool=${CREATE_UHP_NODEPOOL} \
@@ -283,6 +285,8 @@ function run_e2e_tests() {
                 --enable-lustre-tests=${ENABLE_LUSTRE_TESTS} \
                 --lustre-worker-node-image=${LUSTRE_WORKER_NODE_IMAGE} \
                 --lustre-kms-key=${LUSTRE_KMS_KEY} \
+                --lustre-subnet=${LUSTRE_SUBNET} \
+                --lustre-ad=${LUSTRE_AD} \
                 --static-snapshot-compartment-id=${STATIC_SNAPSHOT_COMPARTMENT_ID} \
                 --custom-driver-handle=${CUSTOM_DRIVER_HANDLE} \
                 --create-uhp-nodepool=${CREATE_UHP_NODEPOOL} \
@@ -335,6 +339,8 @@ function run_e2e_tests_existing_cluster() {
                 --enable-lustre-tests=${ENABLE_LUSTRE_TESTS} \
                 --lustre-worker-node-image=${LUSTRE_WORKER_NODE_IMAGE} \
                 --lustre-kms-key=${LUSTRE_KMS_KEY} \
+                --lustre-subnet=${LUSTRE_SUBNET} \
+                --lustre-ad=${LUSTRE_AD} \
                 --static-snapshot-compartment-id=${STATIC_SNAPSHOT_COMPARTMENT_ID} \
                 --custom-driver-handle=${CUSTOM_DRIVER_HANDLE} \
                 --create-uhp-nodepool=${CREATE_UHP_NODEPOOL} \
@@ -376,6 +382,8 @@ function run_e2e_tests_existing_cluster() {
                         --enable-lustre-tests=${ENABLE_LUSTRE_TESTS} \
                         --lustre-worker-node-image=${LUSTRE_WORKER_NODE_IMAGE} \
                         --lustre-kms-key=${LUSTRE_KMS_KEY} \
+                        --lustre-subnet=${LUSTRE_SUBNET} \
+                        --lustre-ad=${LUSTRE_AD} \
                         --static-snapshot-compartment-id=${STATIC_SNAPSHOT_COMPARTMENT_ID} \
                         --custom-driver-handle=${CUSTOM_DRIVER_HANDLE} \
                         --create-uhp-nodepool=${CREATE_UHP_NODEPOOL} \
@@ -515,6 +523,13 @@ function declare_setup () {
     echo "CNI_TYPE is ${CNI_TYPE}"
     echo "POD_SUBNET is ${POD_SUBNET}"
     echo "MAX_PODS_PER_NODE is ${MAX_PODS_PER_NODE}"
+    echo "LUSTRE_VOLUME_HANDLE is ${LUSTRE_VOLUME_HANDLE}"
+    echo "LUSTRE_SUBNET_CIDR is ${LUSTRE_SUBNET_CIDR}"
+    echo "ENABLE_LUSTRE_TESTS is ${ENABLE_LUSTRE_TESTS}"
+    echo "LUSTRE_WORKER_NODE_IMAGE is ${LUSTRE_WORKER_NODE_IMAGE}"
+    echo "LUSTRE_KMS_KEY is ${LUSTRE_KMS_KEY}"
+    echo "LUSTRE_SUBNET is ${LUSTRE_SUBNET}"
+    echo "LUSTRE_AD is ${LUSTRE_AD}"
 }
 
 function set_focus () {
@@ -609,6 +624,13 @@ function declare_environment () {
     echo "CNI_TYPE is ${CNI_TYPE}"
     echo "POD_SUBNET is ${POD_SUBNET}"
     echo "MAX_PODS_PER_NODE is ${MAX_PODS_PER_NODE}"
+    echo "LUSTRE_VOLUME_HANDLE is ${LUSTRE_VOLUME_HANDLE}"
+    echo "LUSTRE_SUBNET_CIDR is ${LUSTRE_SUBNET_CIDR}"
+    echo "ENABLE_LUSTRE_TESTS is ${ENABLE_LUSTRE_TESTS}"
+    echo "LUSTRE_WORKER_NODE_IMAGE is ${LUSTRE_WORKER_NODE_IMAGE}"
+    echo "LUSTRE_KMS_KEY is ${LUSTRE_KMS_KEY}"
+    echo "LUSTRE_SUBNET is ${LUSTRE_SUBNET}"
+    echo "LUSTRE_AD is ${LUSTRE_AD}"
 
     if [[ $LOCAL_RUN != 1 ]]; then
         if [[ ! -z $TC_BUILD ]]; then
