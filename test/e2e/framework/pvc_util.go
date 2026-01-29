@@ -2054,7 +2054,7 @@ func (j *PVCTestJig) CheckDataPersistenceWithDeploymentImpl(pvcName string, ns s
 	schedulableNodeFound := false
 
 	for _, node := range nodes.Items {
-		if node.Spec.Unschedulable == false {
+		if node.Spec.Unschedulable == false && node.Spec.Taints == nil { //don't pick lustre tainted nodes
 			schedulableNodeFound = true
 			nodeSelectorLabels = node.Labels
 			break
