@@ -45,8 +45,8 @@ func (d *LustreControllerDriver) ControllerGetCapabilities(ctx context.Context, 
 }
 
 // CreateVolume implements CSI CreateVolume for Lustre.
-func (d *LustreControllerDriver) CreateVolume(ctx context.Context, req *csi.CreateVolumeRequest) (*csi.CreateVolumeResponse, error) {
-	defer MakeCSIPanicRecovery(d.logger, d.metricPusher, "LustreControllerDriver.CreateVolume", map[string]string{metrics.ResourceOCIDDimension: req.GetName()})()
+func (d *LustreControllerDriver) CreateVolume(ctx context.Context, req *csi.CreateVolumeRequest) (resp *csi.CreateVolumeResponse, err error) {
+	defer MakeCSIPanicRecoveryWithError(d.logger, d.metricPusher, "LustreControllerDriver.CreateVolume", map[string]string{metrics.ResourceOCIDDimension: req.GetName()}, &err, codes.Internal)()
 	startTime := time.Now()
 	log := d.logger.With("csiOperation", "create", "volumeName", req.GetName())
 	log.Debugf("CreateVolume request (lustre): %v", req)
@@ -263,8 +263,8 @@ func (d *LustreControllerDriver) sendCreateVolumeSuccessResponse(log *zap.Sugare
 }
 
 // DeleteVolume implements CSI DeleteVolume RPC for Lustre Driver.
-func (d *LustreControllerDriver) DeleteVolume(ctx context.Context, req *csi.DeleteVolumeRequest) (*csi.DeleteVolumeResponse, error) {
-	defer MakeCSIPanicRecovery(d.logger, d.metricPusher, "LustreControllerDriver.DeleteVolume", map[string]string{metrics.ResourceOCIDDimension: req.GetVolumeId()})()
+func (d *LustreControllerDriver) DeleteVolume(ctx context.Context, req *csi.DeleteVolumeRequest) (resp *csi.DeleteVolumeResponse, err error) {
+	defer MakeCSIPanicRecoveryWithError(d.logger, d.metricPusher, "LustreControllerDriver.DeleteVolume", map[string]string{metrics.ResourceOCIDDimension: req.GetVolumeId()}, &err, codes.Internal)()
 	startTime := time.Now()
 	log := d.logger.With("csiOperation", "delete", "volumeID", req.GetVolumeId())
 	log.Debug("Request being passed in DeleteVolume gRPC ", req)
@@ -332,8 +332,8 @@ func (d *LustreControllerDriver) DeleteVolume(ctx context.Context, req *csi.Dele
 }
 
 // ValidateVolumeCapabilities implements CSI ValidateVolumeCapabilities for Lustre.
-func (d *LustreControllerDriver) ValidateVolumeCapabilities(ctx context.Context, req *csi.ValidateVolumeCapabilitiesRequest) (*csi.ValidateVolumeCapabilitiesResponse, error) {
-	defer MakeCSIPanicRecovery(d.logger, d.metricPusher, "LustreControllerDriver.ValidateVolumeCapabilities", map[string]string{metrics.ResourceOCIDDimension: req.GetVolumeId()})()
+func (d *LustreControllerDriver) ValidateVolumeCapabilities(ctx context.Context, req *csi.ValidateVolumeCapabilitiesRequest) (resp *csi.ValidateVolumeCapabilitiesResponse, err error) {
+	defer MakeCSIPanicRecoveryWithError(d.logger, d.metricPusher, "LustreControllerDriver.ValidateVolumeCapabilities", map[string]string{metrics.ResourceOCIDDimension: req.GetVolumeId()}, &err, codes.Internal)()
 	if req.GetVolumeId() == "" {
 		return nil, status.Error(codes.InvalidArgument, "Volume ID must be provided")
 	}
