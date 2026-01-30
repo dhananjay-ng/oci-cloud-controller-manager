@@ -76,8 +76,8 @@ func (d *LustreControllerDriver) CreateVolume(ctx context.Context, req *csi.Crea
 	}
 
 	// Parse StorageClass parameters
-	log, _, sc, err, done := extractLustreStorageClassParameters(ctx, d, log, req.GetName(), req.GetParameters(), identityClient)
-	if done {
+	log, _, sc, err := extractLustreStorageClassParameters(ctx, d, log, req.GetName(), req.GetParameters(), identityClient)
+	if err != nil {
 		metricDimensions[metrics.ComponentDimension] = util.GetComponentForMetricDimension(util.ErrValidation, util.CSIStorageType)
 		metrics.SendMetricData(d.metricPusher, metrics.LustreProvision, time.Since(startTime).Seconds(), metricDimensions)
 		return nil, err

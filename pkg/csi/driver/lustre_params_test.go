@@ -16,8 +16,8 @@ import (
 // helper to call extractLustreStorageClassParameters
 func parseParams(t *testing.T, p map[string]string, identity client.IdentityInterface) (*LustreStorageClassParameters, error) {
 	d := &LustreControllerDriver{ControllerDriver: &ControllerDriver{config: &providercfg.Config{CompartmentID: "ocid1.compartment.oc1..unit-test"}}}
-	_, _, parsed, err, done := extractLustreStorageClassParameters(context.Background(), d, zap.S(), "vol-1", p, identity)
-	if done {
+	_, _, parsed, err := extractLustreStorageClassParameters(context.Background(), d, zap.S(), "vol-1", p, identity)
+	if err != nil {
 		return nil, err
 	}
 	return parsed, err
@@ -114,7 +114,7 @@ func TestLustreParams_RootSquashValidation(t *testing.T) {
 		"subnetId":           "ocid1.subnet.oc1..example",
 		"performanceTier":    "MBPS_PER_TB_125",
 		"availabilityDomain": "PHX-AD-2",
-		"rootSquashEnabled":  "true",
+		"rootSquashEnabled":  "truely",
 		"rootSquashUid":      "-1",
 	}
 	_, err := parseParams(t, p, &MockOCIIdentityClient{ads: []string{"phx:PHX-AD-2"}})
@@ -165,8 +165,8 @@ func TestLustreParams_AvailabilityDomain_ExplicitValidNormalization(t *testing.T
 		"availabilityDomain": "PHX-AD-2",
 	}
 	d := &LustreControllerDriver{ControllerDriver: &ControllerDriver{config: &providercfg.Config{CompartmentID: "ocid1.compartment.oc1..unit-test"}}}
-	_, _, parsed, err, done := extractLustreStorageClassParameters(context.Background(), d, zap.S(), "vol-xyz", p, &MockOCIIdentityClient{ads: []string{"phx:PHX-AD-2"}})
-	if done || err != nil {
+	_, _, parsed, err := extractLustreStorageClassParameters(context.Background(), d, zap.S(), "vol-xyz", p, &MockOCIIdentityClient{ads: []string{"phx:PHX-AD-2"}})
+	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if parsed.AvailabilityDomain == "PHX-AD-2" || parsed.AvailabilityDomain == "" {
@@ -233,8 +233,8 @@ func TestLustreParams_DeriveDefaultFSName(t *testing.T) {
 		"availabilityDomain": "PHX-AD-2",
 	}
 	d := &LustreControllerDriver{ControllerDriver: &ControllerDriver{config: &providercfg.Config{CompartmentID: "ocid1.compartment.oc1..unit-test"}}}
-	_, _, parsed, err, done := extractLustreStorageClassParameters(context.Background(), d, zap.S(), "vol-abc_DEF123", p, &MockOCIIdentityClient{ads: []string{"phx:PHX-AD-2"}})
-	if done || err != nil {
+	_, _, parsed, err := extractLustreStorageClassParameters(context.Background(), d, zap.S(), "vol-abc_DEF123", p, &MockOCIIdentityClient{ads: []string{"phx:PHX-AD-2"}})
+	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if parsed.FileSystemName == "" || len(parsed.FileSystemName) > 8 {

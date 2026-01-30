@@ -62,7 +62,7 @@ func extractLustreStorageClassParameters(
 	volumeName string,
 	parameters map[string]string,
 	identityClient client.IdentityInterface,
-) (*zap.SugaredLogger, *csi.CreateVolumeResponse, *LustreStorageClassParameters, error, bool) {
+) (*zap.SugaredLogger, *csi.CreateVolumeResponse, *LustreStorageClassParameters, error) {
 
 	params := &LustreStorageClassParameters{
 		CompartmentId:     d.config.CompartmentID,
@@ -70,13 +70,12 @@ func extractLustreStorageClassParameters(
 		SCTags:            &config.TagConfig{},
 	}
 
-	//Setting default PV Tags as Initial Tags. Using BV Tags as we just accept BV tags as initial tags in persistent-volume-defined/freeform-tags.
-	if d.config.Tags != nil && d.config.Tags.BlockVolume != nil {
-		if d.config.Tags.BlockVolume.FreeformTags != nil {
-			params.SCTags.FreeformTags = d.config.Tags.BlockVolume.FreeformTags
+	if d.config.Tags != nil && d.config.Tags.Lustre != nil {
+		if d.config.Tags.Lustre.FreeformTags != nil {
+			params.SCTags.FreeformTags = d.config.Tags.Lustre.FreeformTags
 		}
-		if d.config.Tags.BlockVolume.DefinedTags != nil {
-			params.SCTags.DefinedTags = d.config.Tags.BlockVolume.DefinedTags
+		if d.config.Tags.Lustre.DefinedTags != nil {
+			params.SCTags.DefinedTags = d.config.Tags.Lustre.DefinedTags
 		}
 	}
 
@@ -84,7 +83,7 @@ func extractLustreStorageClassParameters(
 	subnetId, ok := parameters["subnetId"]
 	if !ok || strings.TrimSpace(subnetId) == "" {
 		log.Errorf("Missing required parameter: subnetId")
-		return log, nil, nil, status.Errorf(codes.InvalidArgument, "Missing required parameter: subnetId"), true
+		return log, nil, nil, status.Errorf(codes.InvalidArgument, "Missing required parameter: subnetId")
 	}
 	params.SubnetId = subnetId
 	log = log.With("subnetId", subnetId)
@@ -99,7 +98,7 @@ func extractLustreStorageClassParameters(
 		var nsgs []string
 		if err := json.Unmarshal([]byte(nsgJSON), &nsgs); err != nil {
 			log.With(zap.Error(err)).Error("Failed to parse nsgIds (expect JSON array of strings)")
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Failed to parse nsgIds (expect JSON array of strings)"), true
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Failed to parse nsgIds (expect JSON array of strings)")
 		}
 		params.NSGIds = nsgs
 		log = log.With("nsgIds", nsgs)
@@ -114,13 +113,13 @@ func extractLustreStorageClassParameters(
 				"Invalid performanceTier: %s. Supported values: %s",
 				t,
 				strings.Join(lustre.GetCreateLustreFileSystemDetailsPerformanceTierEnumStringValues(), ","),
-			), true
+			)
 		} else {
 			// Normalize to canonical enum string (e.g., MBPS_PER_TB_125)
 			params.PerformanceTier = string(tierEnum)
 		}
 	} else {
-		return log, nil, nil, status.Errorf(codes.InvalidArgument, "Missing required parameter: performanceTier"), true
+		return log, nil, nil, status.Errorf(codes.InvalidArgument, "Missing required parameter: performanceTier")
 	}
 	log = log.With("performanceTier", params.PerformanceTier)
 
@@ -131,7 +130,13 @@ func extractLustreStorageClassParameters(
 
 	// root squash (optional)
 	if rsEnabled, ok := parameters["rootSquashEnabled"]; ok && strings.TrimSpace(rsEnabled) != "" {
-		params.RootSquashEnabled = strings.EqualFold(strings.TrimSpace(rsEnabled), "true")
+		rsEnabledTrim := strings.TrimSpace(rsEnabled)
+		rsEnabledLower := strings.ToLower(rsEnabledTrim)
+
+		if rsEnabledLower != "true" && rsEnabledLower != "false" {
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid rootSquashEnabled: %s. Allowed values: true or false", rsEnabled)
+		}
+		params.RootSquashEnabled = strings.EqualFold(rsEnabledLower, "true")
 		log = log.With("rootSquashEnabled", params.RootSquashEnabled)
 	}
 	if rsUid, ok := parameters["rootSquashUid"]; ok && strings.TrimSpace(rsUid) != "" {
@@ -139,7 +144,7 @@ func extractLustreStorageClassParameters(
 			params.RootSquashUid = uid
 			params.RootSquashUidSpecified = true
 		} else {
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid rootSquashUid: %s", rsUid), true
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid rootSquashUid: %s", rsUid)
 		}
 	}
 	if rsGid, ok := parameters["rootSquashGid"]; ok && strings.TrimSpace(rsGid) != "" {
@@ -147,17 +152,17 @@ func extractLustreStorageClassParameters(
 			params.RootSquashGid = gid
 			params.RootSquashGidSpecified = true
 		} else {
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid rootSquashGid: %s", rsGid), true
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid rootSquashGid: %s", rsGid)
 		}
 	}
 	if rsEx, ok := parameters["rootSquashClientExceptions"]; ok && strings.TrimSpace(rsEx) != "" {
 		var exceptions []string
 		if err := json.Unmarshal([]byte(rsEx), &exceptions); err != nil {
 			log.With(zap.Error(err)).Error("Failed to parse rootSquashClientExceptions (expect JSON array of strings)")
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Failed to parse rootSquashClientExceptions (expect JSON array of strings)"), true
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Failed to parse rootSquashClientExceptions (expect JSON array of strings)")
 		}
 		if len(exceptions) > 10 {
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "rootSquashClientExceptions supports max 10 entries"), true
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "rootSquashClientExceptions supports max 10 entries")
 		}
 		params.RootSquashClientExceptions = exceptions
 	}
@@ -167,7 +172,7 @@ func extractLustreStorageClassParameters(
 		setupLnet := strings.TrimSpace(v)
 		setupLnetLower := strings.ToLower(setupLnet)
 		if setupLnetLower != "true" && setupLnetLower != "false" {
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid setupLnet: %s. Allowed values: true or false", v), true
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid setupLnet: %s. Allowed values: true or false", v)
 		}
 		params.SetupLnet = setupLnetLower
 	}
@@ -175,7 +180,7 @@ func extractLustreStorageClassParameters(
 		cidr := strings.TrimSpace(v)
 		if cidr != "" {
 			if _, _, err := net.ParseCIDR(cidr); err != nil {
-				return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid lustreSubnetCidr: %s", cidr), true
+				return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid lustreSubnetCidr: %s", cidr)
 			}
 			params.LustreSubnetCidr = cidr
 		}
@@ -185,7 +190,7 @@ func extractLustreStorageClassParameters(
 		if lustrePostMountParameters != "" {
 			if err := csi_util.ValidateLustreParameters(log, lustrePostMountParameters); err != nil {
 				log.With(zap.Error(err)).Error("Invalid lustrePostMountParameters")
-				return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid lustrePostMountParameters: %v", err), true
+				return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid lustrePostMountParameters: %v", err)
 			}
 			params.LustrePostMountParameters = lustrePostMountParameters
 		}
@@ -195,7 +200,7 @@ func extractLustreStorageClassParameters(
 	if fsn, ok := parameters["fileSystemName"]; ok && strings.TrimSpace(fsn) != "" {
 		fileSystemName := strings.TrimSpace(fsn)
 		if err := validateLustreFileSystemName(fileSystemName); err != nil {
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid fileSystemName: %v", err), true
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid fileSystemName: %v", err)
 		}
 		params.FileSystemName = fileSystemName
 	} else {
@@ -207,7 +212,7 @@ func extractLustreStorageClassParameters(
 		freeform := make(map[string]string)
 		if err := json.Unmarshal([]byte(freeformStr), &freeform); err != nil {
 			log.With(zap.Error(err)).Errorf("failed to parse freeform tags provided for storageclass, freeformStr : %v", freeformStr)
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "failed to parse freeform tags provided for storageclass"), true
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "failed to parse freeform tags provided for storageclass")
 		}
 		params.SCTags.FreeformTags = freeform
 	}
@@ -215,7 +220,7 @@ func extractLustreStorageClassParameters(
 		defined := make(map[string]map[string]interface{})
 		if err := json.Unmarshal([]byte(definedStr), &defined); err != nil {
 			log.With(zap.Error(err)).Errorf("failed to parse defined tags provided for storageclass, definedStr : %v", definedStr)
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "failed to parse defined tags provided for storageclass"), true
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "failed to parse defined tags provided for storageclass")
 		}
 		params.SCTags.DefinedTags = defined
 	}
@@ -226,7 +231,7 @@ func extractLustreStorageClassParameters(
 		adTrim := strings.TrimSpace(ad)
 		if full, err := identityClient.GetAvailabilityDomainByName(ctx, params.CompartmentId, adTrim); err != nil {
 			log.With(zap.Error(err)).Errorf("Invalid availabilityDomain: %s (from storage class) for compartment: %s", adTrim, params.CompartmentId)
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid availabilityDomain: %s for compartment %s, error: %v", adTrim, params.CompartmentId, err), true
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Invalid availabilityDomain: %s for compartment %s, error: %v", adTrim, params.CompartmentId, err)
 		} else {
 			params.AvailabilityDomain = *full.Name
 		}
@@ -234,11 +239,11 @@ func extractLustreStorageClassParameters(
 		log.Info("AD is provided in storage class.")
 	} else {
 		log.Errorf("Missing required parameter: availabilityDomain")
-		return log, nil, nil, status.Errorf(codes.InvalidArgument, "Missing required parameter: availabilityDomain"), true
+		return log, nil, nil, status.Errorf(codes.InvalidArgument, "Missing required parameter: availabilityDomain")
 	}
 
 	log.Info("Successfully parsed Lustre storage class parameters")
-	return log, nil, params, nil, false
+	return log, nil, params, nil
 }
 
 // validateLustreFileSystemName enforces max 8 chars and allowed charset [A-Za-z0-9_]
