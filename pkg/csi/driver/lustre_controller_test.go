@@ -877,6 +877,9 @@ func TestHelper_extractLustreFilesystemId(t *testing.T) {
 	if got := extractLustreFilesystemId("bad-id"); got != "" {
 		t.Fatalf("expected empty for malformed, got %q", got)
 	}
+	if got := extractLustreFilesystemId("ocid1.lustrefilesystem.oc1.phx.id10.0.0.10@tcp/fs"); got != "" {
+		t.Fatalf("expected empty for malformed, got %q", got)
+	}
 }
 
 func TestHelper_buildLustreVolumeHandle(t *testing.T) {

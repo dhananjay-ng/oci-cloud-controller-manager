@@ -457,5 +457,9 @@ func extractLustreFilesystemId(volumeID string) string {
 	if volumeID == "" || !strings.HasPrefix(volumeID, "ocid") {
 		return ""
 	}
-	return volumeID[:strings.Index(volumeID, ":")]
+	idx := strings.Index(volumeID, ":")
+	if idx == -1 {
+		return ""
+	}
+	return volumeID[:idx]
 }

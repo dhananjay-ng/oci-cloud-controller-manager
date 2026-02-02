@@ -98,7 +98,7 @@ func extractLustreStorageClassParameters(
 		var nsgs []string
 		if err := json.Unmarshal([]byte(nsgJSON), &nsgs); err != nil {
 			log.With(zap.Error(err)).Error("Failed to parse nsgIds (expect JSON array of strings)")
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Failed to parse nsgIds (expect JSON array of strings)")
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Failed to parse nsgIds (expect JSON array of strings) : %s", err.Error())
 		}
 		params.NSGIds = nsgs
 		log = log.With("nsgIds", nsgs)
@@ -159,7 +159,7 @@ func extractLustreStorageClassParameters(
 		var exceptions []string
 		if err := json.Unmarshal([]byte(rsEx), &exceptions); err != nil {
 			log.With(zap.Error(err)).Error("Failed to parse rootSquashClientExceptions (expect JSON array of strings)")
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Failed to parse rootSquashClientExceptions (expect JSON array of strings)")
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "Failed to parse rootSquashClientExceptions (expect JSON array of strings) : %s", err.Error())
 		}
 		if len(exceptions) > 10 {
 			return log, nil, nil, status.Errorf(codes.InvalidArgument, "rootSquashClientExceptions supports max 10 entries")
@@ -212,7 +212,7 @@ func extractLustreStorageClassParameters(
 		freeform := make(map[string]string)
 		if err := json.Unmarshal([]byte(freeformStr), &freeform); err != nil {
 			log.With(zap.Error(err)).Errorf("failed to parse freeform tags provided for storageclass, freeformStr : %v", freeformStr)
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "failed to parse freeform tags provided for storageclass")
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "failed to parse freeform tags provided for storageclass : %s", err.Error())
 		}
 		params.SCTags.FreeformTags = freeform
 	}
@@ -220,7 +220,7 @@ func extractLustreStorageClassParameters(
 		defined := make(map[string]map[string]interface{})
 		if err := json.Unmarshal([]byte(definedStr), &defined); err != nil {
 			log.With(zap.Error(err)).Errorf("failed to parse defined tags provided for storageclass, definedStr : %v", definedStr)
-			return log, nil, nil, status.Errorf(codes.InvalidArgument, "failed to parse defined tags provided for storageclass")
+			return log, nil, nil, status.Errorf(codes.InvalidArgument, "failed to parse defined tags provided for storageclass : %s", err.Error())
 		}
 		params.SCTags.DefinedTags = defined
 	}
