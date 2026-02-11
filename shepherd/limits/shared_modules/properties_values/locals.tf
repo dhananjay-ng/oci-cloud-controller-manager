@@ -287,6 +287,17 @@ locals {
           }
         ]
       },
+      "lustre-csi-controller-driver-enabled" = {
+        /* hilbert tenancy - Temple*/
+        overrides = [
+          {
+            regions      = ["aga"]
+            env          = "prd"
+            value        = "false"
+            tenancy_ocid = "ocid1.tenancy.oc1..aaaaaaaad6ghxkqwame6d4ioz2ejmrhksjxb7pif3fpp3r44fweejt2jvptq"
+          }
+        ]
+      },
       "oci-service-controller-enabled" = {
         overrides = [
           {

@@ -1,6 +1,6 @@
 locals {
   // Update the pop version corresponding to the pop build for app release
-  pop_version = "b8c8be732fc_208"
+  pop_version = "a4a221a256a_212"
 
   // Update the ccm image sha value here for updating CCM versions for respective k8s versions across all realms
   ccm_default_mapping = {
@@ -16,10 +16,10 @@ locals {
         "v1.29" : "v1.29-393f7c992a6-112@sha256:cfc0512abe6e31a1e6020e45ebd7e79f89dc8f7bf5edc2655757762d5c662886",
         "v1.30" : "v1.30-8b278ca71ec-126@sha256:b52c65b13a3185413ddae10b0bb797d07b887ea893f6975e721962fcd6ddd3ed",
         "v1.31" : "v1.31-fe64ed05c1e-106@sha256:7b9ab84d2041d9f44022c49bc314348c4d30ff9c8c3a0544624a83113126ad2c",
-        "v1.32" : "v1.32-8567820c2b2-7061@sha256:294c15051daea44308c17674f40434eb81dc9c7b6e0ff3af1505a2be39a5caf0",
-        "v1.33" : "v1.33-227c27250c9-7060@sha256:f4288aaa8d38737a4c91e83f3ad35f8e517158bf8e5a395a640026f3f581f2a8",
-        "v1.34" : "v1.34-219abcce797-7062@sha256:dbdfe17351eadbea3e9a8d9daf5cf55c6341217b2a16c9654cb2c0c9cc66a506",
-        "v1.35" : "v1.34-219abcce797-7062@sha256:dbdfe17351eadbea3e9a8d9daf5cf55c6341217b2a16c9654cb2c0c9cc66a506"
+        "v1.32": "v1.32-2900f005dfc-89@sha256:e51184fad8a9fbd76ea1822b4a39e9af1c2bda4f12b2a4f1d24f617c8afe8e4e",
+        "v1.33": "v1.33-cb45871c215-59@sha256:f862ceccae104679949b6729d7d664435ac115327627c39520b73d63eb3ebb7f",
+        "v1.34": "v1.34-4218f75593b-34@sha256:0cf1f22c21bcd5fda40024d3c4b8603af77f45612e6127192b241536939f95d7",
+        "v1.35": "v1.34-4218f75593b-34@sha256:0cf1f22c21bcd5fda40024d3c4b8603af77f45612e6127192b241536939f95d7",
       }
     }
   }
@@ -37,10 +37,10 @@ locals {
         "v1.29" : "v1.29-0f63a5020b8-110@sha256:466c7d32860ef68c4c98feba232409bf1580c732ee23fd3294ce59e2653bd125",
         "v1.30" : "v1.30-9696a00641f-5952@sha256:ef50fb8445e15b6e816bc68d6261f07e10e66b758da2923df023dbe4bd82da47",
         "v1.31" : "v1.31-4e30e28b828-80-csi@sha256:bf55f642531ebcb3e8ec09c3adeb9507552733df58e9fc6b7692bc241d5df2ad",
-        "v1.32" : "v1.32-d77e1d97f78-81-csi@sha256:6f35697d778ee875dbf576b0c72f88998858a2640948fa0321d6530744847c1d",
-        "v1.33" : "v1.33-478ab2a155e-51-csi@sha256:4f9c81ac59b3574fd8a30dd7c7d24db2e12e56ec6b640ca59271cafa89adcdc3",
-        "v1.34" : "v1.34-7867d724f0c-27-csi@sha256:b973cf81afca6295efd091dbdce56c6e6601d85e8a59029affb2fa2a882dde6a",
-        "v1.35" : "v1.34-7867d724f0c-27-csi@sha256:b973cf81afca6295efd091dbdce56c6e6601d85e8a59029affb2fa2a882dde6a"
+        "v1.32" : "v1.32-cdb98690a4c-88-csi@sha256:09e5e53cac2c153c47fac13016c8bff5453a59b4fd0febf78f149340df3d0a63",
+        "v1.33" : "v1.33-fd3150dc2e1-58-csi@sha256:12e563da0eba8c4c6b3464b56d664de9c2a045291ec65b491382cc165e3b5c7b",
+        "v1.34" : "v1.34-8913e88fdef-33-csi@sha256:1fbf5f93975972f8d11bbdf4337965fbe0c1bff5c177c2e2a732567ef32f75f9",
+        "v1.35" : "v1.34-8913e88fdef-33-csi@sha256:1fbf5f93975972f8d11bbdf4337965fbe0c1bff5c177c2e2a732567ef32f75f9"
       }
     }
   }
@@ -131,6 +131,19 @@ locals {
         "all": "true"
       }
     }
+
+    lustre-csi-controller-driver-enabled = {
+      "default" = {
+        "all": "true"
+      }
+    }
+
+    lustre-csi-provisioner-worker-threads = {
+      "default" = {
+        "all": "15"
+      }
+    }
+
 
     // CCM related mappings
     ccm_image_version_mapping = {

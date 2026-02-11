@@ -99,10 +99,11 @@ else
   jq -r '.images[] | keys[]' "$JSON_FILE" | sort -u > "$expected_repos"
 
   while read -r repo_name; do
-    repo_tags=$(fetch_repository_tags "$repo_name")
+    repo_tags=$(fetch_repository_tags "$repo_name" | sort -u || true)
     repo_tags_map["$repo_name"]="$repo_tags"
 
     repo_tags="${repo_tags_map[$repo_name]}"
+
     expected_tags=$(jq -r --arg repo "$repo_name" '.images[][$repo] // empty' "$JSON_FILE")
 
     IFS=$'\n'
