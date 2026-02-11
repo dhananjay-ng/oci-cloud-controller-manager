@@ -1,33 +1,6 @@
 {
   "images": [
     {
-      "oke-public-cloud-provider-oci": "v1.29-0f63a5020b8-110"
-    },
-    {
-      "oke-public-cloud-provider-oci": "v1.31-d02f08265e8-67"
-    },
-    {
-      "oke-public-cloud-provider-oci": "v1.32-bf20a443646-33"
-    },
-    {
-      "oke-public-cloud-provider-oci": "v1.30-9696a00641f-5952"
-    },
-    {
-      "oke-public-cloud-provider-oci": "v1.31-4e30e28b828-80-csi"
-    },
-    {
-      "oke-public-cloud-provider-oci": "v1.29-393f7c992a6-112"
-    },
-    {
-      "oke-public-cloud-provider-oci": "v1.30-8b278ca71ec-126"
-    },
-    {
-      "oke-public-cloud-provider-oci": "v1.31-fe64ed05c1e-106"
-    },
-    {
-      "oke-public-cloud-provider-oci": "v1.31-36db5994afd-108"
-    },
-    {
       "oke-public-cloud-provider-oci": "v1.32-47bab04fed8-86"
     },
     {
