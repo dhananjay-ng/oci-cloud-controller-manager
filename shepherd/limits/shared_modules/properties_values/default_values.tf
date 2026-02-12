@@ -291,22 +291,12 @@ locals {
         ))
       }
 
-      // pinned mappings in oc42 and oc43
+      // pinned mappings in oc43
       // hotfix applied for https://jira-sd.mc1.oracleiaas.com/browse/OKENP-36322
-      "prd.oc42" = {
-        "all" : jsonencode(merge(local.ccm_default_mapping.default.all,
-          {
-            "default" : "oke-multiarch-1.23-526d1e6-171@sha256:85235e1fa24c41e5fb158346e3339fc680dcdce791735bfca25c7755a479e4c8",
-            "v1.28" : "v1.28-1e0d94c92c4-7014@sha256:207326e2c16343a14b457cd6ef1777bb47a9caf0aee810b45dd5c6963d81db1b",
-            "v1.29" : "v1.29-0e75cc621e3-7019@sha256:3f8b9516f581eeeaafefcc2fbc448e09f44c1e7ad502761dc8334fadc167c809",
-          }
-        ))
-      }
       "prd.oc43" = {
         "all" : jsonencode(merge(local.ccm_default_mapping.default.all,
           {
             "default" : "oke-multiarch-1.23-526d1e6-171@sha256:85235e1fa24c41e5fb158346e3339fc680dcdce791735bfca25c7755a479e4c8",
-            "v1.28" : "v1.28-1e0d94c92c4-7014@sha256:207326e2c16343a14b457cd6ef1777bb47a9caf0aee810b45dd5c6963d81db1b",
             "v1.29" : "v1.29-0e75cc621e3-7019@sha256:3f8b9516f581eeeaafefcc2fbc448e09f44c1e7ad502761dc8334fadc167c809",
           }
         ))
