@@ -1,6 +1,6 @@
 locals {
   // Update the pop version corresponding to the pop build for app release
-  pop_version = "e2aae535691_204"
+  pop_version = "e9ddc67ede4_199"
 
   // Update the ccm image sha value here for updating CCM versions for respective k8s versions across all realms
   ccm_default_mapping = {
@@ -16,9 +16,10 @@ locals {
         "v1.29" : "v1.29-393f7c992a6-112@sha256:cfc0512abe6e31a1e6020e45ebd7e79f89dc8f7bf5edc2655757762d5c662886",
         "v1.30" : "v1.30-8b278ca71ec-126@sha256:b52c65b13a3185413ddae10b0bb797d07b887ea893f6975e721962fcd6ddd3ed",
         "v1.31" : "v1.31-fe64ed05c1e-106@sha256:7b9ab84d2041d9f44022c49bc314348c4d30ff9c8c3a0544624a83113126ad2c",
-        "v1.32" : "v1.32-9f9fe45efd5-80@sha256:89886358bc6e69215d60a2b95688a624ed6f334b29b971f622966eff1cf924a8",
-        "v1.33" : "v1.33-34b14227b4c-50@sha256:4dbd94e6c1c763366de17598a1ee010c326d1881bb937a47b3cc75ee8a876bcc",
-        "v1.34" : "v1.34-851b1264fdc-25@sha256:2e3f9f1348afd5b3058e300b92e7e0daaea608cdb8d1621b3aa1db7e949817fe"
+        "v1.32" : "v1.32-8567820c2b2-7061@sha256:294c15051daea44308c17674f40434eb81dc9c7b6e0ff3af1505a2be39a5caf0",
+        "v1.33" : "v1.33-227c27250c9-7060@sha256:f4288aaa8d38737a4c91e83f3ad35f8e517158bf8e5a395a640026f3f581f2a8",
+        "v1.34" : "v1.34-219abcce797-7062@sha256:dbdfe17351eadbea3e9a8d9daf5cf55c6341217b2a16c9654cb2c0c9cc66a506",
+        "v1.35" : "v1.34-56769a515a4-14@sha256:d0b10ed378ea025615a6a5835db4a61bc31df1ef20ff2fce8a207839cb99bd85"
       }
     }
   }
