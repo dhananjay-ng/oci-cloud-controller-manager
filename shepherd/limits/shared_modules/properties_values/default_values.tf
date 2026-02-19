@@ -1,6 +1,6 @@
 locals {
   // Update the pop version corresponding to the pop build for app release
-  pop_version = "d0cf7f0b528_179"
+  pop_version = "4e7ade1a729_175"
 
   // Update the ccm image sha value here for updating CCM versions for respective k8s versions across all realms
   ccm_default_mapping = {
@@ -18,8 +18,7 @@ locals {
         "v1.31" : "v1.31-fe64ed05c1e-106@sha256:7b9ab84d2041d9f44022c49bc314348c4d30ff9c8c3a0544624a83113126ad2c",
         "v1.32" : "v1.32-9f9fe45efd5-80@sha256:89886358bc6e69215d60a2b95688a624ed6f334b29b971f622966eff1cf924a8",
         "v1.33" : "v1.33-34b14227b4c-50@sha256:4dbd94e6c1c763366de17598a1ee010c326d1881bb937a47b3cc75ee8a876bcc",
-        "v1.34" : "v1.34-851b1264fdc-25@sha256:2e3f9f1348afd5b3058e300b92e7e0daaea608cdb8d1621b3aa1db7e949817fe",
-        "v1.35" : "v1.34-851b1264fdc-25@sha256:2e3f9f1348afd5b3058e300b92e7e0daaea608cdb8d1621b3aa1db7e949817fe"
+        "v1.34" : "v1.34-851b1264fdc-25@sha256:2e3f9f1348afd5b3058e300b92e7e0daaea608cdb8d1621b3aa1db7e949817fe"
       }
     }
   }
@@ -37,10 +36,9 @@ locals {
         "v1.29" : "v1.29-0f63a5020b8-110@sha256:466c7d32860ef68c4c98feba232409bf1580c732ee23fd3294ce59e2653bd125",
         "v1.30" : "v1.30-9696a00641f-5952@sha256:ef50fb8445e15b6e816bc68d6261f07e10e66b758da2923df023dbe4bd82da47",
         "v1.31" : "v1.31-4e30e28b828-80-csi@sha256:bf55f642531ebcb3e8ec09c3adeb9507552733df58e9fc6b7692bc241d5df2ad",
-        "v1.32" : "v1.32-d77e1d97f78-81-csi@sha256:6f35697d778ee875dbf576b0c72f88998858a2640948fa0321d6530744847c1d",
-        "v1.33" : "v1.33-478ab2a155e-51-csi@sha256:4f9c81ac59b3574fd8a30dd7c7d24db2e12e56ec6b640ca59271cafa89adcdc3",
-        "v1.34" : "v1.34-7867d724f0c-27-csi@sha256:b973cf81afca6295efd091dbdce56c6e6601d85e8a59029affb2fa2a882dde6a",
-        "v1.35" : "v1.34-7867d724f0c-27-csi@sha256:b973cf81afca6295efd091dbdce56c6e6601d85e8a59029affb2fa2a882dde6a"
+        "v1.32" : "v1.32-2c5fcd2e853-46-csi@sha256:fb9e892af78589a74bf8a85fa47af4de66cb97a5fbe33846a5e4380f97c024ec",
+        "v1.33" : "v1.33-87690329d0a-20-csi@sha256:5c7e230d58e1b6faed400bbe3744a3608fca42f33c2c4b5e281abc7df5489a0f",
+        "v1.34" : "v1.34-8f0fbf7e71e-9-csi@sha256:2eca76b52bc3198f86b839c199f67476100bc614e401dec25ac0a2310f609c28"
       }
     }
   }
