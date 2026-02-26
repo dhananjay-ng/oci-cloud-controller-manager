@@ -19,6 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	clientset "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/record"
+	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -87,7 +88,7 @@ type NodeAutoRepairReconciler struct {
 
 // Cool-down window after a repair finishes. During this window, new repairs are throttled.
 var (
-    repairCoolDown = getEnvDuration("NODE_AUTOREPAIR_COOLDOWN", 60*time.Minute)
+	repairCoolDown = getEnvDuration("NODE_AUTOREPAIR_COOLDOWN", 60*time.Minute)
 )
 
 // SetupWithManager sets up the controller with the Manager.
@@ -140,7 +141,7 @@ func (r *NodeAutoRepairReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 
 	repairEnabled := true
 	if !repairEnabled {
-		return r.handleUnhealthyNode(ctx, logger, node, unhealthyConditions)
+		return r.handleUnhealthyNode(ctx, logger, node.DeepCopy(), unhealthyConditions)
 	}
 
 	isLeader, err := r.isLeader(ctx, logger)
@@ -153,7 +154,23 @@ func (r *NodeAutoRepairReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		return ctrl.Result{RequeueAfter: getRequeueDuration(logger, node)}, nil
 	}
 
-	return r.handleUnhealthyNode(ctx, logger, node, unhealthyConditions)
+	return r.handleUnhealthyNode(ctx, logger, node.DeepCopy(), unhealthyConditions)
+}
+
+// currentTerminalRepairState inspects the node's NAR state annotation and reports
+// whether it is in a terminal state (Succeeded/Failed). It returns the current
+// state string and a boolean indicating terminality.
+func currentTerminalRepairState(node *v1.Node) (string, bool) {
+    if node == nil || node.Annotations == nil {
+        return "", false
+    }
+    state := node.Annotations[narStateAnnotationKey]
+    switch state {
+    case string(stateSucceeded), string(stateFailed):
+        return state, true
+    default:
+        return state, false
+    }
 }
 
 // findUnhealthyConditions checks if a node has any conditions that warrant repair.
@@ -171,27 +188,25 @@ func findUnhealthyConditions(node *v1.Node) []*v1.NodeCondition {
 
 // handleUnhealthyNode performs all actions when a node is found to be unhealthy.
 func (r *NodeAutoRepairReconciler) handleUnhealthyNode(ctx context.Context, logger logr.Logger, node *v1.Node, conditions []*v1.NodeCondition) (ctrl.Result, error) {
-	patch := client.MergeFrom(node.DeepCopy())
-	var needsPatch bool
-
-    // Throttle if the node has been repaired recently (cool-down window)
-    if node.Annotations != nil {
-        if ts, ok := node.Annotations[narLastRepairEndAnnotation]; ok && ts != "" {
-            if endTime, err := time.Parse(time.RFC3339, ts); err == nil {
-                until := endTime.Add(repairCoolDown)
-                now := time.Now()
-                if now.Before(until) {
-                    remaining := time.Until(until)
-                    // Emit event and log, then skip repair attempts during cool-down
-                    if r.Recorder != nil {
-                        r.Recorder.Event(node, v1.EventTypeNormal, eventRepairThrottled, fmt.Sprintf("[Node Auto Repair]: Throttled due to recent repair; wait %s before next attempt", remaining.Truncate(time.Second)))
-                    }
-                    logger.Info("CCM: Throttling node auto repair due to cool-down window", "node", node.Name, "remaining", remaining)
-                    return ctrl.Result{RequeueAfter: remaining}, nil
-                }
-            }
-        }
-    }
+	// Throttle if the node has been repaired recently (cool-down window)
+	node = node.DeepCopy()
+	if node.Annotations != nil {
+		if ts, ok := node.Annotations[narLastRepairEndAnnotation]; ok && ts != "" {
+			if endTime, err := time.Parse(time.RFC3339, ts); err == nil {
+				until := endTime.Add(repairCoolDown)
+				now := time.Now()
+				if now.Before(until) {
+					remaining := time.Until(until)
+					// Emit event and log, then skip repair attempts during cool-down
+					if r.Recorder != nil {
+						r.Recorder.Event(node, v1.EventTypeNormal, eventRepairThrottled, fmt.Sprintf("[Node Auto Repair]: Throttled due to recent repair; wait %s before next attempt", remaining.Truncate(time.Second)))
+					}
+					logger.Info("CCM: Throttling node auto repair due to cool-down window", "node", node.Name, "remaining", remaining)
+					return ctrl.Result{RequeueAfter: remaining}, nil
+				}
+			}
+		}
+	}
 
 	repairEnabled := true
 	if repairEnabled {
@@ -219,47 +234,15 @@ func (r *NodeAutoRepairReconciler) handleUnhealthyNode(ctx context.Context, logg
 		logger.Info("CCM: acquired repair lease", "node", node.Name)
 	}
 
-	if node.Labels == nil {
-		node.Labels = make(map[string]string)
-	}
-
-	// Step 1: Add repair label and taint, aggregating all conditions.
-	// Use a string builder to create a single aggregated label message.
-	problemTypes := []string{}
-	problemReasons := []string{}
+	problemTypes := make([]string, 0, len(conditions))
 	for _, cond := range conditions {
 		problemTypes = append(problemTypes, string(cond.Type))
-		problemReasons = append(problemReasons, string(cond.Type))
 	}
-	aggregatedLabelValue := strings.Join(problemReasons, ",")
+	aggregatedLabelValue := strings.Join(problemTypes, ",")
 
-	// Action 1: Add a single, aggregated repair label if it doesn't exist or is different.
-	if oldLabelValue, ok := node.Labels[repairProblemDetectedLabel]; !ok || oldLabelValue != aggregatedLabelValue {
-		node.Labels[repairProblemDetectedLabel] = aggregatedLabelValue
-		needsPatch = true
-	}
-
-	// Action 2: Add repair taint if it doesn't exist.
-	taintFound := false
-	for _, taint := range node.Spec.Taints {
-		if taint.Key == REPAIR_TAINT_KEY && taint.Effect == REPAIR_TAINT_EFFECT {
-			taintFound = true
-			break
-		}
-	}
-	if !taintFound {
-		repairTaint := CreateRepairTaint()
-		node.Spec.Taints = append(node.Spec.Taints, repairTaint)
-		// logger.Info("CCM: Adding taint to unhealthy node", "node", node.Name, "taint", REPAIR_TAINT.Key)
-		needsPatch = true
-	}
-
-	// Action 3: Apply a single patch for both label and taint to be efficient.
-	if needsPatch {
-		if err := r.Client.Patch(ctx, node, patch); err != nil {
-			logger.Error(err, "CCM: Failed to patch node with repair label/taint")
-			return ctrl.Result{}, err
-		}
+	if err := r.ensureRepairMarkers(ctx, node, aggregatedLabelValue); err != nil {
+		logger.Error(err, "CCM: Failed to patch node with repair label/taint")
+		return ctrl.Result{}, err
 	}
 
 	// Action 4: Trigger the repair action (terminate).
@@ -286,6 +269,38 @@ func (r *NodeAutoRepairReconciler) handleUnhealthyNode(ctx context.Context, logg
 
 	repairSM := newNodeRepairStateMachine(r, node, logger)
 	return repairSM.Run(ctx)
+}
+
+func (r *NodeAutoRepairReconciler) ensureRepairMarkers(ctx context.Context, node *v1.Node, labelValue string) error {
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		latest := &v1.Node{}
+		if err := r.Client.Get(ctx, client.ObjectKey{Name: node.Name}, latest); err != nil {
+			return err
+		}
+		updated := latest.DeepCopy()
+		if updated.Labels == nil {
+			updated.Labels = make(map[string]string)
+		}
+		if updated.Labels[repairProblemDetectedLabel] != labelValue {
+			updated.Labels[repairProblemDetectedLabel] = labelValue
+		}
+		ta := CreateRepairTaint()
+		repairTaintExists := false
+		for _, taint := range updated.Spec.Taints {
+			if taint.Key == REPAIR_TAINT_KEY && taint.Effect == REPAIR_TAINT_EFFECT {
+				repairTaintExists = true
+				break
+			}
+		}
+		if !repairTaintExists {
+			updated.Spec.Taints = append(updated.Spec.Taints, ta)
+		}
+		if err := r.Client.Patch(ctx, updated, client.MergeFrom(latest)); err != nil {
+			return err
+		}
+		*node = *updated
+		return nil
+	})
 }
 
 func (r *NodeAutoRepairReconciler) ensureControllerID(logger logr.Logger) error {
@@ -321,6 +336,47 @@ func (r *NodeAutoRepairReconciler) isLeader(ctx context.Context, logger logr.Log
 func (r *NodeAutoRepairReconciler) cleanupRepairArtifacts(ctx context.Context, logger logr.Logger, node *v1.Node) (ctrl.Result, error) {
 	patch := client.MergeFrom(node.DeepCopy())
 	var needsPatch bool
+
+    // Determine if the node bears NAR markers (taints/annotations) so that we can
+    // safely auto-uncordon only when NAR had previously acted on this node.
+    hasNARTaint := false
+    if len(node.Spec.Taints) > 0 {
+        for _, t := range node.Spec.Taints {
+            if t.Key == REPAIR_TAINT_KEY && t.Effect == REPAIR_TAINT_EFFECT {
+                hasNARTaint = true
+                break
+            }
+        }
+    }
+    hasNARAnnotation := false
+    if node.Annotations != nil {
+        // Any working-state NAR annotations
+        for _, k := range repairAnnotationKeys {
+            if _, ok := node.Annotations[k]; ok {
+                hasNARAnnotation = true
+                break
+            }
+        }
+        // Or terminal summary annotations
+        if !hasNARAnnotation {
+            if _, ok := node.Annotations[narLastRepairEndAnnotation]; ok {
+                hasNARAnnotation = true
+            }
+        }
+        if !hasNARAnnotation {
+            if _, ok := node.Annotations[narLastRepairResultAnnotation]; ok {
+                hasNARAnnotation = true
+            }
+        }
+    }
+
+    // If the node is healthy (we're in cleanup), and it still remains cordoned, auto-uncordon
+    // but only if there are NAR markers indicating the cordon likely originated from NAR.
+    if (hasNARTaint || hasNARAnnotation) && node.Spec.Unschedulable {
+        logger.Info("Node is healthy; auto-uncordon due to previous NAR markers", "node", node.Name)
+        node.Spec.Unschedulable = false
+        needsPatch = true
+    }
 
 	// 1. Clean up repair labels.
 	for key := range node.Labels {

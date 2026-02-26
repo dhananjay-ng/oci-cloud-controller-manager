@@ -256,7 +256,6 @@ require (
 	oracle.com/oci/httpsigner v0.0.0-20190320175442-e8cb27ebf440 // indirect
 	oracle.com/oci/ociauthz v0.0.0-20200515161105-5b1e37d2dc95 // indirect
 	oracle.com/oci/tagging v0.0.0-20190321202046-20a2e48911da // indirect
-	oracle.com/oke/oci-go-common v1.0.4-0.20200706161333-eb59f40527dd // indirect
 	oras.land/oras-go/v2 v2.5.0 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.31.2 // indirect
 	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect

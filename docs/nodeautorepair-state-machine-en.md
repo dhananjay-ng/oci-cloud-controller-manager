@@ -34,7 +34,7 @@ Every state write should update `last-transition` and `attempts`.
 ## Idempotency and Retry
 - All operations must be idempotent: repeated cordon/uncordon/drain calls should not cause inconsistent state.
 - Default retry policy: max 3 attempts with exponential backoff (base=10s). retry should ideally not block the controller loop
-- Per-state timeouts: Cordoning 30s, Draining 10m, Rebooting 5m, Uncordoning 30s .
+- Per-state timeouts: Cordoning 30s, Draining 15m, Rebooting 15m, Uncordoning 30s .
 
 ## Safety Constraints
 - Before Draining, respect PodDisruptionBudgets (PDB). If PDB blocks eviction, wait and retry. Respect PDB for a maximum of 10 mins and force repair after the wait
@@ -52,6 +52,8 @@ only one controller is activelly doing node auto repair
 - Drain: prefer reusing `k8s.io/kubectl/pkg/drain`'s `drain.Helper` to correctly handle PDBs, DaemonSets, and local PVs. If not possible, implement eviction via the Eviction subresource and wait for pods to terminate while respecting PDB. Respect PDB for a maximum of 10 mins and force repair after the wait
 - Reboot: reuse existing OCI client in `pkg/oci` to call instance reboot APIs; After reboot, we will check if instance is up and running using polling, if instance is not up and running, we wait for instanceRunningPollInterval, default to 10s until instance is running again, if after 10 mins instance is not running, we move to failed step
 - Annotation updates should use optimistic concurrency and retry on resourceVersion conflicts.
+- If the node is healthy again, it should be uncordoned
+- If the repair failed, we should remove the annotations so that the node can be picked up by next repair. We should only keep the annotaions for repair attempted
 
 ## Observability and Alerts
 - Emit Kubernetes Events for state transitions and failures.

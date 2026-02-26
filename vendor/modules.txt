@@ -3,8 +3,6 @@
 bitbucket.oci.oraclecorp.com/oke/bmc-go-sdk
 # bitbucket.oci.oraclecorp.com/oke/oke-common v1.0.1-0.20220429183118-f0129d710185
 ## explicit; go 1.12
-bitbucket.oci.oraclecorp.com/oke/oke-common/instanceuserdata
-bitbucket.oci.oraclecorp.com/oke/oke-common/ociclient
 bitbucket.oci.oraclecorp.com/oke/oke-common/protobuf
 bitbucket.oci.oraclecorp.com/oke/oke-common/resourceprincipals
 bitbucket.oci.oraclecorp.com/oke/oke-common/types
@@ -498,12 +496,10 @@ github.com/oracle/oci-go-sdk/v65/containerengine
 github.com/oracle/oci-go-sdk/v65/core
 github.com/oracle/oci-go-sdk/v65/filestorage
 github.com/oracle/oci-go-sdk/v65/identity
-github.com/oracle/oci-go-sdk/v65/keymanagement
 github.com/oracle/oci-go-sdk/v65/loadbalancer
 github.com/oracle/oci-go-sdk/v65/lustrefilestorage
 github.com/oracle/oci-go-sdk/v65/monitoring
 github.com/oracle/oci-go-sdk/v65/networkloadbalancer
-github.com/oracle/oci-go-sdk/v65/objectstorage
 # github.com/pelletier/go-toml v1.9.5
 ## explicit; go 1.12
 github.com/pelletier/go-toml
@@ -1954,9 +1950,6 @@ oracle.com/oci/ociauthz
 ## explicit
 oracle.com/oci/tagging
 oracle.com/oci/tagging/protobuf
-# oracle.com/oke/oci-go-common v1.0.4-0.20200706161333-eb59f40527dd => bitbucket.oci.oraclecorp.com/oke/oci-go-common v1.0.4-0.20200706161333-eb59f40527dd
-## explicit
-oracle.com/oke/oci-go-common/ocid
 # oras.land/oras-go/v2 v2.5.0
 ## explicit; go 1.21
 oras.land/oras-go/v2
@@ -2007,6 +2000,8 @@ sigs.k8s.io/controller-runtime/pkg/certwatcher/metrics
 sigs.k8s.io/controller-runtime/pkg/client
 sigs.k8s.io/controller-runtime/pkg/client/apiutil
 sigs.k8s.io/controller-runtime/pkg/client/config
+sigs.k8s.io/controller-runtime/pkg/client/fake
+sigs.k8s.io/controller-runtime/pkg/client/interceptor
 sigs.k8s.io/controller-runtime/pkg/cluster
 sigs.k8s.io/controller-runtime/pkg/config
 sigs.k8s.io/controller-runtime/pkg/controller
@@ -2022,11 +2017,13 @@ sigs.k8s.io/controller-runtime/pkg/internal/field/selector
 sigs.k8s.io/controller-runtime/pkg/internal/httpserver
 sigs.k8s.io/controller-runtime/pkg/internal/log
 sigs.k8s.io/controller-runtime/pkg/internal/metrics
+sigs.k8s.io/controller-runtime/pkg/internal/objectutil
 sigs.k8s.io/controller-runtime/pkg/internal/recorder
 sigs.k8s.io/controller-runtime/pkg/internal/source
 sigs.k8s.io/controller-runtime/pkg/internal/syncs
 sigs.k8s.io/controller-runtime/pkg/leaderelection
 sigs.k8s.io/controller-runtime/pkg/log
+sigs.k8s.io/controller-runtime/pkg/log/zap
 sigs.k8s.io/controller-runtime/pkg/manager
 sigs.k8s.io/controller-runtime/pkg/manager/signals
 sigs.k8s.io/controller-runtime/pkg/metrics

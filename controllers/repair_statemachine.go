@@ -31,9 +31,9 @@ const (
 	narAttemptsAnnotationKey      = "oci.oraclecloud.com/nodeautorepair-attempts"
 	narRebootIssuedAnnotationKey  = "oci.oraclecloud.com/nodeautorepair-reboot-issued"
 	narStateMetadataAnnotationKey = "oci.oraclecloud.com/nodeautorepair-state-meta"
-    // Terminal repair summary annotations (preserved across cleanups)
-    narLastRepairEndAnnotation    = "oci.oraclecloud.com/nodeautorepair-last-repair-end"
-    narLastRepairResultAnnotation = "oci.oraclecloud.com/nodeautorepair-last-result"
+	// Terminal repair summary annotations (preserved across cleanups)
+	narLastRepairEndAnnotation    = "oci.oraclecloud.com/nodeautorepair-last-repair-end"
+	narLastRepairResultAnnotation = "oci.oraclecloud.com/nodeautorepair-last-result"
 	metricRepairTotal             = "nodeautorepair_repair_total"
 	metricRepairFailures          = "nodeautorepair_repair_failures_total"
 	metricRepairDuration          = "nodeautorepair_repair_duration_seconds"
@@ -42,7 +42,7 @@ const (
 	eventRepairDraining           = "NodeRepairDraining"
 	eventRepairRebooting          = "NodeRepairRebooting"
 	eventRepairUncordoned         = "NodeRepairUncordoned"
-    eventRepairThrottled          = "NodeRepairThrottled"
+	eventRepairThrottled          = "NodeRepairThrottled"
 	eventRepairSucceeded          = "NodeRepairSucceeded"
 	eventRepairFailed             = "NodeRepairFailed"
 )
@@ -76,12 +76,12 @@ var (
 			retryBase:      defaultRetryBase,
 		},
 		stateDraining: {
-			timeout:        getEnvDuration("NODE_AUTOREPAIR_TIMEOUT_DRAINING", 10*time.Minute),
+			timeout:        getEnvDuration("NODE_AUTOREPAIR_TIMEOUT_DRAINING", 15*time.Minute),
 			successRequeue: 10 * time.Second,
 			retryBase:      defaultRetryBase,
 		},
 		stateRebooting: {
-			timeout:        getEnvDuration("NODE_AUTOREPAIR_TIMEOUT_REBOOTING", 10*time.Minute),
+			timeout:        getEnvDuration("NODE_AUTOREPAIR_TIMEOUT_REBOOTING", 15*time.Minute),
 			successRequeue: 30 * time.Second,
 			retryBase:      defaultRetryBase,
 		},
@@ -376,7 +376,7 @@ func (sm *nodeRepairStateMachine) handleCordoning(ctx context.Context) (ctrl.Res
 	}
 	if err := sm.cordonNode(ctx); err != nil {
 		sm.l().Error(err, "Cordoning node failed", "attempt", attempt)
-        sm.emitWarningEvent(eventRepairCordoned, fmt.Sprintf("Cordoning failed (attempt %d): %v", attempt, err))
+		sm.emitWarningEvent(eventRepairCordoned, fmt.Sprintf("Cordoning failed (attempt %d): %v", attempt, err))
 		return ctrl.Result{RequeueAfter: sm.retryDelay(stateCordoning, attempt)}, nil
 	}
 	sm.emitEvent(eventRepairCordoned, "Node cordoned; moving to Draining")
@@ -479,7 +479,7 @@ func (sm *nodeRepairStateMachine) handleUncordoning(ctx context.Context) (ctrl.R
 	}
 	if err := sm.uncordonNode(ctx); err != nil {
 		sm.l().Error(err, "Uncordoning node failed", "attempt", attempt)
-        sm.emitWarningEvent(eventRepairUncordoned, fmt.Sprintf("Uncordoning failed (attempt %d): %v", attempt, err))
+		sm.emitWarningEvent(eventRepairUncordoned, fmt.Sprintf("Uncordoning failed (attempt %d): %v", attempt, err))
 		return ctrl.Result{RequeueAfter: sm.retryDelay(stateUncordon, attempt)}, nil
 	}
 	sm.emitEvent(eventRepairUncordoned, "Node uncordoned; marking repair succeeded")
@@ -497,10 +497,10 @@ func (sm *nodeRepairStateMachine) handleUncordoning(ctx context.Context) (ctrl.R
 	if err := sm.reconciler.stopLeaseHeartbeat(ctx, sm.node.Name); err != nil {
 		sm.l().Error(err, "Failed to stop lease heartbeat after Succeeded")
 	}
-    // Finalize: record last repair end/result and prune transient annotations
-    if err := sm.finalizeRepair(ctx, "succeeded"); err != nil {
-        sm.l().Error(err, "Failed to finalize repair annotations after success")
-    }
+	// Finalize: record last repair end/result and prune transient annotations
+	if err := sm.finalizeRepair(ctx, "succeeded"); err != nil {
+		sm.l().Error(err, "Failed to finalize repair annotations after success")
+	}
 	return ctrl.Result{}, nil
 }
 
@@ -620,8 +620,8 @@ func (sm *nodeRepairStateMachine) failState(ctx context.Context, state repairSta
 	sm.l().Error(reason, "Repair state failed", "state", state)
 	sm.emitWarningEvent(eventRepairFailed, fmt.Sprintf("State %s failed: %v", state, reason))
 	sm.recordMetric(metricRepairFailures, 1)
-    // Record duration spent in the failing state before transitioning to Failed
-    sm.recordStateDuration(sm.currentState())
+	// Record duration spent in the failing state before transitioning to Failed
+	sm.recordStateDuration(sm.currentState())
 	if err := sm.setState(ctx, stateFailed); err != nil {
 		return ctrl.Result{}, err
 	}
@@ -629,10 +629,10 @@ func (sm *nodeRepairStateMachine) failState(ctx context.Context, state repairSta
 	if err := sm.reconciler.stopLeaseHeartbeat(ctx, sm.node.Name); err != nil {
 		sm.l().Error(err, "Failed to stop lease heartbeat after Failed")
 	}
-    // Finalize: record last repair end/result and prune transient annotations
-    if err := sm.finalizeRepair(ctx, "failed"); err != nil {
-        sm.l().Error(err, "Failed to finalize repair annotations after failure")
-    }
+	// Finalize: record last repair end/result and prune transient annotations
+	if err := sm.finalizeRepair(ctx, "failed"); err != nil {
+		sm.l().Error(err, "Failed to finalize repair annotations after failure")
+	}
 	return ctrl.Result{}, nil
 }
 
@@ -876,18 +876,18 @@ func nodeAnnotationsToPrune(node *v1.Node) []string {
 
 // finalizeRepair records the terminal timestamp/result and prunes transient repair annotations.
 func (sm *nodeRepairStateMachine) finalizeRepair(ctx context.Context, result string) error {
-    now := time.Now().UTC().Format(time.RFC3339)
-    return sm.updateAnnotations(ctx, func(ann map[string]string) {
-        // Record terminal metadata
-        ann[narLastRepairEndAnnotation] = now
-        if result != "" {
-            ann[narLastRepairResultAnnotation] = result
-        }
-        // Prune transient annotations
-        for _, k := range repairAnnotationKeys {
-            delete(ann, k)
-        }
-    })
+	now := time.Now().UTC().Format(time.RFC3339)
+	return sm.updateAnnotations(ctx, func(ann map[string]string) {
+		// Record terminal metadata
+		ann[narLastRepairEndAnnotation] = now
+		if result != "" {
+			ann[narLastRepairResultAnnotation] = result
+		}
+		// Prune transient annotations
+		for _, k := range repairAnnotationKeys {
+			delete(ann, k)
+		}
+	})
 }
 
 func getEnvInt(key string, def int) int {
