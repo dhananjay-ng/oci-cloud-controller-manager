@@ -63,17 +63,6 @@ type TypedBucketRateLimiter[T comparable] struct {
 	*rate.Limiter
 }
 
-// TaggingControllerRateLimiter enforces at most one retry every ten minutes for tagging controller work queues.
-func TaggingControllerRateLimiter() RateLimiter {
-	tenMinuteDelay := 10 * time.Minute
-	return NewMaxOfRateLimiter(
-		// Ensure each retry is at least 10 minutes apart regardless of failures
-		NewItemExponentialFailureRateLimiter(tenMinuteDelay, tenMinuteDelay),
-		// Limit overall processing to one operation per 10 minutes
-		&BucketRateLimiter{Limiter: rate.NewLimiter(rate.Every(tenMinuteDelay), 1)},
-	)
-}
-
 var _ RateLimiter = &BucketRateLimiter{}
 
 func (r *TypedBucketRateLimiter[T]) When(item T) time.Duration {
