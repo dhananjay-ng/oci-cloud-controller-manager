@@ -58,6 +58,8 @@ spec:
             - --volume-name-prefix=csi-lustre
             - --feature-gates=Topology=true
             - --timeout=720s
+            - --worker-threads=15
+            - --default-fstype=lustre
             - --leader-election
             - --leader-election-namespace=kube-system
           volumeMounts:

@@ -58,6 +58,8 @@ spec:
             - --volume-name-prefix=csi-lustre
             - --feature-gates=Topology=true
             - --timeout=720s
+            - --worker-threads=15
+            - --default-fstype=lustre
             - --leader-election
             - --leader-election-namespace=kube-system
           volumeMounts:
@@ -109,6 +111,7 @@ spec:
           args:
             - --endpoint=unix://var/run/shared-tmpfs/csi.sock
             - --fss-csi-endpoint=unix://var/run/shared-tmpfs/csi-fss.sock
+            - --lustre-csi-endpoint=unix://var/run/shared-tmpfs/csi-lustre.sock
           command:
             - /usr/local/bin/oci-csi-controller-driver
           image: ghcr.io/dhananjay-ng/cloud-provider-oci:v1.33.1-test8
