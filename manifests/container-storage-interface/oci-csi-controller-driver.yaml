@@ -117,7 +117,7 @@ spec:
           env:
             - name: LUSTRE_CSI_CONTROLLER_DRIVER_ENABLED
               value: "true"
-          image: ghcr.io/oracle/cloud-provider-oci:v1.32.1
+          image: ghcr.io/dhananjay-ng/cloud-provider-oci-amd64:v1.33.2-test
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: config
